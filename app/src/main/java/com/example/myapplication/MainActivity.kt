@@ -92,7 +92,7 @@ class MainActivity : ComponentActivity() {
         )
 
         setContent {
-            FigmaMotionApp()
+            AppNavigation()
         }
     }
 }

@@ -124,7 +124,9 @@ private const val TEXT_SHADOW_OFFSET_Y = 2
 
 // ─── Main composable ──────────────────────────────────────────────────────────
 @Composable
-fun FigmaMotionApp() {
+fun FigmaMotionApp(
+    onAddComplete: () -> Unit = {}   // ← add this
+) {
     var current by remember { mutableStateOf(Screen.Loading3) }
 
     val bubbleReveal  = remember { Animatable(0f) }
@@ -168,6 +170,9 @@ fun FigmaMotionApp() {
                     GreenTheme {
                         PersonFormContent(
                             mode   = PersonFormMode.ADD,
+                            onAdd  = { _, _, _, _, _, _, _, _ ->
+                                onAddComplete()           // ← fires when Add button clicked
+                            },
                             onBack = {
                                 // reverse the slide — animate slideUp back to 0
                                 scope.launch {

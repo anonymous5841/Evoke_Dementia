@@ -11,6 +11,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.myapplication.ui.theme.GreenTheme
 import com.example.myapplication.ui.AddLocationContent
+import com.example.myapplication.ui.FigmaMotionApp
 import com.example.myapplication.ui.PersonFormContent
 import com.example.myapplication.ui.PersonFormMode
 import com.example.myapplication.ui.LocationSearchContent
@@ -32,7 +33,7 @@ fun AppNavigation() {
     }
 
     // ← add this — routes where nav bar is completely hidden
-    val showNavBar = currentDestination != "addperson"
+    val showNavBar = currentDestination != "addperson" && currentDestination != "splash"
 
     GreenTheme {
         @Suppress("UnusedMaterial3ScaffoldPaddingParameter")
@@ -58,9 +59,19 @@ fun AppNavigation() {
         ) { _ ->
             NavHost(
                 navController    = navController,
-                startDestination = "addlocation",
+                startDestination = "splash",
                 modifier         = Modifier
             ) {
+                composable("splash") {
+                    FigmaMotionApp(
+                        onAddComplete = {
+                            navController.navigate("addlocation") {
+                                launchSingleTop = true
+                                popUpTo("splash") { inclusive = true }  // ← removes splash from back stack
+                            }
+                        }
+                    )
+                }
                 composable("addlocation") {
                     AddLocationContent(
                         onAddClick = { navController.navigate("notrecognised") }  // ← add this
@@ -72,12 +83,19 @@ fun AppNavigation() {
                 composable("profile") {
                     PersonFormContent(mode = PersonFormMode.EDIT)
                 }
+
                 composable("home") {
                     LocationSearchContent()
                 }
                 // ← add this route for ADD mode (no nav bar)
                 composable("addperson") {
-                    PersonFormContent(mode = PersonFormMode.ADD)
+                    PersonFormContent(mode    = PersonFormMode.ADD,
+                        onAdd   = { _, _, _, _, _, _, _, _ ->
+                            navController.navigate("addlocation") {
+                                launchSingleTop = true
+                            }
+                        }
+                    )
                 }
             }
         }

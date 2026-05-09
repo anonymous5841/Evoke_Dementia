@@ -655,7 +655,7 @@ fun PersonFormContent(
 
                     }
                 }
-                Spacer(modifier = Modifier.height(60.dp))
+                Spacer(modifier = Modifier.height(if (mode == PersonFormMode.ADD) 10.dp else 60.dp))
 
             }
             // Header title changes based on mode
