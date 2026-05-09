@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="452dp"
+    android:height="307dp"
+    android:viewportWidth="452"
+    android:viewportHeight="307">
+
+    <!-- Plain solid shape only — no highlights, no borders, just the silhouette -->
+    <path
+        android:fillColor="#000001"
+        android:pathData="M0 0H452V197.851H100C55.8172 197.851 0 162.034 0 117.851V0Z" />
+
+    <path
+        android:fillColor="#000000"
+        android:pathData="M452 273C452 228.817 416.183 193 372 193H452V273Z" />
+
+</vector>

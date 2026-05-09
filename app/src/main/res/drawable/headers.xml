@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="452dp"
+    android:height="307dp"
+    android:viewportWidth="452"
+    android:viewportHeight="307">
+
+    <!-- Main header block extended to fill left, right, and top edges -->
+    <path
+        android:fillColor="#3E634F"
+        android:pathData="M0 0H452V197.851H100C55.8172 197.851 0 162.034 0 117.851V0Z" />
+
+    <!-- Bottom-right corner quarter-circle fill extended to right edge -->
+    <path
+        android:fillColor="#3E634F"
+        android:pathData="M452 273C452 228.817 416.183 193 372 193H452V273Z" />
+
+    <!-- Inner shadow / border left curve (dark overlay) -->
+    <path
+        android:fillColor="#10000000"
+        android:pathData="M0 107C1.0116 150.323 56.4394 185.139 100 185.139H285.671V191.466H100C55.8173 191.466 0 155.648 0 111.466V107ZM290 191.466H289.868V184.844H290V191.466Z" />
+
+    <!-- Inner shadow right curve - center 372, radius ref 416.183 (+20 each) -->
+    <path
+        android:fillColor="#10000000"
+        android:pathData="M451.978 269.466C450.988 226.143 415.561 191.327 372 191.327H285.389V185H372C416.183 185 452 220.817 452 265V269.466H451.978ZM283 185H283.073V191.622H283V185Z" />
+
+    <!-- Highlight border left curve -->
+    <path
+        android:fillColor="#95A79D"
+        android:pathData="M0 114C1.0116 157.323 56.4394 192.139 100 192.139H285.671V198.466H100C55.8173 198.466 0 162.648 0 118.466V114ZM290 198.466H289.868V191.844H290V198.466Z" />
+
+    <!-- Highlight right curve - center 372, radius ref 416.183 (+20 each) -->
+    <path
+        android:fillColor="#95A79D"
+        android:pathData="M451.978 276.466C450.988 233.143 415.561 198.327 372 198.327H285.389V192H372C416.183 192 452 227.817 452 272V276.466H451.978ZM283 192H283.073V198.622H283V192Z" />
+
+</vector>
+
