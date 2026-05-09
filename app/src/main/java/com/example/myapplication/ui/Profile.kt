@@ -19,6 +19,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -30,6 +31,7 @@ import com.example.myapplication.ui.components.FieldLabel
 import com.example.myapplication.ui.components.HeaderSection
 import com.example.myapplication.ui.components.ShadowButton
 import com.example.myapplication.ui.components.ShadowButtonFull
+import com.example.myapplication.ui.theme.OutfitFont
 
 // ── Mode enum ─────────────────────────────────────────────────────────────────
 enum class PersonFormMode { ADD, EDIT }
@@ -128,7 +130,7 @@ fun PersonFormContent(
                 ) {
 
                     // ── Name * ────────────────────────────────────────────────────
-                    FieldLabel("Name *")
+                    FieldLabel("Name *",18.sp,OutfitFont, FontWeight.Medium)
                     Spacer(modifier = Modifier.height(8.dp))
                     val nameInteractionSource = remember { MutableInteractionSource() }
                     Box(
@@ -149,7 +151,8 @@ fun PersonFormContent(
                                 Text(
                                     "Enter full name",
                                     color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    fontSize = 18.sp
+                                    fontSize = 18.sp,
+                                    fontFamily = OutfitFont
                                 )
                             },
                             leadingIcon = {
@@ -185,7 +188,7 @@ fun PersonFormContent(
                     Spacer(modifier = Modifier.height(39.dp))
 
                     // ── Phone Number * ────────────────────────────────────────────
-                    FieldLabel("Phone Number *")
+                    FieldLabel("Phone Number *", 18.sp,OutfitFont, FontWeight.Medium)
                     Spacer(modifier = Modifier.height(8.dp))
                     val phoneInteractionSource = remember { MutableInteractionSource() }
                     Box(
@@ -206,7 +209,8 @@ fun PersonFormContent(
                                 Text(
                                     "Enter phone number",
                                     color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    fontSize = 18.sp
+                                    fontSize = 18.sp,
+                                    fontFamily = OutfitFont
                                 )
                             },
                             leadingIcon = {
@@ -242,7 +246,7 @@ fun PersonFormContent(
                     Spacer(modifier = Modifier.height(39.dp))
 
                     // ── Emergency Contact * ───────────────────────────────────────
-                    FieldLabel("Emergency Contact *")
+                    FieldLabel("Emergency Contact *", 18.sp,OutfitFont, FontWeight.Medium)
                     Spacer(modifier = Modifier.height(8.dp))
                     val ec1InteractionSource = remember { MutableInteractionSource() }
                     Box(
@@ -263,7 +267,8 @@ fun PersonFormContent(
                                 Text(
                                     "Enter emergency contact",
                                     color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    fontSize = 18.sp
+                                    fontSize = 18.sp,
+                                    fontFamily = OutfitFont
                                 )
                             },
                             leadingIcon = {
@@ -299,7 +304,7 @@ fun PersonFormContent(
                     Spacer(modifier = Modifier.height(39.dp))
 
                     // ── Emergency Contact 2 ───────────────────────────────────────
-                    FieldLabel("Emergency Contact 2")
+                    FieldLabel("Emergency Contact 2", 18.sp,OutfitFont, FontWeight.Medium)
                     Spacer(modifier = Modifier.height(8.dp))
                     val ec2InteractionSource = remember { MutableInteractionSource() }
                     Box(
@@ -320,7 +325,8 @@ fun PersonFormContent(
                                 Text(
                                     "Enter emergency contact 2",
                                     color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    fontSize = 18.sp
+                                    fontSize = 18.sp,
+                                    fontFamily = OutfitFont
                                 )
                             },
                             leadingIcon = {
@@ -356,7 +362,7 @@ fun PersonFormContent(
                     Spacer(modifier = Modifier.height(39.dp))
 
                     // ── Emergency Contact 3 ───────────────────────────────────────
-                    FieldLabel("Emergency Contact 3")
+                    FieldLabel("Emergency Contact 3", 18.sp,OutfitFont, FontWeight.Medium)
                     Spacer(modifier = Modifier.height(8.dp))
                     val ec3InteractionSource = remember { MutableInteractionSource() }
                     Box(
@@ -377,7 +383,8 @@ fun PersonFormContent(
                                 Text(
                                     "Enter emergency contact 3",
                                     color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    fontSize = 18.sp
+                                    fontSize = 18.sp,
+                                    fontFamily = OutfitFont
                                 )
                             },
                             leadingIcon = {
@@ -413,7 +420,7 @@ fun PersonFormContent(
                     Spacer(modifier = Modifier.height(39.dp))
 
                     // ── Emergency Contact 4 ───────────────────────────────────────
-                    FieldLabel("Emergency Contact 4")
+                    FieldLabel("Emergency Contact 4", 18.sp,OutfitFont, FontWeight.Medium)
                     Spacer(modifier = Modifier.height(8.dp))
                     val ec4InteractionSource = remember { MutableInteractionSource() }
                     Box(
@@ -434,7 +441,8 @@ fun PersonFormContent(
                                 Text(
                                     "Enter emergency contact 4",
                                     color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    fontSize = 18.sp
+                                    fontSize = 18.sp,
+                                    fontFamily = OutfitFont
                                 )
                             },
                             leadingIcon = {
@@ -470,7 +478,7 @@ fun PersonFormContent(
                     Spacer(modifier = Modifier.height(39.dp))
 
                     // ── Emergency Contact 5 ───────────────────────────────────────
-                    FieldLabel("Emergency Contact 5")
+                    FieldLabel("Emergency Contact 5", 18.sp,OutfitFont, FontWeight.Medium)
                     Spacer(modifier = Modifier.height(8.dp))
                     val ec5InteractionSource = remember { MutableInteractionSource() }
                     Box(
@@ -491,7 +499,8 @@ fun PersonFormContent(
                                 Text(
                                     "Enter emergency contact 5",
                                     color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    fontSize = 18.sp
+                                    fontSize = 18.sp,
+                                    fontFamily = OutfitFont
                                 )
                             },
                             leadingIcon = {
@@ -533,9 +542,9 @@ fun PersonFormContent(
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         // Left: label + address field
-                        Column(modifier = Modifier.weight(1f).padding(top = 26.dp)) {
-                            FieldLabel("Location *")
-                            Spacer(modifier = Modifier.height(8.dp))
+                        Column(modifier = Modifier.weight(1f).padding(top = 16.dp)) {
+                            FieldLabel("Location *",20.sp,OutfitFont, FontWeight.Medium)
+                            Spacer(modifier = Modifier.height(12.dp))
                             Box(
                                 modifier = Modifier
                                     .fillMaxWidth()
@@ -562,6 +571,7 @@ fun PersonFormContent(
                                     Text(
                                         text = selectedAddress.ifEmpty { "Get current location" },
                                         fontSize = 16.sp,
+                                        fontFamily = OutfitFont,
                                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                                         maxLines = 1,
                                         overflow = TextOverflow.Ellipsis,
@@ -588,7 +598,7 @@ fun PersonFormContent(
 
                         // Right: label + microphone button
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            FieldLabel("Add Person's\nvoice sample *", 17.sp)
+                            FieldLabel("Add Person's\nvoice sample *", 17.sp,OutfitFont, FontWeight.Medium)
                             Spacer(modifier = Modifier.height(8.dp))
                             ShadowButton(
                                 width = 72.dp,
@@ -627,8 +637,9 @@ fun PersonFormContent(
                             Text(
                                 text = "Add",
                                 color = MaterialTheme.colorScheme.onPrimary,
-                                fontSize = 22.sp,
-                                fontWeight = FontWeight.SemiBold
+                                fontSize = 27.sp,
+                                fontWeight = FontWeight.Medium,
+                                fontFamily = OutfitFont
                             )
                         }
                     } else {
@@ -648,8 +659,9 @@ fun PersonFormContent(
                             Text(
                                 text = "Save Changes",
                                 color = MaterialTheme.colorScheme.onPrimary,
-                                fontSize = 22.sp,
-                                fontWeight = FontWeight.SemiBold
+                                fontSize = 26.sp,
+                                fontWeight = FontWeight.Medium,
+                                fontFamily = OutfitFont
                             )
                         }
 
@@ -661,8 +673,9 @@ fun PersonFormContent(
             // Header title changes based on mode
             HeaderSection(
                 title = if (mode == PersonFormMode.ADD) "Let us know you" else "Profile",
-                spacing = if (mode == PersonFormMode.ADD) 72.dp else 80.dp,
-                textSize = if (mode == PersonFormMode.ADD) 34.sp else 39.sp,
+                spacing = if (mode == PersonFormMode.ADD) 72.dp else 77.dp,
+                textSize = if (mode == PersonFormMode.ADD) 39.sp else 44.sp,
+                bottomspace = if (mode == PersonFormMode.ADD) 37.dp else 28.dp,
                 leaves = 9.dp,
                 headerHeight = 218.dp,
                 onBack = onBack

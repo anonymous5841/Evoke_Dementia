@@ -17,6 +17,9 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.*
 import com.example.myapplication.R
+import com.example.myapplication.ui.theme.BaumansFont
+import com.example.myapplication.ui.theme.OutfitFont
+import com.example.myapplication.ui.theme.PompiereFont
 
 // ── Header shadow paths (from header_shadow.xml, viewport 452×307) ───────────
 // Main body: M0 0 H452 V197.851 H100 C55.8172,197.851 0,162.034 0,117.851 V0 Z
@@ -63,8 +66,9 @@ fun HeaderSection(
     title          : String            = "Location",
     secondaryTitle : String?           = null,
     headerHeight   : Dp                = 260.dp,
-    textSize       : TextUnit          = 39.sp,
+    textSize       : TextUnit          = 40.sp,
     spacing        : Dp                = 91.dp,
+    bottomspace    : Dp                = 37.dp,
     leaves         : Dp                = (-9).dp,
     onBack         : (() -> Unit)?     = null,
     centerButton   : String?           = null,
@@ -145,7 +149,7 @@ fun HeaderSection(
             if (centerButton != null) {
                 // ── Center button mode: no back, no title ─────────────────
                 Box(
-                    modifier         = Modifier.fillMaxWidth(0.8f) .align(Alignment.Center).padding(bottom = 75.dp),
+                    modifier         = Modifier.fillMaxWidth(0.8f) .align(Alignment.Center).padding(bottom = 80.dp),
                     contentAlignment = Alignment.BottomCenter
 
 
@@ -159,8 +163,9 @@ fun HeaderSection(
                         Text(
                             text       = centerButton,
                             color      = Color.Black,  // swapped: green text
-                            fontSize   = 26.sp,
-                            fontWeight = FontWeight.SemiBold
+                            fontSize   = 29.sp,            // changed from 26.sp
+                            fontWeight = FontWeight.Medium, // changed from SemiBold
+                            fontFamily = OutfitFont
                         )
                     }
                 }
@@ -184,13 +189,14 @@ fun HeaderSection(
                     Text(
                         text     = "Back",
                         color    = MaterialTheme.colorScheme.secondary,
-                        fontSize = 30.sp,
+                        fontSize = 30.sp,          // changed from 30.sp
+                        fontFamily = PompiereFont
                     )
                 }
 
                 val titleModifier = Modifier
                     .align(Alignment.CenterStart)
-                    .padding(start = spacing, bottom = 27.dp)
+                    .padding(start = spacing, bottom = bottomspace)
 
                 if (secondaryTitle != null) {
                     Row(
@@ -235,6 +241,7 @@ private fun ShadowedText(
             color      = color,
             fontSize   = fontSize,
             fontWeight = FontWeight.Bold,
+            fontFamily = BaumansFont,
             modifier   = Modifier
                 .offset(y = 6.dp)
                 .graphicsLayer {
@@ -251,7 +258,8 @@ private fun ShadowedText(
             text       = text,
             color      = color,
             fontSize   = fontSize,
-            fontWeight = FontWeight.Bold
+            fontWeight = FontWeight.Bold,
+            fontFamily = BaumansFont
         )
     }
 }

@@ -54,6 +54,8 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 import com.example.myapplication.R
+import com.example.myapplication.ui.theme.BaumansFont
+import com.example.myapplication.ui.theme.PompiereFont
 
 private enum class Screen { Loading3, Loading4 }
 
@@ -229,7 +231,8 @@ fun FigmaMotionApp(
                             Text(
                                 "Evoke",
                                 color = Color.White,
-                                style = TextStyle(fontSize = 50.sp),
+                                style = TextStyle(fontSize = 60.sp),
+                                fontFamily = BaumansFont,
                                 modifier = Modifier
                                     .align(Alignment.TopCenter)
                                     .offset(
@@ -250,7 +253,8 @@ fun FigmaMotionApp(
                             Text(
                                 "Evoke",
                                 color = Color(0xFF3E634F),
-                                style = TextStyle(fontSize = 50.sp),
+                                style = TextStyle(fontSize = 60.sp),
+                                fontFamily = BaumansFont,
                                 modifier = Modifier
                                     .align(Alignment.TopCenter)
                                     .offset(x = ((1f - contentReveal.value) * -220f).dp, y = headingTop)
@@ -260,7 +264,8 @@ fun FigmaMotionApp(
                             Text(
                                 "helps you remember",
                                 color = Color(0xFFFFCD38),
-                                style = TextStyle(fontSize = 28.sp),
+                                style = TextStyle(fontSize = 37.sp),
+                                fontFamily =  PompiereFont,
                                 modifier = Modifier
                                     .align(Alignment.TopCenter)
                                     .offset(x = ((1f - contentReveal.value) * -260f).dp, y = subheadingTop)
@@ -402,7 +407,8 @@ private fun BottomLanguageBlockWithShadow(
                     Text(
                         titleText,
                         color = Color.White,
-                        style = TextStyle(fontSize = 42.sp),
+                        style = TextStyle(fontSize = 48.sp),
+                        fontFamily = BaumansFont,
                         modifier = Modifier
                             .align(Alignment.TopStart)
                             .offset(y = 6.dp)
@@ -419,7 +425,8 @@ private fun BottomLanguageBlockWithShadow(
                     Text(
                         titleText,
                         color = Color.White,
-                        style = TextStyle(fontSize = 42.sp),
+                        style = TextStyle(fontSize = 48.sp),
+                        fontFamily = BaumansFont,
                         modifier = Modifier.align(Alignment.TopStart)
                     )
                 }
@@ -448,31 +455,33 @@ private fun BottomLanguageBlockWithShadow(
                         modifier = Modifier
                             .fillMaxSize()
                             .padding(horizontal = 8.dp),
-                        horizontalArrangement = Arrangement.SpaceBetween,
+                        horizontalArrangement = Arrangement.spacedBy(30.dp, Alignment.CenterHorizontally),
                         verticalAlignment     = Alignment.CenterVertically,
                     ) {
                         Box(
                             modifier = Modifier
-                                .size(width = 150.dp, height = 50.dp)
+                                .size(width = 120.dp, height = 50.dp)
                                 .clickable { selectedLanguage.value = "English" },
                             contentAlignment = Alignment.Center,
                         ) {
                             Text(
                                 "English",
                                 color = if (selectedLanguage.value == "English") Color(0xFFFFCD38) else Color(0xFF3E634F),
-                                style = TextStyle(fontSize = 24.sp),
+                                style = TextStyle(fontSize = 28.sp),
+                                fontFamily = BaumansFont
                             )
                         }
                         Box(
                             modifier = Modifier
-                                .size(width = 150.dp, height = 50.dp)
+                                .size(width = 120.dp, height = 50.dp)
                                 .clickable { selectedLanguage.value = "Urdu" },
                             contentAlignment = Alignment.Center,
                         ) {
                             Text(
                                 "Urdu",
                                 color = if (selectedLanguage.value == "Urdu") Color(0xFFFFCD38) else Color(0xFF3E634F),
-                                style = TextStyle(fontSize = 24.sp),
+                                style = TextStyle(fontSize = 28.sp),
+                                fontFamily = BaumansFont
                             )
                         }
                     }
@@ -490,7 +499,8 @@ private fun BottomLanguageBlockWithShadow(
                     Text(
                         "Continue...",
                         color = Color(0xFFFFCD38),
-                        style = TextStyle(fontSize = 28.sp),
+                        style = TextStyle(fontSize = 30.sp),
+                        fontFamily = PompiereFont
                     )
                     Icon(
                         painter            = painterResource(id = R.drawable.forward_icon),

@@ -37,6 +37,8 @@ import com.example.myapplication.ui.components.FieldLabel
 import com.example.myapplication.ui.components.HeaderSection
 import com.example.myapplication.ui.components.ShadowButton
 import com.example.myapplication.ui.components.ShadowButtonFull
+import com.example.myapplication.ui.theme.BaumansFont
+import com.example.myapplication.ui.theme.OutfitFont
 
 class NotRecognisedScreen : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -83,7 +85,7 @@ fun NotRecognisedContent(
 
                 ) {
 
-                FieldLabel("Register", 30.sp)
+                FieldLabel("Register", 32.sp, BaumansFont, FontWeight.Normal)
                 Spacer(modifier = Modifier.height(28.dp))
 
 
@@ -124,7 +126,7 @@ fun NotRecognisedContent(
                 Spacer(modifier = Modifier.height(28.dp))
 
                 // ── Name * ────────────────────────────────────────────────────
-                FieldLabel("Name *")
+                FieldLabel("Name *", 18.sp,OutfitFont, FontWeight.Medium)
                 Spacer(modifier = Modifier.height(8.dp))
                 val nameInteractionSource = remember { MutableInteractionSource() }
                 Box(
@@ -141,7 +143,8 @@ fun NotRecognisedContent(
                             Text(
                                 "Enter name",
                                 color    = MaterialTheme.colorScheme.onSurfaceVariant,
-                                fontSize = 16.sp
+                                fontSize = 18.sp,
+                                fontFamily = OutfitFont
                             )
                         },
                         leadingIcon = {
@@ -177,7 +180,7 @@ fun NotRecognisedContent(
                 Spacer(modifier = Modifier.height(29.dp))
 
                 // ── Relation * ────────────────────────────────────────────────
-                FieldLabel("Relation *")
+                FieldLabel("Relation *",18.sp,OutfitFont, FontWeight.Medium)
                 Spacer(modifier = Modifier.height(8.dp))
                 val relationInteractionSource = remember { MutableInteractionSource() }
                 Box(
@@ -194,7 +197,9 @@ fun NotRecognisedContent(
                             Text(
                                 "Enter relation e.g. Friend",
                                 color    = MaterialTheme.colorScheme.onSurfaceVariant,
-                                fontSize = 16.sp
+                                fontSize = 18.sp,
+                                fontFamily = OutfitFont
+
                             )
                         },
                         leadingIcon = {
@@ -236,9 +241,9 @@ fun NotRecognisedContent(
                     modifier              = Modifier.fillMaxWidth()
                 ) {
                     // Left: label + address field
-                    Column(modifier = Modifier.weight(1f).padding(top=26.dp)) {
-                        FieldLabel("Location *")
-                        Spacer(modifier = Modifier.height(8.dp))
+                    Column(modifier = Modifier.weight(1f).padding(top=16.dp)) {
+                        FieldLabel("Location *", 18.sp,OutfitFont, FontWeight.Medium)
+                        Spacer(modifier = Modifier.height(12.dp))
                         Box(
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -264,11 +269,13 @@ fun NotRecognisedContent(
                             ) {
                                 Text(
                                     text     = selectedAddress.ifEmpty { "Get current location" },
-                                    fontSize = 16.sp,
+                                    fontSize = 18.sp,
                                     color    = MaterialTheme.colorScheme.onSurfaceVariant,
                                     maxLines = 1,
                                     overflow = TextOverflow.Ellipsis,
-                                    modifier = Modifier.weight(1f)
+                                    modifier = Modifier.weight(1f),
+                                    fontFamily = OutfitFont
+
                                 )
                                 Icon(
                                     painter            = painterResource(id = R.drawable.line_icon),
@@ -291,7 +298,7 @@ fun NotRecognisedContent(
 
                     // Right: label + microphone button
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        FieldLabel("Add Person's\nvoice sample *", 17.sp)
+                        FieldLabel("Add Person's\nvoice sample *", 17.sp,OutfitFont, FontWeight.Medium)
                         Spacer(modifier = Modifier.height(8.dp))
                         ShadowButton(
                             width        = 72.dp,
@@ -329,8 +336,10 @@ fun NotRecognisedContent(
                             Text(
                                 text       = "Save",
                                 color      = MaterialTheme.colorScheme.onSecondary,
-                                fontSize   = 20.sp,
-                                fontWeight = FontWeight.SemiBold
+                                fontSize   = 22.sp,
+                                fontWeight = FontWeight.Medium,
+                                fontFamily = OutfitFont
+
                             )
                         }
                     }
@@ -346,7 +355,8 @@ fun NotRecognisedContent(
                                 text       = "Record Conversation",
                                 color      = MaterialTheme.colorScheme.onPrimary,
                                 fontSize   = 20.sp,
-                                fontWeight = FontWeight.SemiBold
+                                fontWeight = FontWeight.Medium,
+                                fontFamily = OutfitFont
                             )
                         }
                     }
@@ -362,8 +372,8 @@ fun NotRecognisedContent(
                 title = "Result: ",
                 "Not-Recognised",
                 218.dp,
-                30.sp,
-                35.dp,
+                33.sp,
+                37.dp,
                 (9).dp,
                 onBack = { })
 

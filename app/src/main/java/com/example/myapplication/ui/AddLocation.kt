@@ -33,6 +33,7 @@ import com.example.myapplication.ui.components.ShadowButton
 import com.example.myapplication.ui.components.ShadowButtonFull
 import androidx.compose.foundation.horizontalScroll
 import com.example.myapplication.ui.components.NavTab
+import com.example.myapplication.ui.theme.OutfitFont
 
 
 @Composable
@@ -105,10 +106,11 @@ fun AddLocationContent(    onHomeClick    : () -> Unit = {},
                                 ) {
                                     Text(
                                         text = selectedLocation.ifEmpty { "Open location in map" },
-                                        fontSize = 16.sp,
+                                        fontSize = 18.sp,
                                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                                         maxLines = 1,
-                                        softWrap = false
+                                        softWrap = false,
+                                        fontFamily = OutfitFont
                                     )
                                 }
                             }
@@ -161,7 +163,9 @@ fun AddLocationContent(    onHomeClick    : () -> Unit = {},
                                 Text(
                                     "Title for place e.g. Restaurant",
                                     color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    fontSize = 18.sp
+                                    fontSize = 18.sp,
+                                    fontFamily = OutfitFont
+
                                 )
                             },
                             modifier = Modifier
@@ -206,7 +210,8 @@ fun AddLocationContent(    onHomeClick    : () -> Unit = {},
                                 Text(
                                     "Enter Description e.g went with him/her",
                                     color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    fontSize = 18.sp
+                                    fontSize = 18.sp,
+                                    fontFamily = OutfitFont
                                 )
                             },
                             modifier = Modifier
@@ -239,8 +244,9 @@ fun AddLocationContent(    onHomeClick    : () -> Unit = {},
                         Text(
                             text = "Add",
                             color = MaterialTheme.colorScheme.onPrimary,
-                            fontSize = 22.sp,
-                            fontWeight = FontWeight.SemiBold
+                            fontSize = 27.sp,
+                            fontWeight = FontWeight.Medium,
+                            fontFamily = OutfitFont
                         )
                     }
                 }
@@ -250,7 +256,7 @@ fun AddLocationContent(    onHomeClick    : () -> Unit = {},
 
             HeaderSection(
                 "Add Location",
-                spacing = 65.dp,
+                spacing = 57.dp,
                 onBack = { })
 
         }

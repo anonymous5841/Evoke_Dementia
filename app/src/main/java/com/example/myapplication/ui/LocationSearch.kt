@@ -42,6 +42,7 @@ import com.example.myapplication.ui.components.FieldLabel
 import com.example.myapplication.ui.components.HeaderSection
 import com.example.myapplication.ui.components.NavTab
 import com.example.myapplication.ui.components.ShadowButton
+import com.example.myapplication.ui.theme.OutfitFont
 
 class LocationSearch : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -111,11 +112,12 @@ fun LocationSearchContent(onHomeClick    : () -> Unit = {},
                         ) {
                             Text(
                                 text = selectedLocation.ifEmpty { "Open location in map" },
-                                fontSize = 16.sp,
+                                fontSize = 18.sp,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 maxLines = 1,
                                 overflow = TextOverflow.Ellipsis,
-                                modifier = Modifier.weight(1f)
+                                modifier = Modifier.weight(1f),
+                                fontFamily = OutfitFont
                             )
                             // Line separator icon
                             Icon(
@@ -160,7 +162,8 @@ fun LocationSearchContent(onHomeClick    : () -> Unit = {},
                                 Text(
                                     "Title for place e.g. Restaurant",
                                     color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    fontSize = 18.sp
+                                    fontSize = 18.sp,
+                                    fontFamily = OutfitFont
                                 )
                             },
                             modifier = Modifier
@@ -205,7 +208,8 @@ fun LocationSearchContent(onHomeClick    : () -> Unit = {},
                                 Text(
                                     "Enter Description e.g went with him/her",
                                     color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    fontSize = 18.sp
+                                    fontSize = 18.sp,
+                                    fontFamily = OutfitFont
                                 )
                             },
                             modifier = Modifier
@@ -232,7 +236,7 @@ fun LocationSearchContent(onHomeClick    : () -> Unit = {},
                     horizontalArrangement = Arrangement.spacedBy(15.dp),
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(start = 28.dp)
+                        .padding(start = 24.dp)
                 ) {
                     // ── Green Edit Button ─────────────────────────────────────
                     ShadowButton(
@@ -245,8 +249,9 @@ fun LocationSearchContent(onHomeClick    : () -> Unit = {},
                         Text(
                             text = "Edit",
                             color = MaterialTheme.colorScheme.onPrimary,
-                            fontSize = 20.sp,
-                            fontWeight = FontWeight.SemiBold
+                            fontSize = 24.sp,
+                            fontWeight = FontWeight.Medium,
+                            fontFamily = OutfitFont
                         )
                     }
 
@@ -261,8 +266,10 @@ fun LocationSearchContent(onHomeClick    : () -> Unit = {},
                         Text(
                             text = "Delete",
                             color = MaterialTheme.colorScheme.onSecondary,
-                            fontSize = 20.sp,
-                            fontWeight = FontWeight.SemiBold
+                            fontSize = 24.sp,
+                            fontWeight = FontWeight.Medium,
+                            fontFamily = OutfitFont
+
                         )
                     }
                 }
@@ -270,6 +277,7 @@ fun LocationSearchContent(onHomeClick    : () -> Unit = {},
             }
 
             HeaderSection(
+                spacing = 68.dp,
                 onBack = { }
             )
 
