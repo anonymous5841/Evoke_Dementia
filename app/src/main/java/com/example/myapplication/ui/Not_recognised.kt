@@ -61,29 +61,27 @@ fun NotRecognisedContent(
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
     ) { innerPadding ->
-        Column(
+        Box(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .verticalScroll(rememberScrollState())
         ) {
-
-            // ── Header ────────────────────────────────────────────────────────
-            HeaderSection(
-                title = "Result: ",
-                "Not-Recognised",
-                218.dp,
-                30.sp,
-                35.dp,
-                (9).dp,
-                onBack = { })
 
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 24.dp)
-                    .offset(y = (-30).dp)
+                    .verticalScroll(rememberScrollState())
             ) {
+
+                Spacer(modifier = Modifier.height(218.dp))  // ← match your headerHeight
+
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 24.dp)
+                        .offset(y = (-40).dp)
+
+                ) {
 
                 FieldLabel("Register", 30.sp)
                 Spacer(modifier = Modifier.height(28.dp))
@@ -353,11 +351,24 @@ fun NotRecognisedContent(
                         }
                     }
                 }
-            }
 
-            Spacer(modifier = Modifier.height(24.dp))
+                Spacer(modifier = Modifier.height(64.dp))
+
+            }
         }
+
+            // ── Header ────────────────────────────────────────────────────────
+            HeaderSection(
+                title = "Result: ",
+                "Not-Recognised",
+                218.dp,
+                30.sp,
+                35.dp,
+                (9).dp,
+                onBack = { })
+
     }
+   }
 }
 
 @Preview(showBackground = true, showSystemUi = true)

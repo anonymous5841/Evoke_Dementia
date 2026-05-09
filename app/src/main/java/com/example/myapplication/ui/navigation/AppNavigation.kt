@@ -14,6 +14,7 @@ import com.example.myapplication.ui.AddLocationContent
 import com.example.myapplication.ui.PersonFormContent
 import com.example.myapplication.ui.PersonFormMode
 import com.example.myapplication.ui.LocationSearchContent
+import com.example.myapplication.ui.NotRecognisedContent
 import com.example.myapplication.ui.components.BottomNavBar
 import com.example.myapplication.ui.components.NavTab
 
@@ -61,7 +62,12 @@ fun AppNavigation() {
                 modifier         = Modifier
             ) {
                 composable("addlocation") {
-                    AddLocationContent()
+                    AddLocationContent(
+                        onAddClick = { navController.navigate("notrecognised") }  // ← add this
+                    )
+                }
+                composable("notrecognised") {
+                    NotRecognisedContent()
                 }
                 composable("profile") {
                     PersonFormContent(mode = PersonFormMode.EDIT)

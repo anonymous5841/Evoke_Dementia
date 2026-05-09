@@ -54,217 +54,225 @@ class LocationSearch : ComponentActivity() {
 @Composable
 fun LocationSearchContent(onHomeClick    : () -> Unit = {},
                           onProfileClick : () -> Unit = {}) {
-    var titleText        by remember { mutableStateOf("") }
-    var descriptionText  by remember { mutableStateOf("") }
+    var titleText by remember { mutableStateOf("") }
+    var descriptionText by remember { mutableStateOf("") }
     var selectedLocation by remember { mutableStateOf("") }
 
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
     ) { innerPadding ->
-        Column(
+        Box(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .verticalScroll(rememberScrollState())
         ) {
+
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .verticalScroll(rememberScrollState())
+            ) {
+                // Spacer pushes content down below header height
+                Spacer(modifier = Modifier.height(260.dp))  // ← match your headerHeight
+
+
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 24.dp)
+                        .offset(y = (-40).dp)  // ← move up by 20dp, adjust as needed
+                ) {
+
+                    // ── Location ──────────────────────────────────────────────────
+                    FieldLabel("Location *")
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth(0.70f)
+                            .height(52.dp)
+                            .shadow(
+                                elevation = 6.dp,
+                                shape = RoundedCornerShape(12.dp),
+                                clip = false
+                            )
+                            .clip(RoundedCornerShape(12.dp))
+                            .background(MaterialTheme.colorScheme.surface)
+                            .clickable(
+                                interactionSource = remember { MutableInteractionSource() },
+                                indication = ripple(bounded = true)
+                            ) { /* open map or location picker here */ },
+                        contentAlignment = Alignment.CenterStart
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 14.dp)
+                        ) {
+                            Text(
+                                text = selectedLocation.ifEmpty { "Open location in map" },
+                                fontSize = 16.sp,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis,
+                                modifier = Modifier.weight(1f)
+                            )
+                            // Line separator icon
+                            Icon(
+                                painter = painterResource(id = R.drawable.line_icon),
+                                contentDescription = null,
+                                tint = Color.Unspecified,
+                                modifier = Modifier
+                                    .width(25.dp)      // ← very thin
+                                    .height(40.dp)    // ← match the row height
+                                    .padding(end = 4.dp)
+                            )
+                            Icon(
+                                painter = painterResource(id = R.drawable.location_icon),
+                                contentDescription = "Map pin",
+                                tint = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier.size(30.dp)
+                            )
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(24.dp))
+
+                    // ── Title ─────────────────────────────────────────────────────
+                    FieldLabel("Title *")
+                    Spacer(modifier = Modifier.height(8.dp))
+                    val titleInteractionSource = remember { MutableInteractionSource() }
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .shadow(
+                                elevation = 6.dp,
+                                shape = RoundedCornerShape(12.dp),
+                                clip = false
+                            )
+                            .clip(RoundedCornerShape(12.dp))
+                    ) {
+                        OutlinedTextField(
+                            value = titleText,
+                            onValueChange = { titleText = it },
+                            interactionSource = titleInteractionSource,  // ← shared interaction source
+                            placeholder = {
+                                Text(
+                                    "Title for place e.g. Restaurant",
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    fontSize = 18.sp
+                                )
+                            },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(56.dp)
+                                .indication(                             // ← ripple on the field itself
+                                    interactionSource = titleInteractionSource,
+                                    indication = ripple(bounded = true)
+                                ),
+                            shape = RoundedCornerShape(12.dp),
+                            colors = OutlinedTextFieldDefaults.colors(
+                                unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+                                focusedContainerColor = MaterialTheme.colorScheme.surface,
+                                unfocusedBorderColor = Color.Transparent,
+                                focusedBorderColor = MaterialTheme.colorScheme.outline,
+                            ),
+                            singleLine = true
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(24.dp))
+
+// ── Description ───────────────────────────────────────────────
+                    FieldLabel("Description *")
+                    Spacer(modifier = Modifier.height(8.dp))
+                    val descInteractionSource = remember { MutableInteractionSource() }
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .shadow(
+                                elevation = 6.dp,
+                                shape = RoundedCornerShape(12.dp),
+                                clip = false
+                            )
+                            .clip(RoundedCornerShape(12.dp))
+                    ) {
+                        OutlinedTextField(
+                            value = descriptionText,
+                            onValueChange = { descriptionText = it },
+                            interactionSource = descInteractionSource,   // ← shared interaction source
+                            placeholder = {
+                                Text(
+                                    "Enter Description e.g went with him/her",
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    fontSize = 18.sp
+                                )
+                            },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(160.dp)
+                                .indication(                             // ← ripple on the field itself
+                                    interactionSource = descInteractionSource,
+                                    indication = ripple(bounded = true)
+                                ),
+                            shape = RoundedCornerShape(12.dp),
+                            colors = OutlinedTextFieldDefaults.colors(
+                                unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+                                focusedContainerColor = MaterialTheme.colorScheme.surface,
+                                unfocusedBorderColor = Color.Transparent,
+                                focusedBorderColor = MaterialTheme.colorScheme.outline,
+                            ),
+                            maxLines = 6
+                        )
+                    }
+                }
+                Spacer(modifier = Modifier.height(10.dp))
+
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(15.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(start = 28.dp)
+                ) {
+                    // ── Green Edit Button ─────────────────────────────────────
+                    ShadowButton(
+                        width = 171.dp,
+                        height = 56.dp,
+                        color = MaterialTheme.colorScheme.primary,
+                        cornerRadius = 30.dp,
+                        onClick = { }
+                    ) {
+                        Text(
+                            text = "Edit",
+                            color = MaterialTheme.colorScheme.onPrimary,
+                            fontSize = 20.sp,
+                            fontWeight = FontWeight.SemiBold
+                        )
+                    }
+
+                    // ── Yellow Delete Button ──────────────────────────────────
+                    ShadowButton(
+                        width = 171.dp,
+                        height = 56.dp,
+                        color = MaterialTheme.colorScheme.secondary,
+                        cornerRadius = 30.dp,
+                        onClick = { }
+                    ) {
+                        Text(
+                            text = "Delete",
+                            color = MaterialTheme.colorScheme.onSecondary,
+                            fontSize = 20.sp,
+                            fontWeight = FontWeight.SemiBold
+                        )
+                    }
+                }
+                Spacer(modifier = Modifier.height(24.dp))
+            }
 
             HeaderSection(
                 onBack = { }
             )
 
-            Spacer(modifier = Modifier.height(0.dp))
-
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 24.dp)
-                    .offset(y = (-40).dp)  // ← move up by 20dp, adjust as needed
-            ){
-
-                // ── Location ──────────────────────────────────────────────────
-                FieldLabel("Location *")
-                Spacer(modifier = Modifier.height(8.dp))
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth(0.70f)
-                        .height(52.dp)
-                        .shadow(
-                            elevation = 6.dp,
-                            shape     = RoundedCornerShape(12.dp),
-                            clip      = false
-                        )
-                        .clip(RoundedCornerShape(12.dp))
-                        .background(MaterialTheme.colorScheme.surface)
-                        .clickable(
-                            interactionSource = remember { MutableInteractionSource() },
-                            indication        = ripple(bounded = true)
-                        ) { /* open map or location picker here */ },
-                    contentAlignment = Alignment.CenterStart
-                ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 14.dp)
-                    ) {
-                        Text(
-                            text      = selectedLocation.ifEmpty { "Open location in map" },
-                            fontSize  = 16.sp,
-                            color     = MaterialTheme.colorScheme.onSurfaceVariant,
-                            maxLines  = 1,
-                            overflow  = TextOverflow.Ellipsis,
-                            modifier  = Modifier.weight(1f)
-                        )
-                        // Line separator icon
-                        Icon(
-                            painter            = painterResource(id = R.drawable.line_icon),
-                            contentDescription = null,
-                            tint               = Color.Unspecified,
-                            modifier           = Modifier
-                                .width(25.dp)      // ← very thin
-                                .height(40.dp)    // ← match the row height
-                                .padding(end = 4.dp)
-                        )
-                        Icon(
-                            painter            = painterResource(id = R.drawable.location_icon),
-                            contentDescription = "Map pin",
-                            tint               = MaterialTheme.colorScheme.primary,
-                            modifier           = Modifier.size(30.dp)
-                        )
-                    }
-                }
-
-                Spacer(modifier = Modifier.height(24.dp))
-
-                // ── Title ─────────────────────────────────────────────────────
-                FieldLabel("Title *")
-                Spacer(modifier = Modifier.height(8.dp))
-                val titleInteractionSource = remember { MutableInteractionSource() }
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .shadow(
-                            elevation = 6.dp,
-                            shape     = RoundedCornerShape(12.dp),
-                            clip      = false
-                        )
-                        .clip(RoundedCornerShape(12.dp))
-                ) {
-                    OutlinedTextField(
-                        value             = titleText,
-                        onValueChange     = { titleText = it },
-                        interactionSource = titleInteractionSource,  // ← shared interaction source
-                        placeholder       = {
-                            Text(
-                                "Title for place e.g. Restaurant",
-                                color    = MaterialTheme.colorScheme.onSurfaceVariant,
-                                fontSize = 18.sp
-                            )
-                        },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(56.dp)
-                            .indication(                             // ← ripple on the field itself
-                                interactionSource = titleInteractionSource,
-                                indication        = ripple(bounded = true)
-                            ),
-                        shape  = RoundedCornerShape(12.dp),
-                        colors = OutlinedTextFieldDefaults.colors(
-                            unfocusedContainerColor = MaterialTheme.colorScheme.surface,
-                            focusedContainerColor   = MaterialTheme.colorScheme.surface,
-                            unfocusedBorderColor    = Color.Transparent,
-                            focusedBorderColor      = MaterialTheme.colorScheme.outline,
-                        ),
-                        singleLine = true
-                    )
-                }
-
-                Spacer(modifier = Modifier.height(24.dp))
-
-// ── Description ───────────────────────────────────────────────
-                FieldLabel("Description *")
-                Spacer(modifier = Modifier.height(8.dp))
-                val descInteractionSource = remember { MutableInteractionSource() }
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .shadow(
-                            elevation = 6.dp,
-                            shape     = RoundedCornerShape(12.dp),
-                            clip      = false
-                        )
-                        .clip(RoundedCornerShape(12.dp))
-                ) {
-                    OutlinedTextField(
-                        value             = descriptionText,
-                        onValueChange     = { descriptionText = it },
-                        interactionSource = descInteractionSource,   // ← shared interaction source
-                        placeholder       = {
-                            Text(
-                                "Enter Description e.g went with him/her",
-                                color    = MaterialTheme.colorScheme.onSurfaceVariant,
-                                fontSize = 18.sp
-                            )
-                        },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(160.dp)
-                            .indication(                             // ← ripple on the field itself
-                                interactionSource = descInteractionSource,
-                                indication        = ripple(bounded = true)
-                            ),
-                        shape  = RoundedCornerShape(12.dp),
-                        colors = OutlinedTextFieldDefaults.colors(
-                            unfocusedContainerColor = MaterialTheme.colorScheme.surface,
-                            focusedContainerColor   = MaterialTheme.colorScheme.surface,
-                            unfocusedBorderColor    = Color.Transparent,
-                            focusedBorderColor      = MaterialTheme.colorScheme.outline,
-                        ),
-                        maxLines = 6
-                    )
-                }
-            }
-            Spacer(modifier = Modifier.height(10.dp))
-
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(15.dp),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(start = 28.dp)
-            ) {
-                // ── Green Edit Button ─────────────────────────────────────
-                ShadowButton(
-                    width        = 171.dp,
-                    height       = 56.dp,
-                    color        = MaterialTheme.colorScheme.primary,
-                    cornerRadius = 30.dp,
-                    onClick      = { }
-                ) {
-                    Text(
-                        text       = "Edit",
-                        color      = MaterialTheme.colorScheme.onPrimary,
-                        fontSize   = 20.sp,
-                        fontWeight = FontWeight.SemiBold
-                    )
-                }
-
-                // ── Yellow Delete Button ──────────────────────────────────
-                ShadowButton(
-                    width        = 171.dp,
-                    height       = 56.dp,
-                    color        = MaterialTheme.colorScheme.secondary,
-                    cornerRadius = 30.dp,
-                    onClick      = { }
-                ) {
-                    Text(
-                        text       = "Delete",
-                        color      = MaterialTheme.colorScheme.onSecondary,
-                        fontSize   = 20.sp,
-                        fontWeight = FontWeight.SemiBold
-                    )
-                }
-            }
-            Spacer(modifier = Modifier.height(24.dp))
         }
     }
 

@@ -93,525 +93,550 @@ fun PersonFormContent(
     onEdit         : (String, String, String, String, String, String, String, String) -> Unit = { _, _, _, _, _, _, _, _ -> },
     onBack: (() -> Unit)? = null,
 ) {
-    var nameText          by remember { mutableStateOf(initialName) }
-    var phoneText         by remember { mutableStateOf(initialPhone) }
+    var nameText by remember { mutableStateOf(initialName) }
+    var phoneText by remember { mutableStateOf(initialPhone) }
     var emergencyContact1 by remember { mutableStateOf(initialEc1) }
     var emergencyContact2 by remember { mutableStateOf(initialEc2) }
     var emergencyContact3 by remember { mutableStateOf(initialEc3) }
     var emergencyContact4 by remember { mutableStateOf(initialEc4) }
     var emergencyContact5 by remember { mutableStateOf(initialEc5) }
-    var selectedAddress   by remember { mutableStateOf(initialAddress) }
+    var selectedAddress by remember { mutableStateOf(initialAddress) }
 
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
 
-    ) { innerPadding ->
-        Column(
+        ) { innerPadding ->
+        Box(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .verticalScroll(rememberScrollState())
         ) {
-            // Header title changes based on mode
-            HeaderSection(
-                title = if (mode == PersonFormMode.ADD) "Let us know you" else "Profile",
-                spacing = if (mode == PersonFormMode.ADD) 72.dp else 80.dp,
-                textSize = if (mode == PersonFormMode.ADD) 34.sp else 39.sp,
-                leaves = 9.dp,
-                headerHeight = 218.dp,
-                onBack = onBack
-            )
 
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 24.dp)
-                    .offset(y = (-40).dp)
+                    .verticalScroll(rememberScrollState())
             ) {
 
-                // ── Name * ────────────────────────────────────────────────────
-                FieldLabel("Name *")
-                Spacer(modifier = Modifier.height(8.dp))
-                val nameInteractionSource = remember { MutableInteractionSource() }
-                Box(
+                Spacer(modifier = Modifier.height(218.dp))  // ← match your headerHeight
+
+                Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .shadow(elevation = 6.dp, shape = RoundedCornerShape(12.dp), clip = false)
-                        .clip(RoundedCornerShape(12.dp))
+                        .padding(horizontal = 24.dp)
+                        .offset(y = (-40).dp)
                 ) {
-                    OutlinedTextField(
-                        value             = nameText,
-                        onValueChange     = { nameText = it },
-                        interactionSource = nameInteractionSource,
-                        placeholder       = {
-                            Text(
-                                "Enter full name",
-                                color    = MaterialTheme.colorScheme.onSurfaceVariant,
-                                fontSize = 18.sp
-                            )
-                        },
-                        leadingIcon = {
-                            Icon(
-                                painter            = painterResource(id = R.drawable.profile_icon),
-                                contentDescription = "Profile",
-                                tint               = MaterialTheme.colorScheme.primary,
-                                modifier           = Modifier.size(26.dp)
-                            )
-                        },
+
+                    // ── Name * ────────────────────────────────────────────────────
+                    FieldLabel("Name *")
+                    Spacer(modifier = Modifier.height(8.dp))
+                    val nameInteractionSource = remember { MutableInteractionSource() }
+                    Box(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(56.dp)
-                            .indication(
-                                interactionSource = nameInteractionSource,
-                                indication        = ripple(bounded = true)
-                            ),
-                        shape  = RoundedCornerShape(12.dp),
-                        colors = OutlinedTextFieldDefaults.colors(
-                            unfocusedContainerColor   = MaterialTheme.colorScheme.surface,
-                            focusedContainerColor     = MaterialTheme.colorScheme.surface,
-                            unfocusedBorderColor      = Color.Transparent,
-                            focusedBorderColor        = MaterialTheme.colorScheme.outline,
-                            unfocusedTextColor        = MaterialTheme.colorScheme.onSurface,
-                            focusedTextColor          = MaterialTheme.colorScheme.onSurface,
-                            unfocusedPlaceholderColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                            focusedPlaceholderColor   = MaterialTheme.colorScheme.onSurfaceVariant,
-                        ),
-                        singleLine = true
-                    )
-                }
-
-                Spacer(modifier = Modifier.height(39.dp))
-
-                // ── Phone Number * ────────────────────────────────────────────
-                FieldLabel("Phone Number *")
-                Spacer(modifier = Modifier.height(8.dp))
-                val phoneInteractionSource = remember { MutableInteractionSource() }
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .shadow(elevation = 6.dp, shape = RoundedCornerShape(12.dp), clip = false)
-                        .clip(RoundedCornerShape(12.dp))
-                ) {
-                    OutlinedTextField(
-                        value             = phoneText,
-                        onValueChange     = { phoneText = it },
-                        interactionSource = phoneInteractionSource,
-                        placeholder       = {
-                            Text(
-                                "Enter phone number",
-                                color    = MaterialTheme.colorScheme.onSurfaceVariant,
-                                fontSize = 18.sp
+                            .shadow(
+                                elevation = 6.dp,
+                                shape = RoundedCornerShape(12.dp),
+                                clip = false
                             )
-                        },
-                        leadingIcon = {
-                            Icon(
-                                painter            = painterResource(id = R.drawable.phone_icon),
-                                contentDescription = "Phone",
-                                tint               = MaterialTheme.colorScheme.primary,
-                                modifier           = Modifier.size(24.dp)
-                            )
-                        },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(56.dp)
-                            .indication(
-                                interactionSource = phoneInteractionSource,
-                                indication        = ripple(bounded = true)
-                            ),
-                        shape  = RoundedCornerShape(12.dp),
-                        colors = OutlinedTextFieldDefaults.colors(
-                            unfocusedContainerColor   = MaterialTheme.colorScheme.surface,
-                            focusedContainerColor     = MaterialTheme.colorScheme.surface,
-                            unfocusedBorderColor      = Color.Transparent,
-                            focusedBorderColor        = MaterialTheme.colorScheme.outline,
-                            unfocusedTextColor        = MaterialTheme.colorScheme.onSurface,
-                            focusedTextColor          = MaterialTheme.colorScheme.onSurface,
-                            unfocusedPlaceholderColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                            focusedPlaceholderColor   = MaterialTheme.colorScheme.onSurfaceVariant,
-                        ),
-                        singleLine = true
-                    )
-                }
-
-                Spacer(modifier = Modifier.height(39.dp))
-
-                // ── Emergency Contact * ───────────────────────────────────────
-                FieldLabel("Emergency Contact *")
-                Spacer(modifier = Modifier.height(8.dp))
-                val ec1InteractionSource = remember { MutableInteractionSource() }
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .shadow(elevation = 6.dp, shape = RoundedCornerShape(12.dp), clip = false)
-                        .clip(RoundedCornerShape(12.dp))
-                ) {
-                    OutlinedTextField(
-                        value             = emergencyContact1,
-                        onValueChange     = { emergencyContact1 = it },
-                        interactionSource = ec1InteractionSource,
-                        placeholder       = {
-                            Text(
-                                "Enter emergency contact",
-                                color    = MaterialTheme.colorScheme.onSurfaceVariant,
-                                fontSize = 18.sp
-                            )
-                        },
-                        leadingIcon = {
-                            Icon(
-                                painter            = painterResource(id = R.drawable.phone_icon),
-                                contentDescription = "Phone",
-                                tint               = MaterialTheme.colorScheme.primary,
-                                modifier           = Modifier.size(24.dp)
-                            )
-                        },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(56.dp)
-                            .indication(
-                                interactionSource = ec1InteractionSource,
-                                indication        = ripple(bounded = true)
-                            ),
-                        shape  = RoundedCornerShape(12.dp),
-                        colors = OutlinedTextFieldDefaults.colors(
-                            unfocusedContainerColor   = MaterialTheme.colorScheme.surface,
-                            focusedContainerColor     = MaterialTheme.colorScheme.surface,
-                            unfocusedBorderColor      = Color.Transparent,
-                            focusedBorderColor        = MaterialTheme.colorScheme.outline,
-                            unfocusedTextColor        = MaterialTheme.colorScheme.onSurface,
-                            focusedTextColor          = MaterialTheme.colorScheme.onSurface,
-                            unfocusedPlaceholderColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                            focusedPlaceholderColor   = MaterialTheme.colorScheme.onSurfaceVariant,
-                        ),
-                        singleLine = true
-                    )
-                }
-
-                Spacer(modifier = Modifier.height(39.dp))
-
-                // ── Emergency Contact 2 ───────────────────────────────────────
-                FieldLabel("Emergency Contact 2")
-                Spacer(modifier = Modifier.height(8.dp))
-                val ec2InteractionSource = remember { MutableInteractionSource() }
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .shadow(elevation = 6.dp, shape = RoundedCornerShape(12.dp), clip = false)
-                        .clip(RoundedCornerShape(12.dp))
-                ) {
-                    OutlinedTextField(
-                        value             = emergencyContact2,
-                        onValueChange     = { emergencyContact2 = it },
-                        interactionSource = ec2InteractionSource,
-                        placeholder       = {
-                            Text(
-                                "Enter emergency contact 2",
-                                color    = MaterialTheme.colorScheme.onSurfaceVariant,
-                                fontSize = 18.sp
-                            )
-                        },
-                        leadingIcon = {
-                            Icon(
-                                painter            = painterResource(id = R.drawable.phone_icon),
-                                contentDescription = "Phone",
-                                tint               = MaterialTheme.colorScheme.primary,
-                                modifier           = Modifier.size(24.dp)
-                            )
-                        },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(56.dp)
-                            .indication(
-                                interactionSource = ec2InteractionSource,
-                                indication        = ripple(bounded = true)
-                            ),
-                        shape  = RoundedCornerShape(12.dp),
-                        colors = OutlinedTextFieldDefaults.colors(
-                            unfocusedContainerColor   = MaterialTheme.colorScheme.surface,
-                            focusedContainerColor     = MaterialTheme.colorScheme.surface,
-                            unfocusedBorderColor      = Color.Transparent,
-                            focusedBorderColor        = MaterialTheme.colorScheme.outline,
-                            unfocusedTextColor        = MaterialTheme.colorScheme.onSurface,
-                            focusedTextColor          = MaterialTheme.colorScheme.onSurface,
-                            unfocusedPlaceholderColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                            focusedPlaceholderColor   = MaterialTheme.colorScheme.onSurfaceVariant,
-                        ),
-                        singleLine = true
-                    )
-                }
-
-                Spacer(modifier = Modifier.height(39.dp))
-
-                // ── Emergency Contact 3 ───────────────────────────────────────
-                FieldLabel("Emergency Contact 3")
-                Spacer(modifier = Modifier.height(8.dp))
-                val ec3InteractionSource = remember { MutableInteractionSource() }
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .shadow(elevation = 6.dp, shape = RoundedCornerShape(12.dp), clip = false)
-                        .clip(RoundedCornerShape(12.dp))
-                ) {
-                    OutlinedTextField(
-                        value             = emergencyContact3,
-                        onValueChange     = { emergencyContact3 = it },
-                        interactionSource = ec3InteractionSource,
-                        placeholder       = {
-                            Text(
-                                "Enter emergency contact 3",
-                                color    = MaterialTheme.colorScheme.onSurfaceVariant,
-                                fontSize = 18.sp
-                            )
-                        },
-                        leadingIcon = {
-                            Icon(
-                                painter            = painterResource(id = R.drawable.phone_icon),
-                                contentDescription = "Phone",
-                                tint               = MaterialTheme.colorScheme.primary,
-                                modifier           = Modifier.size(24.dp)
-                            )
-                        },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(56.dp)
-                            .indication(
-                                interactionSource = ec3InteractionSource,
-                                indication        = ripple(bounded = true)
-                            ),
-                        shape  = RoundedCornerShape(12.dp),
-                        colors = OutlinedTextFieldDefaults.colors(
-                            unfocusedContainerColor   = MaterialTheme.colorScheme.surface,
-                            focusedContainerColor     = MaterialTheme.colorScheme.surface,
-                            unfocusedBorderColor      = Color.Transparent,
-                            focusedBorderColor        = MaterialTheme.colorScheme.outline,
-                            unfocusedTextColor        = MaterialTheme.colorScheme.onSurface,
-                            focusedTextColor          = MaterialTheme.colorScheme.onSurface,
-                            unfocusedPlaceholderColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                            focusedPlaceholderColor   = MaterialTheme.colorScheme.onSurfaceVariant,
-                        ),
-                        singleLine = true
-                    )
-                }
-
-                Spacer(modifier = Modifier.height(39.dp))
-
-                // ── Emergency Contact 4 ───────────────────────────────────────
-                FieldLabel("Emergency Contact 4")
-                Spacer(modifier = Modifier.height(8.dp))
-                val ec4InteractionSource = remember { MutableInteractionSource() }
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .shadow(elevation = 6.dp, shape = RoundedCornerShape(12.dp), clip = false)
-                        .clip(RoundedCornerShape(12.dp))
-                ) {
-                    OutlinedTextField(
-                        value             = emergencyContact4,
-                        onValueChange     = { emergencyContact4 = it },
-                        interactionSource = ec4InteractionSource,
-                        placeholder       = {
-                            Text(
-                                "Enter emergency contact 4",
-                                color    = MaterialTheme.colorScheme.onSurfaceVariant,
-                                fontSize = 18.sp
-                            )
-                        },
-                        leadingIcon = {
-                            Icon(
-                                painter            = painterResource(id = R.drawable.phone_icon),
-                                contentDescription = "Phone",
-                                tint               = MaterialTheme.colorScheme.primary,
-                                modifier           = Modifier.size(24.dp)
-                            )
-                        },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(56.dp)
-                            .indication(
-                                interactionSource = ec4InteractionSource,
-                                indication        = ripple(bounded = true)
-                            ),
-                        shape  = RoundedCornerShape(12.dp),
-                        colors = OutlinedTextFieldDefaults.colors(
-                            unfocusedContainerColor   = MaterialTheme.colorScheme.surface,
-                            focusedContainerColor     = MaterialTheme.colorScheme.surface,
-                            unfocusedBorderColor      = Color.Transparent,
-                            focusedBorderColor        = MaterialTheme.colorScheme.outline,
-                            unfocusedTextColor        = MaterialTheme.colorScheme.onSurface,
-                            focusedTextColor          = MaterialTheme.colorScheme.onSurface,
-                            unfocusedPlaceholderColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                            focusedPlaceholderColor   = MaterialTheme.colorScheme.onSurfaceVariant,
-                        ),
-                        singleLine = true
-                    )
-                }
-
-                Spacer(modifier = Modifier.height(39.dp))
-
-                // ── Emergency Contact 5 ───────────────────────────────────────
-                FieldLabel("Emergency Contact 5")
-                Spacer(modifier = Modifier.height(8.dp))
-                val ec5InteractionSource = remember { MutableInteractionSource() }
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .shadow(elevation = 6.dp, shape = RoundedCornerShape(12.dp), clip = false)
-                        .clip(RoundedCornerShape(12.dp))
-                ) {
-                    OutlinedTextField(
-                        value             = emergencyContact5,
-                        onValueChange     = { emergencyContact5 = it },
-                        interactionSource = ec5InteractionSource,
-                        placeholder       = {
-                            Text(
-                                "Enter emergency contact 5",
-                                color    = MaterialTheme.colorScheme.onSurfaceVariant,
-                                fontSize = 18.sp
-                            )
-                        },
-                        leadingIcon = {
-                            Icon(
-                                painter            = painterResource(id = R.drawable.phone_icon),
-                                contentDescription = "Phone",
-                                tint               = MaterialTheme.colorScheme.primary,
-                                modifier           = Modifier.size(24.dp)
-                            )
-                        },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(56.dp)
-                            .indication(
-                                interactionSource = ec5InteractionSource,
-                                indication        = ripple(bounded = true)
-                            ),
-                        shape  = RoundedCornerShape(12.dp),
-                        colors = OutlinedTextFieldDefaults.colors(
-                            unfocusedContainerColor   = MaterialTheme.colorScheme.surface,
-                            focusedContainerColor     = MaterialTheme.colorScheme.surface,
-                            unfocusedBorderColor      = Color.Transparent,
-                            focusedBorderColor        = MaterialTheme.colorScheme.outline,
-                            unfocusedTextColor        = MaterialTheme.colorScheme.onSurface,
-                            focusedTextColor          = MaterialTheme.colorScheme.onSurface,
-                            unfocusedPlaceholderColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                            focusedPlaceholderColor   = MaterialTheme.colorScheme.onSurfaceVariant,
-                        ),
-                        singleLine = true
-                    )
-                }
-
-                Spacer(modifier = Modifier.height(39.dp))
-
-                // ── Address * + Add Voice * side by side ──────────────────────
-                Row(
-                    verticalAlignment     = Alignment.Top,
-                    horizontalArrangement = Arrangement.spacedBy(12.dp),
-                    modifier              = Modifier.fillMaxWidth()
-                ) {
-                    // Left: label + address field
-                    Column(modifier = Modifier.weight(1f).padding(top=26.dp)) {
-                        FieldLabel("Location *")
-                        Spacer(modifier = Modifier.height(8.dp))
-                        Box(
+                            .clip(RoundedCornerShape(12.dp))
+                    ) {
+                        OutlinedTextField(
+                            value = nameText,
+                            onValueChange = { nameText = it },
+                            interactionSource = nameInteractionSource,
+                            placeholder = {
+                                Text(
+                                    "Enter full name",
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    fontSize = 18.sp
+                                )
+                            },
+                            leadingIcon = {
+                                Icon(
+                                    painter = painterResource(id = R.drawable.profile_icon),
+                                    contentDescription = "Profile",
+                                    tint = MaterialTheme.colorScheme.primary,
+                                    modifier = Modifier.size(26.dp)
+                                )
+                            },
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .height(52.dp)
-                                .shadow(
-                                    elevation = 6.dp,
-                                    shape     = RoundedCornerShape(12.dp),
-                                    clip      = false
-                                )
-                                .clip(RoundedCornerShape(12.dp))
-                                .background(MaterialTheme.colorScheme.surface)
-                                .clickable(
-                                    interactionSource = remember { MutableInteractionSource() },
-                                    indication        = ripple(bounded = true)
-                                ) { /* open map */ },
-                            contentAlignment = Alignment.CenterStart
-                        ) {
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                modifier          = Modifier
-                                    .fillMaxWidth()
-                                    .padding(horizontal = 14.dp)
-                            ) {
+                                .height(56.dp)
+                                .indication(
+                                    interactionSource = nameInteractionSource,
+                                    indication = ripple(bounded = true)
+                                ),
+                            shape = RoundedCornerShape(12.dp),
+                            colors = OutlinedTextFieldDefaults.colors(
+                                unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+                                focusedContainerColor = MaterialTheme.colorScheme.surface,
+                                unfocusedBorderColor = Color.Transparent,
+                                focusedBorderColor = MaterialTheme.colorScheme.outline,
+                                unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
+                                focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                                unfocusedPlaceholderColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                                focusedPlaceholderColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                            ),
+                            singleLine = true
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(39.dp))
+
+                    // ── Phone Number * ────────────────────────────────────────────
+                    FieldLabel("Phone Number *")
+                    Spacer(modifier = Modifier.height(8.dp))
+                    val phoneInteractionSource = remember { MutableInteractionSource() }
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .shadow(
+                                elevation = 6.dp,
+                                shape = RoundedCornerShape(12.dp),
+                                clip = false
+                            )
+                            .clip(RoundedCornerShape(12.dp))
+                    ) {
+                        OutlinedTextField(
+                            value = phoneText,
+                            onValueChange = { phoneText = it },
+                            interactionSource = phoneInteractionSource,
+                            placeholder = {
                                 Text(
-                                    text     = selectedAddress.ifEmpty { "Get current location" },
-                                    fontSize = 16.sp,
-                                    color    = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    maxLines = 1,
-                                    overflow = TextOverflow.Ellipsis,
-                                    modifier = Modifier.weight(1f)
+                                    "Enter phone number",
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    fontSize = 18.sp
                                 )
+                            },
+                            leadingIcon = {
                                 Icon(
-                                    painter            = painterResource(id = R.drawable.line_icon),
-                                    contentDescription = null,
-                                    tint               = Color.Unspecified,
-                                    modifier           = Modifier
-                                        .width(25.dp)
-                                        .height(40.dp)
-                                        .padding(end = 4.dp)
+                                    painter = painterResource(id = R.drawable.phone_icon),
+                                    contentDescription = "Phone",
+                                    tint = MaterialTheme.colorScheme.primary,
+                                    modifier = Modifier.size(24.dp)
                                 )
+                            },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(56.dp)
+                                .indication(
+                                    interactionSource = phoneInteractionSource,
+                                    indication = ripple(bounded = true)
+                                ),
+                            shape = RoundedCornerShape(12.dp),
+                            colors = OutlinedTextFieldDefaults.colors(
+                                unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+                                focusedContainerColor = MaterialTheme.colorScheme.surface,
+                                unfocusedBorderColor = Color.Transparent,
+                                focusedBorderColor = MaterialTheme.colorScheme.outline,
+                                unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
+                                focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                                unfocusedPlaceholderColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                                focusedPlaceholderColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                            ),
+                            singleLine = true
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(39.dp))
+
+                    // ── Emergency Contact * ───────────────────────────────────────
+                    FieldLabel("Emergency Contact *")
+                    Spacer(modifier = Modifier.height(8.dp))
+                    val ec1InteractionSource = remember { MutableInteractionSource() }
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .shadow(
+                                elevation = 6.dp,
+                                shape = RoundedCornerShape(12.dp),
+                                clip = false
+                            )
+                            .clip(RoundedCornerShape(12.dp))
+                    ) {
+                        OutlinedTextField(
+                            value = emergencyContact1,
+                            onValueChange = { emergencyContact1 = it },
+                            interactionSource = ec1InteractionSource,
+                            placeholder = {
+                                Text(
+                                    "Enter emergency contact",
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    fontSize = 18.sp
+                                )
+                            },
+                            leadingIcon = {
                                 Icon(
-                                    painter            = painterResource(id = R.drawable.location_icon),
-                                    contentDescription = "Map pin",
-                                    tint               = MaterialTheme.colorScheme.primary,
-                                    modifier           = Modifier.size(30.dp)
+                                    painter = painterResource(id = R.drawable.phone_icon),
+                                    contentDescription = "Phone",
+                                    tint = MaterialTheme.colorScheme.primary,
+                                    modifier = Modifier.size(24.dp)
+                                )
+                            },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(56.dp)
+                                .indication(
+                                    interactionSource = ec1InteractionSource,
+                                    indication = ripple(bounded = true)
+                                ),
+                            shape = RoundedCornerShape(12.dp),
+                            colors = OutlinedTextFieldDefaults.colors(
+                                unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+                                focusedContainerColor = MaterialTheme.colorScheme.surface,
+                                unfocusedBorderColor = Color.Transparent,
+                                focusedBorderColor = MaterialTheme.colorScheme.outline,
+                                unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
+                                focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                                unfocusedPlaceholderColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                                focusedPlaceholderColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                            ),
+                            singleLine = true
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(39.dp))
+
+                    // ── Emergency Contact 2 ───────────────────────────────────────
+                    FieldLabel("Emergency Contact 2")
+                    Spacer(modifier = Modifier.height(8.dp))
+                    val ec2InteractionSource = remember { MutableInteractionSource() }
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .shadow(
+                                elevation = 6.dp,
+                                shape = RoundedCornerShape(12.dp),
+                                clip = false
+                            )
+                            .clip(RoundedCornerShape(12.dp))
+                    ) {
+                        OutlinedTextField(
+                            value = emergencyContact2,
+                            onValueChange = { emergencyContact2 = it },
+                            interactionSource = ec2InteractionSource,
+                            placeholder = {
+                                Text(
+                                    "Enter emergency contact 2",
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    fontSize = 18.sp
+                                )
+                            },
+                            leadingIcon = {
+                                Icon(
+                                    painter = painterResource(id = R.drawable.phone_icon),
+                                    contentDescription = "Phone",
+                                    tint = MaterialTheme.colorScheme.primary,
+                                    modifier = Modifier.size(24.dp)
+                                )
+                            },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(56.dp)
+                                .indication(
+                                    interactionSource = ec2InteractionSource,
+                                    indication = ripple(bounded = true)
+                                ),
+                            shape = RoundedCornerShape(12.dp),
+                            colors = OutlinedTextFieldDefaults.colors(
+                                unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+                                focusedContainerColor = MaterialTheme.colorScheme.surface,
+                                unfocusedBorderColor = Color.Transparent,
+                                focusedBorderColor = MaterialTheme.colorScheme.outline,
+                                unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
+                                focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                                unfocusedPlaceholderColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                                focusedPlaceholderColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                            ),
+                            singleLine = true
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(39.dp))
+
+                    // ── Emergency Contact 3 ───────────────────────────────────────
+                    FieldLabel("Emergency Contact 3")
+                    Spacer(modifier = Modifier.height(8.dp))
+                    val ec3InteractionSource = remember { MutableInteractionSource() }
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .shadow(
+                                elevation = 6.dp,
+                                shape = RoundedCornerShape(12.dp),
+                                clip = false
+                            )
+                            .clip(RoundedCornerShape(12.dp))
+                    ) {
+                        OutlinedTextField(
+                            value = emergencyContact3,
+                            onValueChange = { emergencyContact3 = it },
+                            interactionSource = ec3InteractionSource,
+                            placeholder = {
+                                Text(
+                                    "Enter emergency contact 3",
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    fontSize = 18.sp
+                                )
+                            },
+                            leadingIcon = {
+                                Icon(
+                                    painter = painterResource(id = R.drawable.phone_icon),
+                                    contentDescription = "Phone",
+                                    tint = MaterialTheme.colorScheme.primary,
+                                    modifier = Modifier.size(24.dp)
+                                )
+                            },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(56.dp)
+                                .indication(
+                                    interactionSource = ec3InteractionSource,
+                                    indication = ripple(bounded = true)
+                                ),
+                            shape = RoundedCornerShape(12.dp),
+                            colors = OutlinedTextFieldDefaults.colors(
+                                unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+                                focusedContainerColor = MaterialTheme.colorScheme.surface,
+                                unfocusedBorderColor = Color.Transparent,
+                                focusedBorderColor = MaterialTheme.colorScheme.outline,
+                                unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
+                                focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                                unfocusedPlaceholderColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                                focusedPlaceholderColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                            ),
+                            singleLine = true
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(39.dp))
+
+                    // ── Emergency Contact 4 ───────────────────────────────────────
+                    FieldLabel("Emergency Contact 4")
+                    Spacer(modifier = Modifier.height(8.dp))
+                    val ec4InteractionSource = remember { MutableInteractionSource() }
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .shadow(
+                                elevation = 6.dp,
+                                shape = RoundedCornerShape(12.dp),
+                                clip = false
+                            )
+                            .clip(RoundedCornerShape(12.dp))
+                    ) {
+                        OutlinedTextField(
+                            value = emergencyContact4,
+                            onValueChange = { emergencyContact4 = it },
+                            interactionSource = ec4InteractionSource,
+                            placeholder = {
+                                Text(
+                                    "Enter emergency contact 4",
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    fontSize = 18.sp
+                                )
+                            },
+                            leadingIcon = {
+                                Icon(
+                                    painter = painterResource(id = R.drawable.phone_icon),
+                                    contentDescription = "Phone",
+                                    tint = MaterialTheme.colorScheme.primary,
+                                    modifier = Modifier.size(24.dp)
+                                )
+                            },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(56.dp)
+                                .indication(
+                                    interactionSource = ec4InteractionSource,
+                                    indication = ripple(bounded = true)
+                                ),
+                            shape = RoundedCornerShape(12.dp),
+                            colors = OutlinedTextFieldDefaults.colors(
+                                unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+                                focusedContainerColor = MaterialTheme.colorScheme.surface,
+                                unfocusedBorderColor = Color.Transparent,
+                                focusedBorderColor = MaterialTheme.colorScheme.outline,
+                                unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
+                                focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                                unfocusedPlaceholderColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                                focusedPlaceholderColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                            ),
+                            singleLine = true
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(39.dp))
+
+                    // ── Emergency Contact 5 ───────────────────────────────────────
+                    FieldLabel("Emergency Contact 5")
+                    Spacer(modifier = Modifier.height(8.dp))
+                    val ec5InteractionSource = remember { MutableInteractionSource() }
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .shadow(
+                                elevation = 6.dp,
+                                shape = RoundedCornerShape(12.dp),
+                                clip = false
+                            )
+                            .clip(RoundedCornerShape(12.dp))
+                    ) {
+                        OutlinedTextField(
+                            value = emergencyContact5,
+                            onValueChange = { emergencyContact5 = it },
+                            interactionSource = ec5InteractionSource,
+                            placeholder = {
+                                Text(
+                                    "Enter emergency contact 5",
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    fontSize = 18.sp
+                                )
+                            },
+                            leadingIcon = {
+                                Icon(
+                                    painter = painterResource(id = R.drawable.phone_icon),
+                                    contentDescription = "Phone",
+                                    tint = MaterialTheme.colorScheme.primary,
+                                    modifier = Modifier.size(24.dp)
+                                )
+                            },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(56.dp)
+                                .indication(
+                                    interactionSource = ec5InteractionSource,
+                                    indication = ripple(bounded = true)
+                                ),
+                            shape = RoundedCornerShape(12.dp),
+                            colors = OutlinedTextFieldDefaults.colors(
+                                unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+                                focusedContainerColor = MaterialTheme.colorScheme.surface,
+                                unfocusedBorderColor = Color.Transparent,
+                                focusedBorderColor = MaterialTheme.colorScheme.outline,
+                                unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
+                                focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                                unfocusedPlaceholderColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                                focusedPlaceholderColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                            ),
+                            singleLine = true
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(39.dp))
+
+                    // ── Address * + Add Voice * side by side ──────────────────────
+                    Row(
+                        verticalAlignment = Alignment.Top,
+                        horizontalArrangement = Arrangement.spacedBy(12.dp),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        // Left: label + address field
+                        Column(modifier = Modifier.weight(1f).padding(top = 26.dp)) {
+                            FieldLabel("Location *")
+                            Spacer(modifier = Modifier.height(8.dp))
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(52.dp)
+                                    .shadow(
+                                        elevation = 6.dp,
+                                        shape = RoundedCornerShape(12.dp),
+                                        clip = false
+                                    )
+                                    .clip(RoundedCornerShape(12.dp))
+                                    .background(MaterialTheme.colorScheme.surface)
+                                    .clickable(
+                                        interactionSource = remember { MutableInteractionSource() },
+                                        indication = ripple(bounded = true)
+                                    ) { /* open map */ },
+                                contentAlignment = Alignment.CenterStart
+                            ) {
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(horizontal = 14.dp)
+                                ) {
+                                    Text(
+                                        text = selectedAddress.ifEmpty { "Get current location" },
+                                        fontSize = 16.sp,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis,
+                                        modifier = Modifier.weight(1f)
+                                    )
+                                    Icon(
+                                        painter = painterResource(id = R.drawable.line_icon),
+                                        contentDescription = null,
+                                        tint = Color.Unspecified,
+                                        modifier = Modifier
+                                            .width(25.dp)
+                                            .height(40.dp)
+                                            .padding(end = 4.dp)
+                                    )
+                                    Icon(
+                                        painter = painterResource(id = R.drawable.location_icon),
+                                        contentDescription = "Map pin",
+                                        tint = MaterialTheme.colorScheme.primary,
+                                        modifier = Modifier.size(30.dp)
+                                    )
+                                }
+                            }
+                        }
+
+                        // Right: label + microphone button
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            FieldLabel("Add Person's\nvoice sample *", 17.sp)
+                            Spacer(modifier = Modifier.height(8.dp))
+                            ShadowButton(
+                                width = 72.dp,
+                                height = 51.dp,
+                                color = MaterialTheme.colorScheme.secondary,
+                                cornerRadius = 15.dp,
+                                onClick = { /* navigate to voice recording */ }
+                            ) {
+                                Icon(
+                                    painter = painterResource(id = R.drawable.microphone_icon),
+                                    contentDescription = "Record voice",
+                                    tint = MaterialTheme.colorScheme.primary,
+                                    modifier = Modifier.size(32.dp)
                                 )
                             }
                         }
                     }
 
-                    // Right: label + microphone button
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        FieldLabel("Add Person's\nvoice sample *", 17.sp)
-                        Spacer(modifier = Modifier.height(8.dp))
-                        ShadowButton(
-                            width        = 72.dp,
-                            height       = 51.dp,
-                            color        = MaterialTheme.colorScheme.secondary,
-                            cornerRadius = 15.dp,
-                            onClick      = { /* navigate to voice recording */ }
-                        ) {
-                            Icon(
-                                painter            = painterResource(id = R.drawable.microphone_icon),
-                                contentDescription = "Record voice",
-                                tint               = MaterialTheme.colorScheme.primary,
-                                modifier           = Modifier.size(32.dp)
-                            )
-                        }
-                    }
-                }
+                    Spacer(modifier = Modifier.height(60.dp))
 
-                Spacer(modifier = Modifier.height(60.dp))
-
-                // ── Buttons — change based on mode ────────────────────────────
-                if (mode == PersonFormMode.ADD) {
-                    ShadowButtonFull(
-                        height       = 56.dp,
-                        color        = MaterialTheme.colorScheme.primary,
-                        cornerRadius = 30.dp,
-                        onClick      = {
-                            onAdd(
-                                nameText, phoneText,
-                                emergencyContact1, emergencyContact2,
-                                emergencyContact3, emergencyContact4,
-                                emergencyContact5, selectedAddress
-                            )
-                        }
-                    ) {
-                        Text(
-                            text       = "Add",
-                            color      = MaterialTheme.colorScheme.onPrimary,
-                            fontSize   = 22.sp,
-                            fontWeight = FontWeight.SemiBold
-                        )
-                    }
-                } else
-                {
+                    // ── Buttons — change based on mode ────────────────────────────
+                    if (mode == PersonFormMode.ADD) {
                         ShadowButtonFull(
-                            height       = 56.dp,
-                            color        = MaterialTheme.colorScheme.primary,
+                            height = 56.dp,
+                            color = MaterialTheme.colorScheme.primary,
                             cornerRadius = 30.dp,
-                            onClick      = {
+                            onClick = {
+                                onAdd(
+                                    nameText, phoneText,
+                                    emergencyContact1, emergencyContact2,
+                                    emergencyContact3, emergencyContact4,
+                                    emergencyContact5, selectedAddress
+                                )
+                            }
+                        ) {
+                            Text(
+                                text = "Add",
+                                color = MaterialTheme.colorScheme.onPrimary,
+                                fontSize = 22.sp,
+                                fontWeight = FontWeight.SemiBold
+                            )
+                        }
+                    } else {
+                        ShadowButtonFull(
+                            height = 56.dp,
+                            color = MaterialTheme.colorScheme.primary,
+                            cornerRadius = 30.dp,
+                            onClick = {
                                 onEdit(
                                     nameText, phoneText,
                                     emergencyContact1, emergencyContact2,
@@ -621,19 +646,30 @@ fun PersonFormContent(
                             }
                         ) {
                             Text(
-                                text       = "Save Changes",
-                                color      = MaterialTheme.colorScheme.onPrimary,
-                                fontSize   = 22.sp,
+                                text = "Save Changes",
+                                color = MaterialTheme.colorScheme.onPrimary,
+                                fontSize = 22.sp,
                                 fontWeight = FontWeight.SemiBold
                             )
                         }
 
                     }
                 }
-            Spacer(modifier = Modifier.height(60.dp))
-        }
+                Spacer(modifier = Modifier.height(60.dp))
+
+            }
+            // Header title changes based on mode
+            HeaderSection(
+                title = if (mode == PersonFormMode.ADD) "Let us know you" else "Profile",
+                spacing = if (mode == PersonFormMode.ADD) 72.dp else 80.dp,
+                textSize = if (mode == PersonFormMode.ADD) 34.sp else 39.sp,
+                leaves = 9.dp,
+                headerHeight = 218.dp,
+                onBack = onBack
+            )
         }
     }
+}
 // ── Previews ──────────────────────────────────────────────────────────────────
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
