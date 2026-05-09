@@ -57,7 +57,7 @@ import com.example.myapplication.R
 
 private enum class Screen { Loading3, Loading4 }
 
-// ─── bottom.xml paths ────────────────────────────────────────────────────────
+// ─── bottom shape paths ────────────────────────────────────────────────────────
 private fun buildMainGreenPath(w: Float, h: Float): Path {
     val sx = w / 412f; val sy = h / 433f
     return Path().apply {

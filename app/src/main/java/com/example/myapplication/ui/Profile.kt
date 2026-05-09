@@ -630,9 +630,8 @@ fun PersonFormContent(
 
                     }
                 }
-            }
-
-            Spacer(modifier = Modifier.height(34.dp))
+            Spacer(modifier = Modifier.height(60.dp))
+        }
         }
     }
 // ── Previews ──────────────────────────────────────────────────────────────────
