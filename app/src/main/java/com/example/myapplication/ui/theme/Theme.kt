@@ -108,7 +108,9 @@ private val GreenColorScheme = lightColorScheme(
 
 @Composable
 fun GreenTheme(content: @Composable () -> Unit) {
-    MaterialTheme(colorScheme = GreenColorScheme) {
+    MaterialTheme(colorScheme = GreenColorScheme,
+        typography = AppTypography ) {
         content()
     }
 }
+
