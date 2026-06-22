@@ -1,48 +1,32 @@
 package com.example.myapplication.ui
 
-import android.os.Bundle
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.indication
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.myapplication.ui.theme.GreenTheme
 import com.example.myapplication.R
-import com.example.myapplication.ui.components.BottomNavBar
 import com.example.myapplication.ui.components.FieldLabel
 import com.example.myapplication.ui.components.HeaderSection
+import com.example.myapplication.ui.components.LocationPickerField
 import com.example.myapplication.ui.components.ShadowButton
-import com.example.myapplication.ui.components.ShadowButtonFull
-import androidx.compose.foundation.horizontalScroll
-import com.example.myapplication.ui.components.NavTab
+import com.example.myapplication.ui.components.ShadowTextField
+import com.example.myapplication.ui.theme.GreenTheme
 import com.example.myapplication.ui.theme.OutfitFont
 
-
 @Composable
-fun AddLocationContent(    onHomeClick    : () -> Unit = {},
-                           onProfileClick : () -> Unit = {},
-                           onAddClick     : () -> Unit = {}   // ← add this
-
+fun AddLocationContent(
+    onHomeClick: () -> Unit = {},
+    onProfileClick: () -> Unit = {},
+    onAddClick: () -> Unit = {}
 ) {
-
     var titleText by remember { mutableStateOf("") }
     var descriptionText by remember { mutableStateOf("") }
     var selectedLocation by remember { mutableStateOf("") }
@@ -64,7 +48,6 @@ fun AddLocationContent(    onHomeClick    : () -> Unit = {},
                 // Spacer pushes content down below header height
                 Spacer(modifier = Modifier.height(260.dp))  // ← match your headerHeight
 
-
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -77,43 +60,15 @@ fun AddLocationContent(    onHomeClick    : () -> Unit = {},
                         horizontalArrangement = Arrangement.spacedBy(5.dp),
                         modifier = Modifier.fillMaxWidth()
                     ) {
-                        // ── Left: Label + text field ──────────────────────────────
+                        // ── Left: Label + location display ────────────────────────
                         Column(modifier = Modifier.weight(1f)) {
                             FieldLabel("Location *")
                             Spacer(modifier = Modifier.height(8.dp))
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .height(52.dp)
-                                    .shadow(
-                                        elevation = 6.dp,
-                                        shape = RoundedCornerShape(12.dp),
-                                        clip = false
-                                    )
-                                    .clip(RoundedCornerShape(12.dp))
-                                    .background(MaterialTheme.colorScheme.surface)
-                                    .clickable(
-                                        interactionSource = remember { MutableInteractionSource() },
-                                        indication = ripple(bounded = true)
-                                    ) { },
-                                contentAlignment = Alignment.CenterStart
-                            ) {
-                                Row(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(horizontal = 14.dp)
-                                        .horizontalScroll(rememberScrollState())
-                                ) {
-                                    Text(
-                                        text = selectedLocation.ifEmpty { "Open location in map" },
-                                        fontSize = 18.sp,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                        maxLines = 1,
-                                        softWrap = false,
-                                        fontFamily = OutfitFont
-                                    )
-                                }
-                            }
+                            LocationPickerField(
+                                value = selectedLocation,
+                                placeholder = "Open location in map",
+                                onClick = { /* open map */ }
+                            )
                         }
 
                         // ── Right: Label + button ─────────────────────────────────
@@ -144,98 +99,30 @@ fun AddLocationContent(    onHomeClick    : () -> Unit = {},
                     // ── Title ─────────────────────────────────────────────────────
                     FieldLabel("Title *")
                     Spacer(modifier = Modifier.height(8.dp))
-                    val titleInteractionSource = remember { MutableInteractionSource() }
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .shadow(
-                                elevation = 6.dp,
-                                shape = RoundedCornerShape(12.dp),
-                                clip = false
-                            )
-                            .clip(RoundedCornerShape(12.dp))
-                    ) {
-                        OutlinedTextField(
-                            value = titleText,
-                            onValueChange = { titleText = it },
-                            interactionSource = titleInteractionSource,
-                            placeholder = {
-                                Text(
-                                    "Title for place e.g. Restaurant",
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    fontSize = 18.sp,
-                                    fontFamily = OutfitFont
-
-                                )
-                            },
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(56.dp)
-                                .indication(
-                                    interactionSource = titleInteractionSource,
-                                    indication = ripple(bounded = true)
-                                ),
-                            shape = RoundedCornerShape(12.dp),
-                            colors = OutlinedTextFieldDefaults.colors(
-                                unfocusedContainerColor = MaterialTheme.colorScheme.surface,
-                                focusedContainerColor = MaterialTheme.colorScheme.surface,
-                                unfocusedBorderColor = Color.Transparent,
-                                focusedBorderColor = MaterialTheme.colorScheme.outline,
-                            ),
-                            singleLine = true
-                        )
-                    }
+                    ShadowTextField(
+                        value = titleText,
+                        onValueChange = { titleText = it },
+                        placeholder = "Title for place e.g. Restaurant",
+                    )
 
                     Spacer(modifier = Modifier.height(24.dp))
 
                     // ── Description ───────────────────────────────────────────────
                     FieldLabel("Description *")
                     Spacer(modifier = Modifier.height(8.dp))
-                    val descInteractionSource = remember { MutableInteractionSource() }
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .shadow(
-                                elevation = 6.dp,
-                                shape = RoundedCornerShape(12.dp),
-                                clip = false
-                            )
-                            .clip(RoundedCornerShape(12.dp))
-                    ) {
-                        OutlinedTextField(
-                            value = descriptionText,
-                            onValueChange = { descriptionText = it },
-                            interactionSource = descInteractionSource,
-                            placeholder = {
-                                Text(
-                                    "Enter Description e.g went with him/her",
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    fontSize = 18.sp,
-                                    fontFamily = OutfitFont
-                                )
-                            },
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(160.dp)
-                                .indication(
-                                    interactionSource = descInteractionSource,
-                                    indication = ripple(bounded = true)
-                                ),
-                            shape = RoundedCornerShape(12.dp),
-                            colors = OutlinedTextFieldDefaults.colors(
-                                unfocusedContainerColor = MaterialTheme.colorScheme.surface,
-                                focusedContainerColor = MaterialTheme.colorScheme.surface,
-                                unfocusedBorderColor = Color.Transparent,
-                                focusedBorderColor = MaterialTheme.colorScheme.outline,
-                            ),
-                            maxLines = 6
-                        )
-                    }
+                    ShadowTextField(
+                        value = descriptionText,
+                        onValueChange = { descriptionText = it },
+                        placeholder = "Enter Description e.g went with him/her",
+                        height = 160.dp,
+                        singleLine = false,
+                        maxLines = 6,
+                    )
 
                     Spacer(modifier = Modifier.height(55.dp))
 
                     // ── Green Add Button ───────────────────────────────────────────
-                    ShadowButtonFull(
+                    ShadowButton(
                         height = 56.dp,
                         color = MaterialTheme.colorScheme.primary,
                         cornerRadius = 30.dp,

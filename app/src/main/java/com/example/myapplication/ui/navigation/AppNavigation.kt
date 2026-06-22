@@ -90,7 +90,7 @@ fun AppNavigation() {
                 // ← add this route for ADD mode (no nav bar)
                 composable("addperson") {
                     PersonFormContent(mode    = PersonFormMode.ADD,
-                        onAdd   = { _, _, _, _, _, _, _, _ ->
+                        onAdd   = { _, _, _, _ ->
                             navController.navigate("addlocation") {
                                 launchSingleTop = true
                             }

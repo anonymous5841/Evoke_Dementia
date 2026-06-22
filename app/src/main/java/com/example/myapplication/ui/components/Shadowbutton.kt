@@ -24,65 +24,21 @@ import androidx.compose.ui.unit.dp
 
 @Composable
 fun ShadowButton(
-    width        : Dp,
+    width        : Dp?       = null,
     height       : Dp,
     color        : Color,
     cornerRadius : Dp     = 30.dp,
     onClick      : () -> Unit = {},
     content      : @Composable () -> Unit
 ) {
-    Box(
-        modifier = Modifier
-            .width(width)
-            .height(height)
-            .drawBehind {
-                drawIntoCanvas { canvas ->
-                    val paint          = Paint()
-                    val frameworkPaint = paint.asFrameworkPaint()
-                    frameworkPaint.isAntiAlias = true
-                    frameworkPaint.color       = android.graphics.Color.TRANSPARENT
-                    frameworkPaint.setShadowLayer(
-                        12f,
-                        -7f,
-                        18f,
-                        android.graphics.Color.argb(90, 0, 0, 0)
-                    )
-                    canvas.drawRoundRect(
-                        left    = 0f,
-                        top     = 0f,
-                        right   = size.width,
-                        bottom  = size.height,
-                        radiusX = cornerRadius.toPx(),
-                        radiusY = cornerRadius.toPx(),
-                        paint   = paint
-                    )
-                }
-            }
-            .clip(RoundedCornerShape(cornerRadius))
-            .background(color)
-            .clickable(
-                interactionSource = remember { MutableInteractionSource() },
-                indication        = ripple(bounded = true)
-            ) { onClick() },
-        contentAlignment = Alignment.Center
-    ) {
-        content()
-    }
-}
 
-// Full width variant
-@Composable
-fun ShadowButtonFull(
-    height       : Dp,
-    color        : Color,
-    cornerRadius : Dp     = 30.dp,
-    onClick      : () -> Unit = {},
-    content      : @Composable () -> Unit
-) {
+    val sizeModifier = if (width != null)
+        Modifier.width(width).height(height)
+    else
+        Modifier.fillMaxWidth().height(height)
+
     Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(height)
+        modifier = sizeModifier
             .drawBehind {
                 drawIntoCanvas { canvas ->
                     val paint          = Paint()

@@ -154,7 +154,7 @@ fun HeaderSection(
 
 
                 ) {
-                    ShadowButtonFull(
+                    ShadowButton(
                         height       = 56.dp,
                         color        = MaterialTheme.colorScheme.onPrimary,  // swapped: white bg
                         cornerRadius = 30.dp,

@@ -172,7 +172,7 @@ fun FigmaMotionApp(
                     GreenTheme {
                         PersonFormContent(
                             mode   = PersonFormMode.ADD,
-                            onAdd  = { _, _, _, _, _, _, _, _ ->
+                            onAdd  = { _, _, _, _ ->
                                 onAddComplete()           // ← fires when Add button clicked
                             },
                             onBack = {
