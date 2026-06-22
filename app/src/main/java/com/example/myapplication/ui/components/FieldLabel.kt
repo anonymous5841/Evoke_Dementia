@@ -8,7 +8,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.sp
 import com.example.myapplication.ui.theme.MartelFont
-import com.example.myapplication.ui.theme.OutfitFont
 
 @Composable
 fun FieldLabel(text: String, textsize: TextUnit  = 20.sp, fontFamily: FontFamily = MartelFont,  fontWeight: FontWeight = FontWeight.SemiBold ) {
