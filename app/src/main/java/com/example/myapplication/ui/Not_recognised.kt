@@ -222,7 +222,7 @@ fun NotRecognisedContent(
                                 Text(
                                     text = "Record Conversation",
                                     color = MaterialTheme.colorScheme.onPrimary,
-                                    fontSize = 20.sp,
+                                    fontSize = 19.sp,
                                     fontWeight = FontWeight.Medium,
                                     fontFamily = OutfitFont
                                 )

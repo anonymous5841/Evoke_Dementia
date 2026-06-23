@@ -15,11 +15,18 @@ import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import android.os.Build
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.unit.*
 import com.example.myapplication.R
 import com.example.myapplication.ui.theme.BaumansFont
 import com.example.myapplication.ui.theme.OutfitFont
 import com.example.myapplication.ui.theme.PompiereFont
+
 
 // ── Header shadow paths (from header_shadow.xml, viewport 452×307) ───────────
 // Main body: M0 0 H452 V197.851 H100 C55.8172,197.851 0,162.034 0,117.851 V0 Z
@@ -61,6 +68,29 @@ private fun DrawScope.drawHeaderShadow() {
     drawPath(buildHeaderCornerPath(w, h), Color.Black)
 }
 
+
+private fun buildHeaderCombinedPath(w: Float, h: Float): Path {
+    val sx = w / 452f
+    val sy = h / 307f  // ← back to 307f
+    return Path().apply {
+        moveTo(0f, 0f)
+        lineTo(452f * sx, 0f)
+        lineTo(452f * sx, 273f * sy)
+        cubicTo(
+            452f     * sx, 228.817f * sy,
+            416.183f * sx, 193f     * sy,
+            372f     * sx, 193f     * sy
+        )
+        lineTo(100f * sx, 197.851f * sy)
+        cubicTo(
+            55.8172f * sx, 197.851f * sy,
+            0f,            162.034f * sy,
+            0f,            117.851f * sy
+        )
+        close()
+    }
+}
+
 @Composable
 fun HeaderSection(
     title          : String            = "Location",
@@ -77,22 +107,69 @@ fun HeaderSection(
     Box {
 
         // ── Shaped shadow — same blur/alpha as bottom XML shadow ──────────────
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(headerHeight)
-                .offset(y = 16.dp)          // shift down so shadow peeks below header
-                .graphicsLayer {
-                    compositingStrategy = CompositingStrategy.Offscreen
-                    renderEffect = BlurEffect(
-                        radiusX       = 10f,
-                        radiusY       = 50f,
-                        edgeTreatment = TileMode.Decal
-                    )
-                    alpha = 0.65f
-                }
-                .drawBehind { drawHeaderShadow() }
-        )
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            // API 31+ — BlurEffect version
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(headerHeight)
+                    .offset(y = 16.dp)
+                    .graphicsLayer {
+                        compositingStrategy = CompositingStrategy.Offscreen
+                        renderEffect = BlurEffect(
+                            radiusX       = 10f,
+                            radiusY       = 50f,
+                            edgeTreatment = TileMode.Decal
+                        )
+                        alpha = 0.65f
+                    }
+                    .drawBehind { drawHeaderShadow() }
+            )
+        } else {
+            var cachedPath by remember { mutableStateOf<Path?>(null) }
+            var cachedSize by remember { mutableStateOf(Pair(0f, 0f)) }
+
+            val shadowHeight = headerHeight * (307f / 260f)  // ← restore this
+
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(shadowHeight)              // ← restore inflated height
+                    .offset(y = (-16).dp)                 // ← match API 31+ offset
+                    .drawBehind {
+                        val w = size.width
+                        val h = size.height
+
+                        if (cachedSize != Pair(w, h)) {
+                            cachedPath = buildHeaderCombinedPath(w, h)  // original function unchanged
+                            cachedSize = Pair(w, h)
+                        }
+                        val combinedPath = cachedPath!!
+
+                        val spreadLayers = listOf(
+                            Pair(8f,  0.06f),
+                            Pair(14f, 0.05f),
+                            Pair(20f, 0.05f),
+                            Pair(28f, 0.04f),
+                            Pair(36f, 0.03f),
+                            Pair(44f, 0.02f),
+                            Pair(52f, 0.01f),
+                        )
+
+                        spreadLayers.forEach { (yOff, alpha) ->
+                            drawIntoCanvas { canvas ->
+                                val paint = Paint().apply {
+                                    color = Color.Black.copy(alpha = alpha)
+                                }
+                                canvas.withSave {
+                                    canvas.translate(0f, yOff)
+                                    canvas.drawPath(combinedPath, paint)
+                                }
+                            }
+                        }
+                    }
+            )
+        }
 
         // ── Header image ──────────────────────────────────────────────────────
         Box(
@@ -101,7 +178,7 @@ fun HeaderSection(
                 .height(headerHeight)
                 .paint(
                     painterResource(id = R.drawable.headers),
-                    contentScale = ContentScale.Crop
+                    contentScale = ContentScale.FillBounds
                 )
         ) {
             // ── Leaves with shadow ────────────────────────────────────────────

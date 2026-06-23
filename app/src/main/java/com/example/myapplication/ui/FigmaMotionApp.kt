@@ -49,10 +49,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.layout.width
+import androidx.compose.ui.graphics.Paint
+import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
+import androidx.compose.ui.graphics.withSave
 import com.example.myapplication.ui.theme.GreenTheme
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
+import android.os.Build
 import com.example.myapplication.R
 import com.example.myapplication.ui.theme.BaumansFont
 import com.example.myapplication.ui.theme.PompiereFont
@@ -363,25 +367,74 @@ private fun BottomLanguageBlockWithShadow(
             .fillMaxHeight(0.50f)
     ) {
         // Black blurred shadow
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .fillMaxHeight()
-                .offset(y = (-16).dp)
-                .graphicsLayer {
-                    compositingStrategy = CompositingStrategy.Offscreen
-                    renderEffect = BlurEffect(
-                        radiusX       = 10f,
-                        radiusY       = 50f,
-                        edgeTreatment = TileMode.Decal
-                    )
-                    alpha = 0.65f
-                }
-                .drawBehind {
-                    val w = size.width; val h = size.height
-                    drawPath(buildMainGreenPath(w, h), Color.Black)
-                }
-        )
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            // API 31+ — BlurEffect version
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .fillMaxHeight()
+                    .offset(y = (-16).dp)
+                    .graphicsLayer {
+                        compositingStrategy = CompositingStrategy.Offscreen
+                        renderEffect = BlurEffect(
+                            radiusX       = 10f,
+                            radiusY       = 50f,
+                            edgeTreatment = TileMode.Decal
+                        )
+                        alpha = 0.65f
+                    }
+                    .drawBehind {
+                        val w = size.width; val h = size.height
+                        drawPath(buildMainGreenPath(w, h), Color.Black)
+                    }
+            )
+        } else {
+            // API < 31 — spread layers version
+            val cachedBottomPath = remember { mutableListOf<Path>() }
+
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .fillMaxHeight()
+                    .offset(y = (-16).dp)
+                    .drawBehind {
+                        val w = size.width
+                        val h = size.height
+
+                        val bottomPath: Path
+                        if (cachedBottomPath.isEmpty()) {
+                            val newPath = buildMainGreenPath(w, h)
+                            cachedBottomPath.add(newPath)
+                            bottomPath = newPath
+                        } else {
+                            bottomPath = cachedBottomPath[0]
+                        }
+
+                        val spreadLayers = listOf(
+                            Pair(-8f,  0.04f),  // closest to shape — highest alpha
+                            Pair(-14f, 0.020f),
+                            Pair(-20f, 0.015f),
+                            Pair(-28f, 0.010f),
+                            Pair(-36f, 0.007f),
+                            Pair(-44f, 0.004f),
+                            Pair(-52f, 0.002f),  // furthest from shape — lowest alpha
+                        )
+
+                        spreadLayers.forEach { (yOff, alpha) ->
+                            drawIntoCanvas { canvas ->
+                                val paint = Paint().apply {
+                                    color = Color.Black.copy(alpha = alpha)
+                                    isAntiAlias = false  // ← add this
+                                }
+                                canvas.withSave {
+                                    canvas.translate(0f, yOff)
+                                    canvas.drawPath(bottomPath, paint)
+                                }
+                            }
+                        }
+                    }
+            )
+        }
 
         // Real shape
         BoxWithConstraints(
@@ -419,7 +472,8 @@ private fun BottomLanguageBlockWithShadow(
                                     radiusY       = 15f,
                                     edgeTreatment = TileMode.Decal
                                 )
-                                alpha = 0.4f
+                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) { alpha = 0.4f}
+                                else{alpha = 0.3f}
                             }
                     )
                     Text(
