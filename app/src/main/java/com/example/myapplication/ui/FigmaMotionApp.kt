@@ -57,6 +57,8 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 import android.os.Build
+import androidx.compose.ui.input.pointer.PointerEventPass
+import androidx.compose.ui.input.pointer.pointerInput
 import com.example.myapplication.R
 import com.example.myapplication.ui.theme.BaumansFont
 import com.example.myapplication.ui.theme.PompiereFont
@@ -151,10 +153,25 @@ fun FigmaMotionApp(
         bubbleReveal.snapTo(0f); imageReveal.snapTo(0f)
         contentReveal.snapTo(0f); riseContent.snapTo(0f)
         slideUp.snapTo(0f)
-        bubbleReveal.animateTo(1f, tween(1800, easing = LinearEasing))
-        imageReveal.animateTo(1f, tween(700, easing = FastOutSlowInEasing))
-        contentReveal.animateTo(1f, tween(700, easing = FastOutSlowInEasing))
-        delay(600)
+
+        kotlinx.coroutines.coroutineScope {
+            // Bubbles: same pace as before but no pauses — smooth continuous flow
+            launch {
+                bubbleReveal.animateTo(0.60f, tween(3500, easing = LinearEasing))
+                bubbleReveal.animateTo(0.75f, tween(1500, easing = LinearEasing))
+                bubbleReveal.animateTo(1f,    tween(1200, easing = FastOutSlowInEasing))
+            }
+            // Content: starts 2 seconds earlier than before (was after all bubble phases + delays)
+            launch {
+                delay(5000)  // ← was ~5800ms before (3500 + 800 + 1500 + 400 delays removed)
+                imageReveal.animateTo(1f, tween(900, easing = FastOutSlowInEasing))
+            }
+            launch {
+                delay(5000)
+                contentReveal.animateTo(1f, tween(900, easing = FastOutSlowInEasing))
+            }
+        }
+
         riseContent.animateTo(1f, tween(700, easing = FastOutSlowInEasing))
     }
 
@@ -201,6 +218,15 @@ fun FigmaMotionApp(
                         modifier = Modifier
                             .fillMaxSize()
                             .offset(y = (-screenHeight * slideUp.value))
+                            .pointerInput(slideUp.value) {
+                                if (slideUp.value < 0.95f) {
+                                    awaitPointerEventScope {
+                                        while (true) {
+                                            awaitPointerEvent(PointerEventPass.Initial)
+                                        }
+                                    }
+                                }
+                            }
                     ) {
                         // White background + bubbles (fades out as slide progresses)
                         val contentAlpha = (1f - slideUp.value * 2f).coerceIn(0f, 1f)
@@ -303,29 +329,39 @@ fun FigmaMotionApp(
 @Composable
 private fun WhiteBubbleFill(progress: Float) {
     Box(Modifier.fillMaxSize()) {
-        TransitionBubble(x=-260f, y=-160f, size=360f, progress=progress, stagger=0.00f, blur=0f)
-        TransitionBubble(x= 420f, y=-140f, size=340f, progress=progress, stagger=0.04f, blur=0f)
-        TransitionBubble(x= 300f, y=  0f,  size=400f, progress=progress, stagger=0.05f, blur=0f)
-        TransitionBubble(x= 550f, y=100f,  size=250f, progress=progress, stagger=0.06f, blur=0f)
-        TransitionBubble(x=-260f, y=340f,  size=360f, progress=progress, stagger=0.10f, blur=6f)
-        TransitionBubble(x= 200f, y=400f,  size=350f, progress=progress, stagger=0.11f, blur=0f)
-        TransitionBubble(x=-100f, y=500f,  size=350f, progress=progress, stagger=0.13f, blur=0f)
-        TransitionBubble(x= 420f, y=300f,  size=360f, progress=progress, stagger=0.14f, blur=6f)
-        TransitionBubble(x= 480f, y=400f,  size=320f, progress=progress, stagger=0.16f, blur=0f)
-        TransitionBubble(x= 520f, y=500f,  size=280f, progress=progress, stagger=0.18f, blur=0f)
-        TransitionBubble(x= 450f, y=350f,  size=240f, progress=progress, stagger=0.15f, blur=0f)
-        TransitionBubble(x= 500f, y=200f,  size=300f, progress=progress, stagger=0.12f, blur=0f)
-        TransitionBubble(x= 550f, y=600f,  size=300f, progress=progress, stagger=0.19f, blur=0f)
-        TransitionBubble(x=-220f, y=700f,  size=320f, progress=progress, stagger=0.18f, blur=0f)
-        TransitionBubble(x= 480f, y=760f,  size=400f, progress=progress, stagger=0.20f, blur=0f)
-        TransitionBubble(x= 530f, y=860f,  size=260f, progress=progress, stagger=0.17f, blur=0f)
-        TransitionBubble(x= 560f, y=720f,  size=240f, progress=progress, stagger=0.22f, blur=0f)
-        TransitionBubble(x= 510f, y=820f,  size=220f, progress=progress, stagger=0.20f, blur=0f)
-        TransitionBubble(x= 600f, y=900f,  size=280f, progress=progress, stagger=0.19f, blur=0f)
-        TransitionBubble(x= 500f, y=740f,  size=180f, progress=progress, stagger=0.26f, blur=0f)
-        TransitionBubble(x= 460f, y=660f,  size=260f, progress=progress, stagger=0.24f, blur=0f)
-        TransitionBubble(x=  80f, y=-240f, size=420f, progress=progress, stagger=0.28f, blur=0f)
-        TransitionBubble(x= 120f, y=760f,  size=420f, progress=progress, stagger=0.32f, blur=0f)
+// First wave — corners and edges, appear earliest
+        TransitionBubble(x=-160f, y=-160f, size=360f, progress=progress, stagger=0.00f, blur=0f)
+        TransitionBubble(x= 420f, y=-140f, size=340f, progress=progress, stagger=0.02f, blur=0f)
+        TransitionBubble(x=  80f, y=-240f, size=420f, progress=progress, stagger=0.02f, blur=0f) // ← moved here
+        TransitionBubble(x= 480f, y=760f,  size=400f, progress=progress, stagger=0.04f, blur=0f)
+        TransitionBubble(x=-220f, y=750f,  size=320f, progress=progress, stagger=0.04f, blur=0f)
+
+
+        // Second wave — spread inward
+        TransitionBubble(x= 300f, y=  0f,  size=400f, progress=progress, stagger=0.08f, blur=0f)
+        TransitionBubble(x= 550f, y=100f,  size=250f, progress=progress, stagger=0.10f, blur=0f)
+        TransitionBubble(x=-160f, y=340f,  size=360f, progress=progress, stagger=0.12f, blur=6f)
+        TransitionBubble(x= 530f, y=880f,  size=260f, progress=progress, stagger=0.12f, blur=0f)
+
+        // Third wave — middle fill
+        TransitionBubble(x= 100f, y=400f,  size=350f, progress=progress, stagger=0.18f, blur=0f)
+        TransitionBubble(x=-100f, y=500f,  size=350f, progress=progress, stagger=0.20f, blur=0f)
+        TransitionBubble(x= 420f, y=300f,  size=360f, progress=progress, stagger=0.20f, blur=6f)
+        TransitionBubble(x= 480f, y=400f,  size=320f, progress=progress, stagger=0.22f, blur=0f)
+        TransitionBubble(x= 500f, y=200f,  size=300f, progress=progress, stagger=0.24f, blur=0f)
+
+        // Fourth wave — center closers
+        TransitionBubble(x= 520f, y=500f,  size=280f, progress=progress, stagger=0.30f, blur=0f)
+        TransitionBubble(x= 450f, y=350f,  size=240f, progress=progress, stagger=0.32f, blur=0f)
+        TransitionBubble(x= 550f, y=600f,  size=300f, progress=progress, stagger=0.34f, blur=0f)
+        TransitionBubble(x= 560f, y=720f,  size=240f, progress=progress, stagger=0.36f, blur=0f)
+        TransitionBubble(x= 510f, y=820f,  size=220f, progress=progress, stagger=0.38f, blur=0f)
+        TransitionBubble(x= 600f, y=900f,  size=280f, progress=progress, stagger=0.40f, blur=0f)
+
+        // Final fill — last gaps
+        TransitionBubble(x= 500f, y=740f,  size=180f, progress=progress, stagger=0.46f, blur=0f)
+        TransitionBubble(x= 460f, y=660f,  size=260f, progress=progress, stagger=0.48f, blur=0f)
+        TransitionBubble(x= 120f, y=760f,  size=420f, progress=progress, stagger=0.56f, blur=0f)
     }
 }
 

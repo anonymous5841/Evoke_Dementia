@@ -237,12 +237,12 @@ fun NotRecognisedContent(
 
             // ── Header ────────────────────────────────────────────────────────
             HeaderSection(
-                title = "Result: ",
+                title = "Result:",
                 "Not-Recognised",
                 218.dp,
                 33.sp,
-                37.dp,
-                (9).dp,
+                43.dp,
+                (22).dp,
                 onBack = { })
 
         }
