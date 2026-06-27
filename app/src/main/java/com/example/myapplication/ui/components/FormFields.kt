@@ -135,14 +135,20 @@ fun LocationPickerField(
     modifier: Modifier = Modifier,
     height: Dp = 52.dp,
     cornerRadius: Dp = 12.dp,
+    backgroundColor: Color = MaterialTheme.colorScheme.surface,
+    shadowElevation: Dp = 6.dp,
+    showShadow: Boolean = true,
 ) {
     Box(
         modifier = modifier
             .fillMaxWidth()
             .height(height)
-            .shadow(elevation = 6.dp, shape = RoundedCornerShape(cornerRadius), clip = false)
+            .then(
+                if (showShadow) Modifier.shadow(elevation = shadowElevation, shape = RoundedCornerShape(cornerRadius), clip = false)
+                else Modifier
+            )
             .clip(RoundedCornerShape(cornerRadius))
-            .background(MaterialTheme.colorScheme.surface)
+            .background(backgroundColor)
             .clickable(
                 interactionSource = remember { MutableInteractionSource() },
                 indication = ripple(bounded = true),
