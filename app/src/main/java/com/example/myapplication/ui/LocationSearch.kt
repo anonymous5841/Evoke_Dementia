@@ -28,6 +28,7 @@ class LocationSearch : ComponentActivity() {
     }
 }
 
+
 // ── Location picker row ───────────────────────────────────────────────────────
 @Composable
 fun LocationSearchContent(
