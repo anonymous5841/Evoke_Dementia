@@ -38,9 +38,16 @@ fun MeowBottomNavigation(
     circleColor       : Color    = Color(0xFF3E634F),
     hasAnimation      : Boolean  = true
 ) {
-    val density     = LocalDensity.current
-    val totalHeight = 108.dp
+    val density      = LocalDensity.current
+    val navBarInset = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
+    val systemGestureInset = WindowInsets.systemGestures.asPaddingValues().calculateBottomPadding()
 
+// Only add padding if it's button navigation (not gesture)
+// Gesture nav inset is typically >= navigationBars inset
+    val extraBottomPadding = if (systemGestureInset <= navBarInset) navBarInset * 0.4f else 0.dp
+
+    val designHeight = 108.dp
+    val totalHeight  = designHeight + extraBottomPadding
     val barTopFrac   = 38f   / 108f
     val circleCYFrac = 33f   / 108f
     val circleRFrac  = 33f   / 108f
@@ -55,12 +62,12 @@ fun MeowBottomNavigation(
     BoxWithConstraints(
         modifier = modifier
             .fillMaxWidth()
-            .height(totalHeight)
-            .graphicsLayer { renderEffect = null }  // ensures shadow renders
-
+            .height(totalHeight)          // ← outer box is taller
+            .graphicsLayer { renderEffect = null }
     ) {
-        val W = with(density) { maxWidth.toPx() }
-        val H = with(density) { totalHeight.toPx() }
+        val W  = with(density) { maxWidth.toPx() }
+        val H  = with(density) { designHeight.toPx() }   // ← design draws against 108dp only
+        val HH = with(density) { totalHeight.toPx() }    // ← full height for background fill
 
         val selectedIndex = models.indexOfFirst { it.id == selectedId }.coerceAtLeast(0)
         val targetX       = W * (selectedIndex + 0.5f) / models.size
@@ -85,16 +92,15 @@ fun MeowBottomNavigation(
 
             if (isNone) {
                 val barPath = Path().apply {
-                    moveTo(0f, H)
+                    moveTo(0f, HH)              // ← bottom goes to full height
                     lineTo(0f, bTop + cRad)
                     quadraticBezierTo(0f, bTop, cRad, bTop)
                     lineTo(W - cRad, bTop)
                     quadraticBezierTo(W, bTop, W, bTop + cRad)
-                    lineTo(W, H)
+                    lineTo(W, HH)               // ← bottom goes to full height
                     close()
                 }
 
-                // ── Shadow ────────────────────────────────────────────────────
                 drawIntoCanvas { canvas ->
                     canvas.drawPath(
                         barPath,
@@ -102,12 +108,8 @@ fun MeowBottomNavigation(
                             asFrameworkPaint().apply {
                                 isAntiAlias = true
                                 color       = android.graphics.Color.TRANSPARENT
-                                setShadowLayer(
-                                    20f,                                          // blur
-                                    0f,                                           // dx
-                                    -8f,                                          // dy (upward)
-                                    android.graphics.Color.argb(100, 0, 0, 0)   // black 40% opacity
-                                )
+                                setShadowLayer(20f, 0f, -8f,
+                                    android.graphics.Color.argb(100, 0, 0, 0))
                             }
                         }
                     )
@@ -119,7 +121,7 @@ fun MeowBottomNavigation(
                 val rx = cx + nHalf
 
                 val barWithNotch = Path().apply {
-                    moveTo(0f, H)
+                    moveTo(0f, HH)              // ← bottom goes to full height
                     lineTo(0f, bTop + cRad)
                     quadraticBezierTo(0f, bTop, cRad, bTop)
                     lineTo(lx, bTop)
@@ -127,11 +129,10 @@ fun MeowBottomNavigation(
                     cubicTo(cx + nHalf * 0.40f, nBot, cx + nHalf * 0.66f, bTop, rx, bTop)
                     lineTo(W - cRad, bTop)
                     quadraticBezierTo(W, bTop, W, bTop + cRad)
-                    lineTo(W, H)
+                    lineTo(W, HH)               // ← bottom goes to full height
                     close()
                 }
 
-                // ── Shadow ────────────────────────────────────────────────────
                 drawIntoCanvas { canvas ->
                     canvas.drawPath(
                         barWithNotch,
@@ -139,12 +140,8 @@ fun MeowBottomNavigation(
                             asFrameworkPaint().apply {
                                 isAntiAlias = true
                                 color       = android.graphics.Color.TRANSPARENT
-                                setShadowLayer(
-                                    20f,
-                                    0f,
-                                    -8f,
-                                    android.graphics.Color.argb(100, 0, 0, 0)
-                                )
+                                setShadowLayer(20f, 0f, -8f,
+                                    android.graphics.Color.argb(100, 0, 0, 0))
                             }
                         }
                     )
@@ -155,7 +152,7 @@ fun MeowBottomNavigation(
             }
         }
 
-        // ── Icons in bar ──────────────────────────────────────────────────────
+        // ── Icons in bar — positions unchanged, still based on H (108dp) ─────
         models.forEachIndexed { index, model ->
             val isSelected = model.id == selectedId
             val iconCXDp   = with(density) { (W * (index + 0.5f) / models.size).toDp() }
@@ -188,7 +185,6 @@ fun MeowBottomNavigation(
             }
         }
 
-        // ── Selected icon in bubble ───────────────────────────────────────────
         if (!isNone) {
             val selectedModel = models.find { it.id == selectedId }
             if (selectedModel != null) {

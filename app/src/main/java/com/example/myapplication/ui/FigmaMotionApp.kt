@@ -62,6 +62,9 @@ import androidx.compose.ui.input.pointer.pointerInput
 import com.example.myapplication.R
 import com.example.myapplication.ui.theme.BaumansFont
 import com.example.myapplication.ui.theme.PompiereFont
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.navigationBars
+import androidx.compose.foundation.layout.asPaddingValues
 
 private enum class Screen { Loading3, Loading4 }
 
@@ -480,16 +483,18 @@ private fun BottomLanguageBlockWithShadow(
                 .drawBehind { drawBottomXml() }
         ) {
             val curveHeightDp = (159f / 433f * maxHeight.value).dp
+            val navBarPadding = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
 
             Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(
-                        top    = curveHeightDp - 10.dp,
-                        start  = 44.dp,
-                        end    = 24.dp,
-                        bottom = 22.dp,
-                    ),
+
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(
+                    top    = curveHeightDp - 10.dp,
+                    start  = 44.dp,
+                    end    = 24.dp,
+                    bottom = (navBarPadding - 10.dp).coerceAtLeast(0.dp),
+                ),
             ) {
                 // "Language" with shadow
                 Box {

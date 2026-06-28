@@ -56,7 +56,7 @@ fun AppNavigation() {
                     )
                 }
             }
-        ) { _ ->
+        ) { innerPadding ->
             NavHost(
                 navController    = navController,
                 startDestination = "splash",

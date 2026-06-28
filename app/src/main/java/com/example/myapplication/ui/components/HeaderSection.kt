@@ -62,6 +62,92 @@ private fun buildHeaderCornerPath(w: Float, h: Float): Path {
     }
 }
 
+private fun buildHighlightLeftPath(w: Float, h: Float): Path {
+    val sx = w / 452f; val sy = h / 307f
+    return Path().apply {
+        // M0 114 C1.0116 157.323 56.4394 192.139 100 192.139 H285.671 V198.466 H100 C55.8173 198.466 0 162.648 0 118.466 V114 Z
+        moveTo(0f, 114f * sy)
+        cubicTo(1.0116f * sx, 157.323f * sy, 56.4394f * sx, 192.139f * sy, 100f * sx, 192.139f * sy)
+        lineTo(285.671f * sx, 192.139f * sy)
+        lineTo(285.671f * sx, 198.466f * sy)
+        lineTo(100f * sx, 198.466f * sy)
+        cubicTo(55.8173f * sx, 198.466f * sy, 0f, 162.648f * sy, 0f, 118.466f * sy)
+        close()
+
+        // M290 198.466 H289.868 V191.844 H290 V198.466 Z
+        moveTo(290f * sx, 198.466f * sy)
+        lineTo(289.868f * sx, 198.466f * sy)
+        lineTo(289.868f * sx, 191.844f * sy)
+        lineTo(290f * sx, 191.844f * sy)
+        close()
+    }
+}
+
+private fun buildHighlightRightPath(w: Float, h: Float): Path {
+    val sx = w / 452f; val sy = h / 307f
+    return Path().apply {
+        // M451.978 276.466 C450.988 233.143 415.561 198.327 372 198.327 H285.389 V192 H372 C416.183 192 452 227.817 452 272 V276.466 H451.978 Z
+        moveTo(451.978f * sx, 276.466f * sy)
+        cubicTo(450.988f * sx, 233.143f * sy, 415.561f * sx, 198.327f * sy, 372f * sx, 198.327f * sy)
+        lineTo(285.389f * sx, 198.327f * sy)
+        lineTo(285.389f * sx, 192f * sy)
+        lineTo(372f * sx, 192f * sy)
+        cubicTo(416.183f * sx, 192f * sy, 452f * sx, 227.817f * sy, 452f * sx, 272f * sy)
+        lineTo(452f * sx, 276.466f * sy)
+        close()
+
+        // M283 192 H283.073 V198.622 H283 V192 Z
+        moveTo(283f * sx, 192f * sy)
+        lineTo(283.073f * sx, 192f * sy)
+        lineTo(283.073f * sx, 198.622f * sy)
+        lineTo(283f * sx, 198.622f * sy)
+        close()
+    }
+}
+
+private fun buildShadowOverlayLeftPath(w: Float, h: Float): Path {
+    val sx = w / 452f; val sy = h / 307f
+    return Path().apply {
+        // M0 107 C1.0116 150.323 56.4394 185.139 100 185.139 H285.671 V191.466 H100 C55.8173 191.466 0 155.648 0 111.466 V107 Z
+        moveTo(0f, 107f * sy)
+        cubicTo(1.0116f * sx, 150.323f * sy, 56.4394f * sx, 185.139f * sy, 100f * sx, 185.139f * sy)
+        lineTo(285.671f * sx, 185.139f * sy)
+        lineTo(285.671f * sx, 191.466f * sy)
+        lineTo(100f * sx, 191.466f * sy)
+        cubicTo(55.8173f * sx, 191.466f * sy, 0f, 155.648f * sy, 0f, 111.466f * sy)
+        close()
+
+        // M290 191.466 H289.868 V184.844 H290 V191.466 Z
+        moveTo(290f * sx, 191.466f * sy)
+        lineTo(289.868f * sx, 191.466f * sy)
+        lineTo(289.868f * sx, 184.844f * sy)
+        lineTo(290f * sx, 184.844f * sy)
+        close()
+    }
+}
+
+private fun buildShadowOverlayRightPath(w: Float, h: Float): Path {
+    val sx = w / 452f; val sy = h / 307f
+    return Path().apply {
+        // M451.978 269.466 C450.988 226.143 415.561 191.327 372 191.327 H285.389 V185 H372 C416.183 185 452 220.817 452 265 V269.466 H451.978 Z
+        moveTo(451.978f * sx, 269.466f * sy)
+        cubicTo(450.988f * sx, 226.143f * sy, 415.561f * sx, 191.327f * sy, 372f * sx, 191.327f * sy)
+        lineTo(285.389f * sx, 191.327f * sy)
+        lineTo(285.389f * sx, 185f * sy)
+        lineTo(372f * sx, 185f * sy)
+        cubicTo(416.183f * sx, 185f * sy, 452f * sx, 220.817f * sy, 452f * sx, 265f * sy)
+        lineTo(452f * sx, 269.466f * sy)
+        close()
+
+        // M283 185 H283.073 V191.622 H283 V185 Z
+        moveTo(283f * sx, 185f * sy)
+        lineTo(283.073f * sx, 185f * sy)
+        lineTo(283.073f * sx, 191.622f * sy)
+        lineTo(283f * sx, 191.622f * sy)
+        close()
+    }
+}
+
 private fun DrawScope.drawHeaderShadow() {
     val w = size.width; val h = size.height
     drawPath(buildHeaderMainPath(w, h),   Color.Black)
@@ -176,11 +262,24 @@ fun HeaderSection(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(headerHeight)
-                .paint(
-                    painterResource(id = R.drawable.headers),
-                    contentScale = ContentScale.FillBounds
-                )
+                .drawBehind {
+                    val w = size.width
+                    val h = size.height
+
+                    // main green fill
+                    drawPath(buildHeaderMainPath(w, h), color = Color(0xFF3E634F))
+                    drawPath(buildHeaderCornerPath(w, h), color = Color(0xFF3E634F))
+
+                    // inner shadow overlay (semi-transparent black, always hardcoded)
+                    drawPath(buildShadowOverlayLeftPath(w, h), color = Color(0x10000000))
+                    drawPath(buildShadowOverlayRightPath(w, h), color = Color(0x10000000))
+
+                    // highlight border
+                    drawPath(buildHighlightLeftPath(w, h), color = Color(0xFF95A79D))
+                    drawPath(buildHighlightRightPath(w, h), color = Color(0xFF95A79D))
+                }
         ) {
+            // leaves, back button, title etc. — all unchanged
             // ── Leaves with shadow ────────────────────────────────────────────
             Box(
                 modifier = Modifier
