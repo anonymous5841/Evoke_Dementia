@@ -44,6 +44,10 @@ val OutfitFont = FontFamily(
 
 )
 
+val MargarineFont = FontFamily(
+    Font(R.font.margarine_regular, FontWeight.Normal)
+)
+
 val AppTypography = Typography(
 
     // 🔹 Main headings (modern UI)
