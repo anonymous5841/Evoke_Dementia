@@ -19,6 +19,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
+import com.example.myapplication.ui.theme.AppTheme
 
 data class MeowBottomNavigationModel(
     val id   : Int,
@@ -32,10 +33,10 @@ fun MeowBottomNavigation(
     selectedId        : Int,
     onTabSelected     : (MeowBottomNavigationModel) -> Unit,
     modifier          : Modifier = Modifier,
-    backgroundColor   : Color    = Color(0xFF3E634F),
-    selectedIconColor : Color    = Color(0xFFFFCD38),
-    defaultIconColor  : Color    = Color.White,
-    circleColor       : Color    = Color(0xFF3E634F),
+    backgroundColor   : Color    = AppTheme.colors.headerBg,
+    selectedIconColor : Color    = AppTheme.colors.iconSelected,
+    defaultIconColor  : Color    = AppTheme.colors.headerText,
+    circleColor       : Color    = AppTheme.colors.headerBg,
     hasAnimation      : Boolean  = true
 ) {
     val density      = LocalDensity.current

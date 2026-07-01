@@ -31,6 +31,7 @@ import com.example.myapplication.ui.components.HeaderSection
 import com.example.myapplication.ui.components.LocationPickerField
 import com.example.myapplication.ui.components.ShadowButton
 import com.example.myapplication.ui.components.ShadowTextField
+import com.example.myapplication.ui.theme.AppTheme
 import com.example.myapplication.ui.theme.BaumansFont
 import com.example.myapplication.ui.theme.GreenTheme
 import com.example.myapplication.ui.theme.OutfitFont
@@ -51,12 +52,13 @@ fun NotRecognisedContent(
     imageBitmap: ImageBitmap? = null,  // ← passed from previous screen or DB
     onSubmit: (name: String, relation: String, address: String) -> Unit = { _, _, _ -> }
 ) {
+    val appColors = AppTheme.colors
     var nameText by remember { mutableStateOf("") }
     var relationText by remember { mutableStateOf("") }
     var selectedAddress by remember { mutableStateOf("") }
 
     Scaffold(
-        containerColor = MaterialTheme.colorScheme.background,
+        containerColor = appColors.background,
     ) { innerPadding ->
         Box(
             modifier = Modifier
@@ -95,7 +97,7 @@ fun NotRecognisedContent(
                                 clip = false
                             )
                             .clip(RoundedCornerShape(15.dp))
-                            .background(MaterialTheme.colorScheme.surface),
+                            .background(appColors.textfield),
                         contentAlignment = Alignment.Center
                     ) {
                         if (imageBitmap != null) {
@@ -109,7 +111,7 @@ fun NotRecognisedContent(
                             Icon(
                                 painter = painterResource(id = R.drawable.profile_icon),
                                 contentDescription = "Profile photo",
-                                tint = MaterialTheme.colorScheme.primary,
+                                tint = appColors.backButton,
                                 modifier = Modifier.size(64.dp)
                             )
                         }
@@ -171,14 +173,14 @@ fun NotRecognisedContent(
                             ShadowButton(
                                 width = 72.dp,
                                 height = 51.dp,
-                                color = MaterialTheme.colorScheme.secondary,
+                                color = appColors.popupText,
                                 cornerRadius = 15.dp,
                                 onClick = { /* navigate to voice recording */ }
                             ) {
                                 Icon(
                                     painter = painterResource(id = R.drawable.microphone_icon),
                                     contentDescription = "Record voice",
-                                    tint = MaterialTheme.colorScheme.primary,
+                                    tint = appColors.pagesText,
                                     modifier = Modifier.size(32.dp)
                                 )
                             }
@@ -195,7 +197,7 @@ fun NotRecognisedContent(
                         Box(modifier = Modifier.weight(0.5f)) {
                             ShadowButton(
                                 height = 56.dp,
-                                color = MaterialTheme.colorScheme.secondary,
+                                color = appColors.popupText,
                                 cornerRadius = 28.dp,
                                 onClick = {
                                     onSubmit(nameText, relationText, selectedAddress)
@@ -203,7 +205,7 @@ fun NotRecognisedContent(
                             ) {
                                 Text(
                                     text = "Save",
-                                    color = MaterialTheme.colorScheme.onSecondary,
+                                    color = appColors.pagesText,
                                     fontSize = 22.sp,
                                     fontWeight = FontWeight.Medium,
                                     fontFamily = OutfitFont
@@ -215,13 +217,13 @@ fun NotRecognisedContent(
                         Box(modifier = Modifier.weight(1f)) {
                             ShadowButton(
                                 height = 56.dp,
-                                color = MaterialTheme.colorScheme.primary,
+                                color = appColors.pagesText,
                                 cornerRadius = 28.dp,
                                 onClick = { /* score action */ }
                             ) {
                                 Text(
                                     text = "Record Conversation",
-                                    color = MaterialTheme.colorScheme.onPrimary,
+                                    color = appColors.popupText,
                                     fontSize = 19.sp,
                                     fontWeight = FontWeight.Medium,
                                     fontFamily = OutfitFont
@@ -243,6 +245,7 @@ fun NotRecognisedContent(
                 33.sp,
                 43.dp,
                 (22).dp,
+                leaves = 4.dp,
                 onBack = { })
 
         }

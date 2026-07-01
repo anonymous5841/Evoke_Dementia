@@ -23,6 +23,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.unit.*
 import com.example.myapplication.R
+import com.example.myapplication.ui.theme.AppTheme
 import com.example.myapplication.ui.theme.BaumansFont
 import com.example.myapplication.ui.theme.OutfitFont
 import com.example.myapplication.ui.theme.PompiereFont
@@ -190,6 +191,7 @@ fun HeaderSection(
     centerButton   : String?           = null,
     onCenterButton : (() -> Unit)?     = null
 ) {
+    val appColors = AppTheme.colors
     Box {
 
         // ── Shaped shadow — same blur/alpha as bottom XML shadow ──────────────
@@ -267,16 +269,16 @@ fun HeaderSection(
                     val h = size.height
 
                     // main green fill
-                    drawPath(buildHeaderMainPath(w, h), color = Color(0xFF3E634F))
-                    drawPath(buildHeaderCornerPath(w, h), color = Color(0xFF3E634F))
+                    drawPath(buildHeaderMainPath(w, h), color = appColors.headerBg)
+                    drawPath(buildHeaderCornerPath(w, h), color = appColors.headerBg)
 
                     // inner shadow overlay (semi-transparent black, always hardcoded)
-                    drawPath(buildShadowOverlayLeftPath(w, h), color = Color(0x10000000))
-                    drawPath(buildShadowOverlayRightPath(w, h), color = Color(0x10000000))
+                    drawPath(buildShadowOverlayLeftPath(w, h), color = appColors.headerinnershadow.copy(alpha = 0.063f))
+                    drawPath(buildShadowOverlayRightPath(w, h), color = appColors.headerinnershadow.copy(alpha = 0.063f))
 
                     // highlight border
-                    drawPath(buildHighlightLeftPath(w, h), color = Color(0xFF95A79D))
-                    drawPath(buildHighlightRightPath(w, h), color = Color(0xFF95A79D))
+                    drawPath(buildHighlightLeftPath(w, h), color = appColors.headerShadow)
+                    drawPath(buildHighlightRightPath(w, h), color = appColors.headerShadow)
                 }
         ) {
             // leaves, back button, title etc. — all unchanged
@@ -302,7 +304,7 @@ fun HeaderSection(
                             alpha = 0.4f               // shadow intensity
                         }
                         .paint(
-                            painterResource(id = R.drawable.leaves),
+                            painterResource(id = appColors.headerDecorationRes),
                             contentScale = ContentScale.Fit,
                             colorFilter  = ColorFilter.tint(
                                 Color.Black,
@@ -316,7 +318,7 @@ fun HeaderSection(
                     modifier = Modifier
                         .size(390.dp)
                         .paint(
-                            painterResource(id = R.drawable.leaves),
+                            painterResource(id = appColors.headerDecorationRes),
                             contentScale = ContentScale.Fit
                         )
                 )
@@ -332,13 +334,14 @@ fun HeaderSection(
                 ) {
                     ShadowButton(
                         height       = 56.dp,
-                        color        = MaterialTheme.colorScheme.onPrimary,  // swapped: white bg
+                        color        = appColors.headerButton,
+                        shadowColor  = appColors.buttonshadow,
                         cornerRadius = 30.dp,
                         onClick      = { onCenterButton?.invoke() }
                     ) {
                         Text(
                             text       = centerButton,
-                            color      = Color.Black,  // swapped: green text
+                            color      = appColors.headerButtonText,  // swapped: green text
                             fontSize   = 29.sp,            // changed from 26.sp
                             fontWeight = FontWeight.Medium, // changed from SemiBold
                             fontFamily = OutfitFont
@@ -359,12 +362,12 @@ fun HeaderSection(
                     Icon(
                         painter            = painterResource(id = R.drawable.back_icon),
                         contentDescription = "back icon",
-                        tint               = MaterialTheme.colorScheme.tertiaryContainer,
+                        tint               = appColors.backSign,
                         modifier           = Modifier.size(20.dp)
                     )
                     Text(
                         text     = "Back",
-                        color    = MaterialTheme.colorScheme.secondary,
+                        color    = appColors.backText,
                         fontSize = 30.sp,          // changed from 30.sp
                         fontFamily = PompiereFont
                     )
@@ -381,12 +384,12 @@ fun HeaderSection(
                     ) {
                         ShadowedText(
                             text     = title,
-                            color    = MaterialTheme.colorScheme.onTertiaryContainer,
+                            color    = appColors.headerText,
                             fontSize = textSize
                         )
                         ShadowedText(
                             text     = secondaryTitle,
-                            color    = MaterialTheme.colorScheme.inversePrimary,
+                            color    = appColors.headerSecondaryText,
                             fontSize = textSize,
                             modifier = Modifier.padding(start = 12.dp)
                         )
@@ -394,7 +397,7 @@ fun HeaderSection(
                 } else {
                     ShadowedText(
                         text     = title,
-                        color    = MaterialTheme.colorScheme.onTertiaryContainer,
+                        color    = appColors.headerText,
                         fontSize = textSize,
                         modifier = titleModifier
                     )

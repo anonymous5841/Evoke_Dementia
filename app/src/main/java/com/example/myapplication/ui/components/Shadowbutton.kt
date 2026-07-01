@@ -24,14 +24,15 @@ import androidx.compose.ui.unit.dp
 
 @Composable
 fun ShadowButton(
-    width        : Dp?       = null,
+    width        : Dp?        = null,
     height       : Dp,
     color        : Color,
-    cornerRadius : Dp     = 30.dp,
+    cornerRadius : Dp         = 30.dp,
+    shadowColor  : Color      = Color.Black,
+    shadowAlpha  : Int        = 90,
     onClick      : () -> Unit = {},
     content      : @Composable () -> Unit
 ) {
-
     val sizeModifier = if (width != null)
         Modifier.width(width).height(height)
     else
@@ -49,7 +50,12 @@ fun ShadowButton(
                         12f,
                         -7f,
                         18f,
-                        android.graphics.Color.argb(90, 0, 0, 0)
+                        android.graphics.Color.argb(
+                            shadowAlpha,
+                            (shadowColor.red   * 255).toInt(),
+                            (shadowColor.green * 255).toInt(),
+                            (shadowColor.blue  * 255).toInt()
+                        )
                     )
                     canvas.drawRoundRect(
                         left    = 0f,

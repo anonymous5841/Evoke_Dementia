@@ -21,6 +21,7 @@ import com.example.myapplication.ui.components.HeaderSection
 import com.example.myapplication.ui.components.LocationPickerField
 import com.example.myapplication.ui.components.ShadowButton
 import com.example.myapplication.ui.components.ShadowTextField
+import com.example.myapplication.ui.theme.AppTheme
 import com.example.myapplication.ui.theme.GreenTheme
 import com.example.myapplication.ui.theme.OutfitFont
 
@@ -73,6 +74,8 @@ fun PersonFormContent(
     onEdit: (String, String, List<String>, String) -> Unit = { _, _, _, _ -> },
     onBack: (() -> Unit)? = null,
 ) {
+    val appColors = AppTheme.colors
+
     var nameText by remember { mutableStateOf(initialName) }
     var phoneText by remember { mutableStateOf(initialPhone) }
     val emergencyContacts = remember {
@@ -80,7 +83,7 @@ fun PersonFormContent(
     }
     var selectedAddress by remember { mutableStateOf(initialAddress) }
 
-    Scaffold(containerColor = MaterialTheme.colorScheme.background) { innerPadding ->
+    Scaffold(containerColor = appColors.background) { innerPadding ->
         Box(
             modifier = Modifier
                 .fillMaxSize()
@@ -160,14 +163,14 @@ fun PersonFormContent(
                             ShadowButton(
                                 width = 72.dp,
                                 height = 51.dp,
-                                color = MaterialTheme.colorScheme.secondary,
+                                color = appColors.iconSelected,
                                 cornerRadius = 15.dp,
                                 onClick = { /* navigate to voice recording */ }
                             ) {
                                 Icon(
                                     painter = painterResource(id = R.drawable.microphone_icon),
                                     contentDescription = "Record voice",
-                                    tint = MaterialTheme.colorScheme.primary,
+                                    tint = appColors.pagesText,
                                     modifier = Modifier.size(32.dp)
                                 )
                             }
@@ -179,7 +182,7 @@ fun PersonFormContent(
                     // ── Submit button — same shape, different label/handler ──────
                     ShadowButton(
                         height = 56.dp,
-                        color = MaterialTheme.colorScheme.primary,
+                        color = appColors.pagesText,
                         cornerRadius = 30.dp,
                         onClick = {
                             if (mode == PersonFormMode.ADD) {
@@ -191,7 +194,7 @@ fun PersonFormContent(
                     ) {
                         Text(
                             text = if (mode == PersonFormMode.ADD) "Add" else "Save Changes",
-                            color = MaterialTheme.colorScheme.onPrimary,
+                            color = appColors.popupText,
                             fontSize = if (mode == PersonFormMode.ADD) 27.sp else 26.sp,
                             fontWeight = FontWeight.Medium,
                             fontFamily = OutfitFont
@@ -206,7 +209,7 @@ fun PersonFormContent(
                 spacing = if (mode == PersonFormMode.ADD) 72.dp else 77.dp,
                 textSize = if (mode == PersonFormMode.ADD) 39.sp else 44.sp,
                 bottomspace = if (mode == PersonFormMode.ADD) 37.dp else 28.dp,
-                leaves = 9.dp,
+                leaves = 4.dp,
                 headerHeight = 218.dp,
                 onBack = onBack
             )
