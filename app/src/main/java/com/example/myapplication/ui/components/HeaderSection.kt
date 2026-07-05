@@ -106,6 +106,7 @@ fun HeaderSection(
 ) {
     Box {
 
+
         // ── Shaped shadow — same blur/alpha as bottom XML shadow ──────────────
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             // API 31+ — BlurEffect version
