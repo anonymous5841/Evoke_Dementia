@@ -18,6 +18,7 @@ import com.example.myapplication.ui.components.HeaderSection
 import com.example.myapplication.ui.components.LocationPickerField
 import com.example.myapplication.ui.components.ShadowButton
 import com.example.myapplication.ui.components.ShadowTextField
+import com.example.myapplication.ui.theme.AppTheme
 import com.example.myapplication.ui.theme.GreenTheme
 import com.example.myapplication.ui.theme.OutfitFont
 
@@ -35,12 +36,13 @@ fun LocationSearchContent(
     onHomeClick: () -> Unit = {},
     onProfileClick: () -> Unit = {}
 ) {
+    val appColors = AppTheme.colors
     var titleText by remember { mutableStateOf("") }
     var descriptionText by remember { mutableStateOf("") }
     var selectedLocation by remember { mutableStateOf("") }
 
     Scaffold(
-        containerColor = MaterialTheme.colorScheme.background,
+        containerColor = appColors.background,
     ) { innerPadding ->
         Box(
             modifier = Modifier
@@ -110,13 +112,13 @@ fun LocationSearchContent(
                     ShadowButton(
                         width = 171.dp,
                         height = 56.dp,
-                        color = MaterialTheme.colorScheme.primary,
+                        color = appColors.pagesText,
                         cornerRadius = 30.dp,
                         onClick = { }
                     ) {
                         Text(
                             text = "Edit",
-                            color = MaterialTheme.colorScheme.onPrimary,
+                            color = appColors.popupText,
                             fontSize = 24.sp,
                             fontWeight = FontWeight.Medium,
                             fontFamily = OutfitFont
@@ -127,13 +129,13 @@ fun LocationSearchContent(
                     ShadowButton(
                         width = 171.dp,
                         height = 56.dp,
-                        color = MaterialTheme.colorScheme.secondary,
+                        color = appColors.popupText,
                         cornerRadius = 30.dp,
                         onClick = { }
                     ) {
                         Text(
                             text = "Delete",
-                            color = MaterialTheme.colorScheme.onSecondary,
+                            color = appColors.pagesText,
                             fontSize = 24.sp,
                             fontWeight = FontWeight.Medium,
                             fontFamily = OutfitFont

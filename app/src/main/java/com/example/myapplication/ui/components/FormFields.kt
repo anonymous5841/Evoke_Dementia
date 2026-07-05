@@ -20,6 +20,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.myapplication.R
+import com.example.myapplication.ui.theme.AppTheme
 import com.example.myapplication.ui.theme.OutfitFont
 
 /**
@@ -41,6 +42,7 @@ fun ShadowTextField(
     maxLines: Int = 1,
     onClick: (() -> Unit)? = null,
 ) {
+    val appColors = AppTheme.colors
     val interactionSource = remember { MutableInteractionSource() }
     Box(
         modifier = modifier
@@ -50,7 +52,7 @@ fun ShadowTextField(
             .then(                                     // ← add this block
                 if (onClick != null)
                     Modifier
-                        .background(MaterialTheme.colorScheme.surface)
+                        .background(appColors.textfield)
                         .clickable(
                             interactionSource = remember { MutableInteractionSource() },
                             indication = ripple(bounded = true),
@@ -63,9 +65,9 @@ fun ShadowTextField(
             Text(
                 text = value.ifEmpty { placeholder },
                 color = if (value.isEmpty())
-                    MaterialTheme.colorScheme.onSurfaceVariant
+                    Color(0xFFA7AEC1)
                 else
-                    MaterialTheme.colorScheme.onSurface,
+                    Color(0xFF000000),
                 fontSize = 18.sp,
                 fontFamily = OutfitFont,
                 modifier = Modifier
@@ -82,7 +84,7 @@ fun ShadowTextField(
                 placeholder = {
                     Text(
                         placeholder,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        color = Color(0xFFA7AEC1),
                         fontSize = 18.sp,
                         fontFamily = OutfitFont
                     )
@@ -92,7 +94,7 @@ fun ShadowTextField(
                         Icon(
                             painter = painterResource(id = it),
                             contentDescription = null,
-                            tint = MaterialTheme.colorScheme.primary,
+                            tint = appColors.backButton,
                             modifier = Modifier.size(24.dp)
                         )
                     }
@@ -106,14 +108,14 @@ fun ShadowTextField(
                     ),
                 shape = RoundedCornerShape(cornerRadius),
                 colors = OutlinedTextFieldDefaults.colors(
-                    unfocusedContainerColor = MaterialTheme.colorScheme.surface,
-                    focusedContainerColor = MaterialTheme.colorScheme.surface,
-                    unfocusedBorderColor = Color.Transparent,
-                    focusedBorderColor = MaterialTheme.colorScheme.outline,
-                    unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
-                    focusedTextColor = MaterialTheme.colorScheme.onSurface,
-                    unfocusedPlaceholderColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                    focusedPlaceholderColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                    unfocusedContainerColor   = appColors.textfield,
+                    focusedContainerColor     = appColors.textfield,
+                    unfocusedBorderColor      = Color.Transparent,
+                    focusedBorderColor        = appColors.selectedFieldOutline,
+                    unfocusedTextColor        = appColors.pagesText,
+                    focusedTextColor          = appColors.pagesText,
+                    unfocusedPlaceholderColor = appColors.textFieldHint,
+                    focusedPlaceholderColor   = appColors.textFieldHint,
                 ),
                 singleLine = singleLine,
                 maxLines = if (singleLine) 1 else maxLines
@@ -135,10 +137,11 @@ fun LocationPickerField(
     modifier: Modifier = Modifier,
     height: Dp = 52.dp,
     cornerRadius: Dp = 12.dp,
-    backgroundColor: Color = MaterialTheme.colorScheme.surface,
+    backgroundColor: Color = AppTheme.colors.textfield,
     shadowElevation: Dp = 6.dp,
     showShadow: Boolean = true,
 ) {
+    val appColors = AppTheme.colors
     Box(
         modifier = modifier
             .fillMaxWidth()
@@ -166,7 +169,7 @@ fun LocationPickerField(
                 text = value.ifEmpty { placeholder },
                 fontSize = 18.sp,
                 fontFamily = OutfitFont,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                color = Color(0xFFA7AEC1),
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 modifier = Modifier.weight(1f)
@@ -183,7 +186,7 @@ fun LocationPickerField(
             Icon(
                 painter = painterResource(id = R.drawable.location_icon),
                 contentDescription = "Map pin",
-                tint = MaterialTheme.colorScheme.primary,
+                tint = appColors.backButton,
                 modifier = Modifier.size(30.dp)
             )
         }

@@ -18,6 +18,7 @@ import com.example.myapplication.ui.components.HeaderSection
 import com.example.myapplication.ui.components.LocationPickerField
 import com.example.myapplication.ui.components.ShadowButton
 import com.example.myapplication.ui.components.ShadowTextField
+import com.example.myapplication.ui.theme.AppTheme
 import com.example.myapplication.ui.theme.GreenTheme
 import com.example.myapplication.ui.theme.OutfitFont
 
@@ -27,12 +28,13 @@ fun AddLocationContent(
     onProfileClick: () -> Unit = {},
     onAddClick: () -> Unit = {}
 ) {
+    val appColors = AppTheme.colors
     var titleText by remember { mutableStateOf("") }
     var descriptionText by remember { mutableStateOf("") }
     var selectedLocation by remember { mutableStateOf("") }
 
     Scaffold(
-        containerColor = MaterialTheme.colorScheme.background,
+        containerColor = appColors.background,
     ) { innerPadding ->
         Box(
             modifier = Modifier
@@ -80,14 +82,14 @@ fun AddLocationContent(
                             ShadowButton(
                                 width = 92.dp,
                                 height = 51.dp,
-                                color = MaterialTheme.colorScheme.secondary,
+                                color = appColors.popupText,
                                 cornerRadius = 15.dp,
                                 onClick = { }
                             ) {
                                 Icon(
                                     painter = painterResource(id = R.drawable.location_icon),
                                     contentDescription = "Map pin",
-                                    tint = MaterialTheme.colorScheme.primary,
+                                    tint = appColors.pagesText,
                                     modifier = Modifier.size(35.dp)
                                 )
                             }
@@ -124,13 +126,13 @@ fun AddLocationContent(
                     // ── Green Add Button ───────────────────────────────────────────
                     ShadowButton(
                         height = 56.dp,
-                        color = MaterialTheme.colorScheme.primary,
+                        color = appColors.pagesText,
                         cornerRadius = 30.dp,
                         onClick = onAddClick
                     ) {
                         Text(
                             text = "Add",
-                            color = MaterialTheme.colorScheme.onPrimary,
+                            color = appColors.popupText,
                             fontSize = 27.sp,
                             fontWeight = FontWeight.Medium,
                             fontFamily = OutfitFont
