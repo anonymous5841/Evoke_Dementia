@@ -477,71 +477,72 @@ fun RecordingItem(
                     )
                 }
             }
-// ── GREEN ELLIPSE — background shape only, fully independent ──────────
-// [ELLIPSE SIZE] change size(69.dp, 64.dp)
+
+            // ── GREEN ELLIPSE — background shape only, fully independent ──────────
+// [ELLIPSE SIZE] change size(80.dp, 80.dp)
 // [ELLIPSE OFFSET X] positive = right, negative = left
 // [ELLIPSE OFFSET Y] negative = up, positive = down
             Box(
                 modifier = Modifier
-                    .size(80.dp, 80.dp)
-                    .align(Alignment.TopEnd)
+                    .size(80.dp, 80.dp)                  // kept from green ellipse — unchanged
+                    .align(Alignment.TopEnd)             // kept from green ellipse — unchanged
                     .offset(
-                        x = 8.dp,
-                        y = (-19).dp
+                        x = 8.dp,                         // kept from green ellipse — unchanged
+                        y = (-19).dp                       // kept from green ellipse — unchanged
                     )
             ) {
-                // ── SHADOW LAYER — same image, darkened and blurred underneath ──
-                // [SHADOW OFFSET X] change 3.dp — how far shadow goes right
-                // [SHADOW OFFSET Y] change 6.dp — how far shadow goes down
-                // [SHADOW ALPHA] change 0.6f — higher = darker shadow
-                // [SHADOW BLUR] change BlurEffect radius — higher = more blurred
-                Image(
-                    painter = painterResource(id = R.drawable.add_shape),
-                    contentDescription = null,
-                    colorFilter = ColorFilter.tint(
-                        Color.Gray,              // CHANGED: was Color.Black, now dark grey
-                        BlendMode.SrcIn
-                    ),
+                // ── SHADOW LAYER — same approach as yellow ellipse in DetailedSummaryScreen ──
+                // CHANGED: replaced BlurEffect shadow with layered Modifier.shadow() Box
+                // same pattern as yellow ellipse (separate Box, offset down, clip=false)
+                Box(
                     modifier = Modifier
-                        .matchParentSize()
-                        .offset(x = -3.dp, y = 3.dp)    // CHANGED: was y=4.dp, increased to 6.dp for more drop below
-                        .graphicsLayer {
-                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                                renderEffect = BlurEffect(
-                                    radiusX = 10f,      // CHANGED: was 6f, increased for more spread
-                                    radiusY = 10f,      // CHANGED: was 6f, increased for more spread
-                                    edgeTreatment = TileMode.Decal
-                                )
-                            }
-                            alpha = 0.6f               // CHANGED: was 0.35f, increased for darker shadow
-                            compositingStrategy = CompositingStrategy.Offscreen
-                        }
+                        .size(98.dp,80.dp)                      // slightly larger than 80.dp for shadow spread
+                        .offset(
+                            x = 2.dp,                      // [SHADOW OFFSET X]
+                            y = 0.dp                        // [SHADOW OFFSET Y] — pushes shadow down
+                        )
+                        .shadow(
+                            elevation = 8.dp,
+                            shape = RoundedCornerShape(28.dp),
+                            clip = false,                  // shadow renders outside boundary
+                            ambientColor = Color(0xFF000000),
+                            spotColor = Color(0xFF000000)
+                        )
+                        .background(Color.Transparent)     // gives shadow a surface to render against
                 )
 
-                // ── REAL IMAGE on top — unchanged ──────────────────────────
+                // ── REAL GREEN SHAPE — on top, kept from green ellipse ──────────────
+                // CHANGED: replaced two-Image BlurEffect approach with single Image + ColorFilter
+                // same pattern as yellow ellipse's real shape rendering
                 Image(
                     painter = painterResource(id = R.drawable.add_shape),
                     contentDescription = "Ellipse background",
+                    colorFilter = ColorFilter.tint(
+                        color = Color(0xFF3E634F),         // kept — green color from original green ellipse
+                        blendMode = BlendMode.SrcIn        // same as yellow ellipse approach
+                    ),
                     modifier = Modifier
                         .matchParentSize()
-                        .clickable { onEllipseClick() }
+                        .clip(RoundedCornerShape(16.dp))
+                        .clickable { onEllipseClick() }    // kept from green ellipse — unchanged
                 )
             }
-// ── PLUS TEXT — fully independent of ellipse ──────────
+
+// ── PLUS TEXT — fully independent of ellipse, completely unchanged ──────────
 // [PLUS TEXT SIZE] change fontSize 30.sp
 // [PLUS TEXT OFFSET X] positive = right, negative = left
 // [PLUS TEXT OFFSET Y] negative = up, positive = down
             Text(
                 text = "+",
                 color = Color(0xFFFFC006),
-                fontSize = 60.sp,                        // [PLUS TEXT SIZE] — matches old icon size(30.dp)
-                fontFamily = MartelFont,
-                fontWeight = FontWeight.Bold,
+                fontSize = 60.sp,                        // unchanged
+                fontFamily = MartelFont,                 // unchanged
+                fontWeight = FontWeight.Bold,            // unchanged
                 modifier = Modifier
-                    .align(Alignment.TopEnd)              // [PLUS TEXT ALIGNMENT] change freely
+                    .align(Alignment.TopEnd)             // unchanged
                     .offset(
-                        x = (-10).dp,                      // [PLUS TEXT OFFSET X] tune to land on ellipse center
-                        y = (-25).dp                          // [PLUS TEXT OFFSET Y] tune to land on ellipse center
+                        x = (-10).dp,                    // unchanged
+                        y = (-25).dp                     // unchanged
                     )
             )
         // ══════════════════════════════════════════════

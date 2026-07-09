@@ -301,7 +301,7 @@ fun SearchLocationScreen(
 // [ELLIPSE OFFSET X] positive = right, negative = left
 // [ELLIPSE OFFSET Y] negative = up, positive = down
                         // ── GREEN ELLIPSE — now a sibling of Location box, NOT clipped by it ──────
-// [ELLIPSE SIZE] change size(80.dp, 80.dp)
+/// [ELLIPSE SIZE] change size(80.dp, 80.dp)
 // [ELLIPSE OFFSET X] positive = right, negative = left
 // [ELLIPSE OFFSET Y] negative = up, positive = down
                         Box(
@@ -313,32 +313,27 @@ fun SearchLocationScreen(
                                     y = (-19).dp
                                 )
                         ) {
-                            // ── SHADOW LAYER — blurred dark copy of the real shape ──
-                            // RESTORED: BlurEffect approach traces the actual irregular shape outline
-                            // CHANGED: alpha increased from 0.35f to 0.6f for darker shadow
-                            // CHANGED: offset increased from y=4.dp to y=6.dp for more visible drop
-                            Image(
-                                painter = painterResource(id = R.drawable.add_shape),
-                                contentDescription = null,
-                                colorFilter = ColorFilter.tint(
-                                    Color.Gray,
-                                    BlendMode.SrcIn
-                                ),
+                            // ── SHADOW LAYER — same approach as yellow ellipse in DetailedSummaryScreen ──
+                            // CHANGED: replaced BlurEffect two-Image shadow with layered Box + Modifier.shadow()
+                            Box(
                                 modifier = Modifier
-                                    .height(200.dp)
-                                    .width(200.dp)
-                                    .offset(x = -3.dp, y = 4.dp)        // CHANGED: was y=4.dp, increased for more shadow drop
-                                    .graphicsLayer {
-                                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                                            renderEffect = BlurEffect(
-                                                radiusX = 10f,            // CHANGED: was 6f, slightly more blur spread
-                                                radiusY = 10f,            // CHANGED: was 6f, slightly more blur spread
-                                                edgeTreatment = TileMode.Decal
-                                            )
-                                        }
-                                        alpha = 0.6f                     // CHANGED: was 0.35f, darker shadow
-                                        compositingStrategy = CompositingStrategy.Offscreen
-                                    }
+                                    .size(92.dp)
+                                    .offset(
+                                        x = 0.dp,
+                                        y = 6.dp
+                                    )
+                                    .offset(
+                                        x = 6.dp,    // [SHADOW OFFSET X] positive = right, negative = left
+                                        y = 0.dp     // [SHADOW OFFSET Y] pushes shadow down
+                                    )
+                                    .shadow(
+                                        elevation = 8.dp,
+                                        shape = RoundedCornerShape(25.dp),
+                                        clip = false,
+                                        ambientColor = Color(0xFF000000),
+                                        spotColor = Color(0xFF000000)
+                                    )
+                                    .background(Color.Transparent)
                             )
 
                             // ── REAL GREEN SHAPE — on top, unchanged ──
@@ -351,7 +346,7 @@ fun SearchLocationScreen(
                             )
                         }  // ← closes GREEN ELLIPSE Box
 
-                        // ── PLUS TEXT — fully independent of ellipse and Location box ──────
+// ── PLUS TEXT — fully independent of ellipse and Location box, unchanged ──────
                         Text(
                             text = "+",
                             color = Color(0xFFFFC006),
