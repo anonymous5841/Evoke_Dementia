@@ -1,3 +1,13 @@
 <resources>
     <string name="app_name">dementia</string>
+    <string name="demo">Demo</string>
+    <string name="back">Back</string>
+
+    <string name="person_registration">Person Registration</string>
+    <string name="person_recognition">Person Recognition</string>
+    <string name="add_location">Add Location</string>
+    <string name="search_location">Search Location</string>
+    <string name="search_person_by_name">Search Person by name</string>
+    <string name="navigation_to_home">Navigation to home</string>
+
 </resources>

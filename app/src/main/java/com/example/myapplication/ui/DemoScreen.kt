@@ -21,6 +21,7 @@ import com.example.myapplication.R
 import com.example.myapplication.ui.components.HeaderSection
 import com.example.myapplication.ui.theme.GreenTheme
 import com.example.myapplication.ui.theme.MartelFont
+import androidx.compose.ui.res.stringResource
 
 // ══════════════════════════════════════════════════════
 // CLICKABLE SELECTION CARD — inline in this file
@@ -109,7 +110,7 @@ fun DemoScreen(
     ) {
         // ── Header ────────────────────────────────────
         HeaderSection(
-            title = "Demo",
+            title = stringResource(R.string.demo),
             null,
             308.dp,
             33.sp,
@@ -134,12 +135,12 @@ fun DemoScreen(
             verticalArrangement = Arrangement.spacedBy(28.dp) // [LIST SPACING]
         ) {
             val demoItems = listOf(
-                "Person Registration"   to onPersonRegistration,
-                "Person Recognition"    to onPersonRecognition,
-                "Add Location"          to onAddLocation,
-                "Search Location"       to onSearchLocation,
-                "Search Person by name" to onSearchPersonByName,
-                "Navigation to home"    to onNavigationToHome
+                stringResource(R.string.person_registration) to onPersonRegistration,
+                stringResource(R.string.person_recognition) to onPersonRecognition,
+                stringResource(R.string.add_location) to onAddLocation,
+                stringResource(R.string.search_location) to onSearchLocation,
+                stringResource(R.string.search_person_by_name) to onSearchPersonByName,
+                stringResource(R.string.navigation_to_home) to onNavigationToHome
             )
 
             demoItems.forEach { (title, action) ->
