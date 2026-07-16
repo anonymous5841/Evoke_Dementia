@@ -19,6 +19,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.myapplication.R
 import com.example.myapplication.ui.components.HeaderSection
+import com.example.myapplication.ui.theme.AppTheme
 import com.example.myapplication.ui.theme.GreenTheme
 import com.example.myapplication.ui.theme.MartelFont
 
@@ -41,7 +42,8 @@ fun ClickableSelectionCard(
     modifier: Modifier = Modifier,
     selectedColor: Color,
     defaultColor: Color,
-    iconTint: Color = Color.Unspecified
+    iconTint: Color = Color.Unspecified,
+    textColor: Color
 ) {
     Card(
         modifier = modifier
@@ -74,7 +76,7 @@ fun ClickableSelectionCard(
                 fontFamily = MartelFont,           // [TEXT FONT]
                 fontSize = 18.sp,                  // [TEXT SIZE]
                 fontWeight = FontWeight.Normal,    // [TEXT WEIGHT]
-                color = MaterialTheme.colorScheme.onBackground // [TEXT COLOR]
+                color = textColor // [TEXT COLOR]
             )
             // [CARD ICON] shown on right end
             // [ICON SIZE] no size set — uses icon's natural size
@@ -102,54 +104,72 @@ fun DemoScreen(
     onAddLocation: () -> Unit = {},
     onSearchLocation: () -> Unit = {},
     onSearchPersonByName: () -> Unit = {},
-    onNavigationToHome: () -> Unit = {}
+    onNavigationToHome: () -> Unit = {},
+    onSendHelpMessage: () -> Unit = {},
+    onEmergencyCall: () -> Unit = {},
+    onChangeAppLanguage: () -> Unit = {},
+    onChangeAppTheme: () -> Unit = {},
+    onBackup: () -> Unit = {},
+    onRecoveryData: () -> Unit = {},
+    onCompleteDelete: () -> Unit = {},
 ) {
-    Column(
-        modifier = Modifier.fillMaxSize()
-    ) {
-        // ── Header ────────────────────────────────────
-        HeaderSection(
-            title = "Demo",
-            null,
-            308.dp,
-            33.sp,
-            72.dp,
-            (42).dp,
-            (-9).dp,
-            onBack = { }
-        )
+    val headerHeight = 247.dp // matches profile.kt's headerHeight
 
-        // ── Scrollable list of demo items ─────────────
-        // [LIST SPACING] change spacedBy(28.dp)
-        // [LIST PADDING] change padding horizontal
-        // [LIST OFFSET] change offset y — moves list up/down
-        Column(
+    Scaffold(containerColor = MaterialTheme.colorScheme.background) { innerPadding ->
+        Box(
             modifier = Modifier
-                .fillMaxWidth()
-                .weight(1f)
-                .offset(y = (-110).dp)             // [LIST OFFSET] moves list up into header
-                .verticalScroll(rememberScrollState())
-                .padding(horizontal = 16.dp) // [LIST PADDING]
-               .padding(bottom = 24.dp),
-            verticalArrangement = Arrangement.spacedBy(28.dp) // [LIST SPACING]
+                .fillMaxSize()
+                .padding(innerPadding)
         ) {
-            val demoItems = listOf(
-                "Person Registration"   to onPersonRegistration,
-                "Person Recognition"    to onPersonRecognition,
-                "Add Location"          to onAddLocation,
-                "Search Location"       to onSearchLocation,
-                "Search Person by name" to onSearchPersonByName,
-                "Navigation to home"    to onNavigationToHome
-            )
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .verticalScroll(rememberScrollState())
+            ) {
+                Spacer(modifier = Modifier.height(headerHeight))
 
-            demoItems.forEach { (title, action) ->
-                if (title.isNotEmpty()) {              // ← ADD THIS — skip empty title cards
-                    DemoItem(title = title, onClick = action)
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth(0.96f)                       // ← reduce this fraction to make cards narrower
+                        .align(Alignment.CenterHorizontally)
+                        .padding(horizontal = 16.dp)
+                        .padding(bottom = 24.dp)
+                        .offset(y = (-30).dp),
+                    verticalArrangement = Arrangement.spacedBy(28.dp)
+                ) {
+                    val demoItems = listOf(
+                        "Person Registration"   to onPersonRegistration,
+                        "Person Recognition"    to onPersonRecognition,
+                        "Add Location"          to onAddLocation,
+                        "Search Location"       to onSearchLocation,
+                        "Search Person by name" to onSearchPersonByName,
+                        "Navigation to home"    to onNavigationToHome,
+                        "Send help message"     to onSendHelpMessage,
+                        "Emergency call for help" to onEmergencyCall,
+                        "Change app language"   to onChangeAppLanguage,
+                        "Change app Theme"      to onChangeAppTheme,
+                        "Backup data on cloud"  to onBackup,
+                        "Recovery data from cloud" to onRecoveryData,
+                        "Completely delete app data" to onCompleteDelete
+                    )
+
+                    demoItems.forEach { (title, action) ->
+                        if (title.isNotEmpty()) {
+                            DemoItem(title = title, onClick = action)
+                        }
+                    }
                 }
             }
-            }
+
+            HeaderSection(
+                "Demo",
+                spacing = 73.dp,
+                bottomspace = 44.dp,
+                onBack = onBack
+            )
         }
     }
+}
 
 // ══════════════════════════════════════════════════════
 // DEMO ITEM — wrapper that calls ClickableSelectionCard
@@ -162,14 +182,17 @@ fun DemoItem(
     title: String,
     onClick: () -> Unit
 ) {
+    val appColors = AppTheme.colors
+
     ClickableSelectionCard(
         text = title,
         isSelected = false,                        // [SELECTED] always false for demo list
         icon = R.drawable.forward_icon,            // [ICON FILE] change to your arrow xml name
         onClick = onClick,
-        selectedColor = Color(0xFFDBE1DD),         // [SELECTED COLOR]
-        defaultColor = Color(0xFFDBE1DD),          // [DEFAULT COLOR] light grey background
-        iconTint = Color(0xFF3E634F)               // [ICON TINT] green arrow
+        selectedColor = appColors.textfield,         // [SELECTED COLOR]
+        defaultColor =  appColors.textfield,          // [DEFAULT COLOR] light grey background
+        iconTint = appColors.backButton,              // [ICON TINT] green arrow
+        textColor = appColors.pagesText,
     )
 
 }

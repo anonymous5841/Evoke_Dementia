@@ -19,10 +19,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.myapplication.ui.components.HeaderSection
+import com.example.myapplication.ui.theme.AppTheme
 import com.example.myapplication.ui.theme.GreenTheme
 import com.example.myapplication.ui.theme.MartelFont
 
-private val SelectedLanguage = Color(0xFFB7D4C0)
 private val DefaultLanguage  = Color(0xFFDBE1DD)
 class SelectLanguageScreen : ComponentActivity() {
 
@@ -44,6 +44,8 @@ fun SelectLanguageContent(
     onBack: () -> Unit
 ) {
 
+    val appColors = AppTheme.colors
+
     var selectedLanguage by remember {
         mutableStateOf("English")
     }
@@ -54,7 +56,7 @@ fun SelectLanguageContent(
     )
 
     Scaffold(
-        containerColor = MaterialTheme.colorScheme.background
+        containerColor = appColors.background
     ) { innerPadding ->
 
         Box(
@@ -67,14 +69,14 @@ fun SelectLanguageContent(
                 modifier = Modifier.fillMaxWidth()
             ) {
 
-                Spacer(modifier = Modifier.height(240.dp))
+                Spacer(modifier = Modifier.height(260.dp))
 
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 24.dp)
                         .offset(y = (-20).dp),
-                    verticalArrangement = Arrangement.spacedBy(35.dp)
+                    verticalArrangement = Arrangement.spacedBy(37.dp)
                 ) {
 
                     languages.forEach { language ->
@@ -84,7 +86,7 @@ fun SelectLanguageContent(
                         Card(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .height(48.dp)
+                                .height(52.dp)
                                 .shadow(
                                     elevation = 10.dp,
                                     shape = RoundedCornerShape(15.dp),
@@ -97,9 +99,9 @@ fun SelectLanguageContent(
                             colors = CardDefaults.cardColors(
                                 containerColor =
                                     if (isSelected)
-                                        SelectedLanguage
+                                        appColors.selectedLangBtn
                                     else
-                                        DefaultLanguage
+                                        appColors.textfield
                             ),
                             elevation = CardDefaults.cardElevation(8.dp)
                         ) {
@@ -111,12 +113,15 @@ fun SelectLanguageContent(
                                 androidx.compose.material3.Text(
                                     text = language,
                                     modifier = Modifier
-                                        .padding(start = 20.dp)
+                                        .padding(start = 30.dp)
                                         .align(androidx.compose.ui.Alignment.CenterStart),
                                     fontFamily = MartelFont,
-                                    fontSize = 18.sp,
+                                    fontSize = 22.sp,
                                     fontWeight = FontWeight.Normal,
-                                    color = MaterialTheme.colorScheme.onBackground
+                                    color = if(isSelected)
+                                            appColors.pagesText
+                                            else
+                                            Color.Black
                                 )
                             }
                         }
@@ -126,14 +131,10 @@ fun SelectLanguageContent(
 
             HeaderSection(
                 title = "Select Language",
-                secondaryTitle = null,
-                headerHeight = 218.dp,
-                textSize = 40.sp,
-                spacing = 40.dp,
-                bottomspace = 37.dp,
-                leaves = (-9).dp,
+                spacing = 52.dp,
                 onBack = onBack
             )
+
         }
     }
 }

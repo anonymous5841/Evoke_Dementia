@@ -96,6 +96,7 @@ val BlueAfterPlay   = Color(0xFF002B31)
 // ── App color set — single source of truth ─────────────────────────────────────
 data class AppColors(
     val headerDecorationRes : Int,    // leaves.xml / clouds.xml
+    val recognizeIcon       : Int,
     val background          : Color,
     val headerBg            : Color,  // header bg + footer/nav bg
     val headerShadow        : Color,  // header border/highlight
@@ -124,12 +125,14 @@ data class AppColors(
     val boxInner             : Color,
     val toggleColor          : Color,
     val pictureBox           : Color,
+    val staticwave           : Color,
 )
 
 
 // ── Green values ──────────────────────────────────────────────────────────────
 val GreenAppColors = AppColors(
     headerDecorationRes  = R.drawable.leaves,
+    recognizeIcon = R.drawable.ic_recognize,
     background           = White,
     headerBg             = DarkGreen,
     headerShadow         = Color(0xFF95A79D),
@@ -157,11 +160,13 @@ val GreenAppColors = AppColors(
     boxInner             = Color(0xFFC1D7C8),
     toggleColor          = DarkGreen,
     pictureBox           = Color(0xFFDDF2E4),
+    staticwave           = Color(0xFF8FB89A)
 )
 
 // ── Blue values ───────────────────────────────────────────────────────────────
 val BlueAppColors = AppColors(
     headerDecorationRes  = R.drawable.clouds,
+    recognizeIcon = R.drawable.recognise_icon,
     background           = White,
     headerBg             = BlueHeader,
     headerShadow         = BlueShadow,
@@ -189,6 +194,7 @@ val BlueAppColors = AppColors(
     boxInner             = BlueBoxInner,
     toggleColor          = BlueToggle,
     pictureBox           = BluePictureBox,
+    staticwave           = Color(0xFF8FACB8)
 )
 
 

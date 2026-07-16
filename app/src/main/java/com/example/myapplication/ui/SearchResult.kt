@@ -21,6 +21,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -28,12 +29,13 @@ import androidx.compose.ui.unit.sp
 import com.example.myapplication.R
 import com.example.myapplication.ui.components.DateDisplayField
 import com.example.myapplication.ui.components.DiscussionSummaryBox
-import com.example.myapplication.ui.components.DiscussionVoiceSnippet
 import com.example.myapplication.ui.components.FieldLabel
 import com.example.myapplication.ui.components.HeaderSection
 import com.example.myapplication.ui.components.LocationPickerField
 import com.example.myapplication.ui.components.ShadowButton
 import com.example.myapplication.ui.components.ShadowTextField
+import com.example.myapplication.ui.components.VoicePlayerBar
+import com.example.myapplication.ui.theme.AppTheme
 import com.example.myapplication.ui.theme.BaumansFont
 import com.example.myapplication.ui.theme.GreenTheme
 import com.example.myapplication.ui.theme.OutfitFont
@@ -57,9 +59,13 @@ fun SearchResultsContent(
     var nameText by remember { mutableStateOf("") }
     var relationText by remember { mutableStateOf("") }
     var selectedAddress by remember { mutableStateOf("") }
+    var isPlaying by remember { mutableStateOf(false) }
+    var speedMultiplier by remember { mutableStateOf(1f) }
+    val appColors = AppTheme.colors
+    var textAlign by remember { mutableStateOf(TextAlign.Left) }
 
     Scaffold(
-        containerColor = MaterialTheme.colorScheme.background,
+        containerColor = appColors.background,
     ) { innerPadding ->
         Box(
             modifier = Modifier
@@ -98,7 +104,7 @@ fun SearchResultsContent(
                                 clip = false
                             )
                             .clip(RoundedCornerShape(15.dp))
-                            .background(MaterialTheme.colorScheme.surface),
+                            .background(appColors.textfield),
                         contentAlignment = Alignment.Center
                     ) {
                         if (imageBitmap != null) {
@@ -112,7 +118,7 @@ fun SearchResultsContent(
                             Icon(
                                 painter = painterResource(id = R.drawable.profile_icon),
                                 contentDescription = "Profile photo",
-                                tint = MaterialTheme.colorScheme.primary,
+                                tint = appColors.backButton,
                                 modifier = Modifier.size(64.dp)
                             )
                         }
@@ -151,12 +157,16 @@ fun SearchResultsContent(
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         Text(
-                            text = "Recent Information",
+                            text = "Last Meeting Information",
                             fontSize = 32.sp,
                             fontFamily = BaumansFont,
                             fontWeight = FontWeight.Normal,
-                            color = MaterialTheme.colorScheme.onBackground,
-                            maxLines = 1
+                            color = appColors.pagesText,
+                            textAlign = textAlign,
+                            modifier = Modifier.fillMaxWidth(),   // ← required — textAlign has no effect unless the Text is wider than its own content
+                            onTextLayout = { result ->
+                                textAlign = if (result.lineCount > 1) TextAlign.Center else TextAlign.Left
+                            }
                         )
 
                         Spacer(modifier = Modifier.height(4.dp))
@@ -164,7 +174,7 @@ fun SearchResultsContent(
                         HorizontalDivider(
                             modifier = Modifier.fillMaxWidth(),
                             thickness = 2.dp,
-                            color = MaterialTheme.colorScheme.onBackground
+                            color = appColors.pagesText
                         )
                     }
                     Spacer(modifier = Modifier.height(28.dp))
@@ -202,7 +212,10 @@ fun SearchResultsContent(
                             Spacer(modifier = Modifier.height(12.dp))
 
                             DateDisplayField(
-                                date = "26 Jun 2026"
+                                date = "26 Jun 2026",
+                                backgroundColor = appColors.textfield,   // or whichever field fits your design
+                                textColor = appColors.pagesText,
+                                fontSize = 18.sp,
                             )
                         }
                     }
@@ -230,13 +243,26 @@ fun SearchResultsContent(
 
                     Spacer(modifier = Modifier.height(12.dp))
 
-                    DiscussionVoiceSnippet()
-
+                    VoicePlayerBar(
+                        isPlaying = isPlaying,
+                        speedMultiplier = speedMultiplier,
+                        backgroundColor = appColors.textfield,
+                        onPlayPauseClick = {
+                            isPlaying = !isPlaying
+                        },
+                        onSpeedClick = {
+                            speedMultiplier = when (speedMultiplier) {
+                                1f -> 1.5f
+                                1.5f -> 2f
+                                else -> 1f
+                            }
+                        },
+                    )
                     Spacer(modifier = Modifier.height(30.dp))
 
                     ShadowButton(
                         height = 56.dp,
-                        color = MaterialTheme.colorScheme.secondary,
+                        color = appColors.popupText,
                         cornerRadius = 28.dp,
                         onClick = { }
                     ) {
@@ -245,7 +271,7 @@ fun SearchResultsContent(
                             fontSize = 22.sp,
                             fontWeight = FontWeight.Medium,
                             fontFamily = OutfitFont,
-                            color = MaterialTheme.colorScheme.onSecondary
+                            color = appColors.pagesText
                         )
                     }
 
@@ -264,7 +290,7 @@ fun SearchResultsContent(
 
                             ShadowButton(
                                 height = 56.dp,
-                                color = MaterialTheme.colorScheme.primary,
+                                color = appColors.pagesText,
                                 cornerRadius = 30.dp,
                                 onClick = { }
                             ) {
@@ -274,7 +300,7 @@ fun SearchResultsContent(
                                     fontSize = 22.sp,
                                     fontFamily = OutfitFont,
                                     fontWeight = FontWeight.Medium,
-                                    color = MaterialTheme.colorScheme.onPrimary
+                                    color = appColors.popupText
                                 )
                             }
                         }
@@ -286,7 +312,7 @@ fun SearchResultsContent(
 
                             ShadowButton(
                                 height = 56.dp,
-                                color = MaterialTheme.colorScheme.primary,
+                                color = appColors.pagesText,
                                 cornerRadius = 30.dp,
                                 onClick = { }
                             ) {
@@ -296,7 +322,7 @@ fun SearchResultsContent(
                                     fontSize = 20.sp,
                                     fontFamily = OutfitFont,
                                     fontWeight = FontWeight.Medium,
-                                    color = MaterialTheme.colorScheme.onPrimary
+                                    color = appColors.popupText,
                                 )
                             }
                         }
@@ -307,15 +333,13 @@ fun SearchResultsContent(
             }
                     // ── Header ────────────────────────────────────────────────────────
                     HeaderSection(
-                        title = "Search Results",
-                        "",
-                        218.dp,
-                        33.sp,
-                        50.dp,
-                        (13).dp,
-                        leaves = (10).dp,
+                        title = "Search Result",
+                        headerHeight = 218.dp,
+                        textSize = 37.sp,
+                        spacing = 58.dp,
+                        bottomspace = 34.dp,
+                        leaves = 4.dp,
                         onBack = { })
-
                 }
             }
         }

@@ -1,5 +1,7 @@
 package com.example.myapplication.ui
 
+// SearchByScreen.kt
+
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import android.os.Bundle
@@ -7,23 +9,32 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.shape.GenericShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.myapplication.R
 import com.example.myapplication.ui.components.BackIconButton
 import com.example.myapplication.ui.components.PersonCard
+import com.example.myapplication.ui.components.SearchFieldWithIcon
 import com.example.myapplication.ui.components.ShadowButton
 import com.example.myapplication.ui.components.ShadowTextField
+import com.example.myapplication.ui.theme.AppTheme
 import com.example.myapplication.ui.theme.GreenTheme
+import androidx.compose.runtime.*
+
 
 class PersonListScreen : ComponentActivity() {
 
@@ -60,8 +71,11 @@ fun PersonListContent(
 
 ) {
 
+    val appColors = AppTheme.colors
+    var searchQuery by remember { mutableStateOf("") }
+
     Scaffold(
-        containerColor = MaterialTheme.colorScheme.background
+        containerColor = appColors.background
     ) { innerPadding ->
 
         Column(
@@ -71,7 +85,7 @@ fun PersonListContent(
                 .padding(horizontal = 14.dp)
         ) {
 
-            Spacer(modifier = Modifier.height(20.dp))
+            Spacer(modifier = Modifier.height(18.dp))
 
             BackIconButton(
                 onBack
@@ -80,54 +94,14 @@ fun PersonListContent(
             Spacer(modifier = Modifier.height(24.dp))
 
             Row(
-                verticalAlignment = Alignment.CenterVertically
-            ) {
+                modifier = Modifier.fillMaxWidth(),   // ← needed so there's room to push into
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween             ) {
 
-                Box(
-                    modifier = Modifier
-                        .width(280.dp)      // Change this to whatever width you need
-                        .height(50.dp)
-                ) {
-
-                    ShadowTextField(
-                        modifier = Modifier.fillMaxSize()
-                            .offset(
-                                y = (3).dp
-                            ),
-                        value = "",
-                        onValueChange = {},
-                        placeholder = "Search by name",
-                        height = 50.dp,
-                        cornerRadius = 15.dp
-                    )
-
-                    // Bottom drawable
-                    Icon(
-                        painter = painterResource(R.drawable.ic_green),
-                        contentDescription = null,
-                        modifier = Modifier
-                            .align(Alignment.CenterEnd)
-                            .offset(
-                                x = (20).dp,
-                                y = (-5).dp)
-                            .size(150.dp),
-                        tint = Color.Unspecified
-                    )
-
-                    // Top drawable (placed over the first one)
-                    Icon(
-                        painter = painterResource(R.drawable.ic_yellowsearch),
-                        contentDescription = null,
-                        modifier = Modifier
-                            .align(Alignment.CenterEnd)
-                            .padding(end = 50.dp)
-                            .offset(
-                                x = (10).dp,
-                                y = (-13).dp)
-                            .size(25.dp),
-                        tint = Color.Unspecified
-                    )
-                }
+                SearchFieldWithIcon(
+                    value = searchQuery,
+                    onValueChange = { searchQuery = it }
+                )
 
                 Spacer(modifier = Modifier.width(12.dp))
 
@@ -135,9 +109,9 @@ fun PersonListContent(
 
                     width = 66.dp,
 
-                    height = 48.dp,
+                    height = 51.dp,
 
-                    color = MaterialTheme.colorScheme.secondary,
+                    color = appColors.popupText,
 
                     cornerRadius = 16.dp,
 
@@ -149,12 +123,12 @@ fun PersonListContent(
                     Icon(
                         painter = painterResource(R.drawable.location_icon),
                         contentDescription = "Search",
-                        tint = MaterialTheme.colorScheme.onSecondary
-                    )
+                        tint = appColors.pagesText,
+                        )
                 }
             }
 
-            Spacer(modifier = Modifier.height(35.dp))
+            Spacer(modifier = Modifier.height(37.dp))
 
             LazyVerticalGrid(
 

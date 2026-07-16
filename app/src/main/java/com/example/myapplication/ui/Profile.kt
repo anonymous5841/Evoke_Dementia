@@ -55,7 +55,7 @@ class AddPerson : ComponentActivity() {
                     },
                     onEdit = { name, phone, ecs, address ->
                         // TODO: update in database
-                    }
+                    },
                 )
             }
         }
@@ -73,6 +73,7 @@ fun PersonFormContent(
     onAdd: (String, String, List<String>, String) -> Unit = { _, _, _, _ -> },
     onEdit: (String, String, List<String>, String) -> Unit = { _, _, _, _ -> },
     onBack: (() -> Unit)? = null,
+    onVoiceSampleClick: () -> Unit = {},
 ) {
     val appColors = AppTheme.colors
 
@@ -165,7 +166,7 @@ fun PersonFormContent(
                                 height = 51.dp,
                                 color = appColors.iconSelected,
                                 cornerRadius = 15.dp,
-                                onClick = { /* navigate to voice recording */ }
+                                onClick = { onVoiceSampleClick() }
                             ) {
                                 Icon(
                                     painter = painterResource(id = R.drawable.microphone_icon),

@@ -1,5 +1,5 @@
 package com.example.myapplication.ui
-import android.graphics.BitmapFactory
+
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -15,29 +15,31 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.myapplication.R
-import com.example.myapplication.ui.components.DateDisplayField
 import com.example.myapplication.ui.components.DiscussionSummaryBox
-import com.example.myapplication.ui.components.DiscussionVoiceSnippet
 import com.example.myapplication.ui.components.FieldLabel
 import com.example.myapplication.ui.components.HeaderSection
 import com.example.myapplication.ui.components.LocationPickerField
 import com.example.myapplication.ui.components.ShadowButton
 import com.example.myapplication.ui.components.ShadowTextField
+import com.example.myapplication.ui.theme.AppTheme
 import com.example.myapplication.ui.theme.BaumansFont
 import com.example.myapplication.ui.theme.GreenTheme
 import com.example.myapplication.ui.theme.OutfitFont
+import androidx.compose.ui.graphics.Brush
+import com.example.myapplication.ui.components.InfoNotePill
+import com.example.myapplication.ui.components.RecordConversationField
+import com.example.myapplication.ui.components.VoicePlayerBar
 
 class RecognisedScreen : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -55,12 +57,16 @@ fun RecognisedContent(
     imageBitmap: ImageBitmap? = null,  // ← passed from previous screen or DB
     onSubmit: (name: String, relation: String, address: String) -> Unit = { _, _, _ -> }
 ) {
+    val appColors = AppTheme.colors
     var nameText by remember { mutableStateOf("") }
     var relationText by remember { mutableStateOf("") }
     var selectedAddress by remember { mutableStateOf("") }
+    var isPlaying by remember { mutableStateOf(false) }
+    var speedMultiplier by remember { mutableStateOf(1f) }
+    var textAlign by remember { mutableStateOf(TextAlign.Left) }
 
     Scaffold(
-        containerColor = MaterialTheme.colorScheme.background,
+        containerColor = appColors.background,
     ) { innerPadding ->
         Box(
             modifier = Modifier
@@ -99,7 +105,7 @@ fun RecognisedContent(
                                 clip = false
                             )
                             .clip(RoundedCornerShape(15.dp))
-                            .background(MaterialTheme.colorScheme.surface),
+                            .background(appColors.textfield),
                         contentAlignment = Alignment.Center
                     ) {
                         if (imageBitmap != null) {
@@ -113,7 +119,7 @@ fun RecognisedContent(
                             Icon(
                                 painter = painterResource(id = R.drawable.profile_icon),
                                 contentDescription = "Profile photo",
-                                tint = MaterialTheme.colorScheme.primary,
+                                tint = appColors.backButton,
                                 modifier = Modifier.size(64.dp)
                             )
                         }
@@ -147,17 +153,34 @@ fun RecognisedContent(
                         cornerRadius = 15.dp,
                     )
 
-                    Spacer(modifier = Modifier.height(35.dp))
-                    Text(
-                        text = "Last Meeting Information",
-                        fontSize = 32.sp,
-                        fontFamily = BaumansFont,
-                        fontWeight = FontWeight.Normal,
-                        color = MaterialTheme.colorScheme.onBackground,
-                        textDecoration = TextDecoration.Underline,
-                        maxLines = 1,
+                    Spacer(modifier = Modifier.height(37.dp))
+
+                    Column(
                         modifier = Modifier.fillMaxWidth()
-                    )
+                    ) {
+
+                        Text(
+                            text = "Last Meeting Information",
+                            fontSize = 30.sp,
+                            fontFamily = BaumansFont,
+                            fontWeight = FontWeight.Normal,
+                            color = appColors.pagesText,
+                            textAlign = textAlign,
+                            modifier = Modifier.fillMaxWidth(),   // ← required — textAlign has no effect unless the Text is wider than its own content
+                            onTextLayout = { result ->
+                                textAlign = if (result.lineCount > 1) TextAlign.Center else TextAlign.Left
+                            }
+                        )
+
+                        Spacer(modifier = Modifier.height(4.dp))
+
+                        HorizontalDivider(
+                            modifier = Modifier.fillMaxWidth(),
+                            thickness = 2.dp,
+                            color = appColors.pagesText
+                        )
+
+                    }
                     Spacer(modifier = Modifier.height(28.dp))
                     // ── Address * + Add Voice * side by side ──────────────────────
                     Row(
@@ -191,7 +214,10 @@ fun RecognisedContent(
                             Spacer(modifier = Modifier.height(12.dp))
 
                             DateDisplayField(
-                                date = "26 Jun 2026"
+                                date = "26 Jun 2026",
+                                backgroundColor = appColors.textfield,   // or whichever field fits your design
+                                textColor = appColors.pagesText,
+                                fontSize = 18.sp,
                             )
                         }
                     }
@@ -219,13 +245,27 @@ fun RecognisedContent(
 
                     Spacer(modifier = Modifier.height(12.dp))
 
-                    DiscussionVoiceSnippet()
+                    VoicePlayerBar(
+                        isPlaying = isPlaying,
+                        speedMultiplier = speedMultiplier,
+                        backgroundColor = appColors.textfield,
+                        onPlayPauseClick = {
+                            isPlaying = !isPlaying
+                        },
+                        onSpeedClick = {
+                            speedMultiplier = when (speedMultiplier) {
+                                1f -> 1.5f
+                                1.5f -> 2f
+                                else -> 1f
+                            }
+                        },
+                    )
 
-                    Spacer(modifier = Modifier.height(30.dp))
+                    Spacer(modifier = Modifier.height(34.dp))
 
                     ShadowButton(
                         height = 56.dp,
-                        color = MaterialTheme.colorScheme.secondary,
+                        color = appColors.popupText,
                         cornerRadius = 28.dp,
                         onClick = { }
                     ) {
@@ -234,7 +274,7 @@ fun RecognisedContent(
                             fontSize = 22.sp,
                             fontWeight = FontWeight.Medium,
                             fontFamily = OutfitFont,
-                            color = MaterialTheme.colorScheme.onSecondary
+                            color = appColors.pagesText
                         )
                     }
 
@@ -244,11 +284,11 @@ fun RecognisedContent(
                     ) {
 
                         Text(
-                            text = "Add Voice or Conversation",
+                            text = "Add New Information",
                             fontSize = 30.sp,
                             fontFamily = BaumansFont,
                             fontWeight = FontWeight.Normal,
-                            color = MaterialTheme.colorScheme.onBackground,
+                            color = appColors.pagesText,
                             textAlign = TextAlign.Center,
                             modifier = Modifier.fillMaxWidth()
                         )
@@ -258,10 +298,14 @@ fun RecognisedContent(
                         HorizontalDivider(
                             modifier = Modifier.fillMaxWidth(),
                             thickness = 2.dp,
-                            color = MaterialTheme.colorScheme.onBackground
+                            color = appColors.pagesText
                         )
+
+                        Spacer(modifier = Modifier.height(6.dp))
+
+                        InfoNotePill(text = "* Select location/record conversation or both")
                     }
-                    Spacer(modifier = Modifier.height(28.dp))
+                    Spacer(modifier = Modifier.height(25.dp))
 
                     Row(
                         verticalAlignment = Alignment.Top,
@@ -305,70 +349,85 @@ fun RecognisedContent(
                                 FontWeight.Medium
                             )
 
-                            Spacer(modifier = Modifier.height(8.dp))
+                            Spacer(modifier = Modifier.height(14.dp))
 
                             ShadowButton(
                                 width = 72.dp,
                                 height = 51.dp,
-                                color = MaterialTheme.colorScheme.secondary,
+                                color = appColors.popupText,
                                 cornerRadius = 15.dp,
                                 onClick = { }
                             ) {
                                 Icon(
                                     painter = painterResource(R.drawable.location_icon),
                                     contentDescription = null,
-                                    tint = MaterialTheme.colorScheme.primary,
+                                    tint = appColors.pagesText,
                                     modifier = Modifier.size(32.dp)
                                 )
                             }
                         }
                     }
 
-                    Spacer(modifier = Modifier.height(40.dp))
+                    Spacer(modifier = Modifier.height(48.dp))
 
-                    Row(
-                        horizontalArrangement = Arrangement.spacedBy(15.dp),
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-
-                        Box(modifier = Modifier.weight(1f)) {
-
-                            ShadowButton(
-                                height = 56.dp,
-                                color = MaterialTheme.colorScheme.secondary,
-                                cornerRadius = 30.dp,
-                                onClick = { }
-                            ) {
-
-                                Text(
-                                    "Save",
-                                    fontSize = 22.sp,
-                                    fontFamily = OutfitFont,
-                                    fontWeight = FontWeight.Medium,
-                                    color = MaterialTheme.colorScheme.onSecondary
+// ── "OR" divider — thin fading lines either side of centered text ──────────
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(1.dp)
+                            .background(
+                                Brush.horizontalGradient(
+                                    colors = listOf(
+                                        Color.Transparent,
+                                        appColors.pagesText.copy(alpha = 0.5f),
+                                        Color.Transparent
+                                    )
                                 )
-                            }
+                            )
+                    )
+                    Spacer(modifier = Modifier.height(27.dp))
+
+
+                        // Recording
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth(0.70f)
+                        ) {
+
+                            FieldLabel(
+                                "Record Conversation *",
+                                18.sp,
+                                OutfitFont,
+                                FontWeight.Medium
+                            )
+
+                            Spacer(modifier = Modifier.height(12.dp))
+
+                            RecordConversationField(
+                                value = selectedAddress,
+                                placeholder = "Click to record",
+                                onClick = { }
+                            )
                         }
 
-                        Box(modifier = Modifier.weight(1.3f)) {
+                    Spacer(modifier = Modifier.height(28.dp))
 
-                            ShadowButton(
-                                height = 56.dp,
-                                color = MaterialTheme.colorScheme.primary,
-                                cornerRadius = 30.dp,
-                                onClick = { }
-                            ) {
-
-                                Text(
-                                    "Record Conversation",
-                                    fontSize = 18.sp,
-                                    fontFamily = OutfitFont,
-                                    fontWeight = FontWeight.Medium,
-                                    color = MaterialTheme.colorScheme.onPrimary
-                                )
+                        ShadowButton(
+                            height = 56.dp,
+                            color = appColors.popupText,
+                            cornerRadius = 28.dp,
+                            onClick = {
+                                onSubmit(nameText, relationText, selectedAddress)
                             }
+                        ) {
+                            Text(
+                                text = "Save",
+                                color = appColors.pagesText,
+                                fontSize = 22.sp,
+                                fontWeight = FontWeight.Medium,
+                                fontFamily = OutfitFont
+                            )
                         }
-                    }
 
                     Spacer(modifier = Modifier.height(64.dp))
                 }
@@ -380,20 +439,26 @@ fun RecognisedContent(
                 "Recognised",
                 218.dp,
                 33.sp,
-                37.dp,
-                (13).dp,
+                60.dp,
+                (28).dp,
+                leaves = 4.dp,
                 onBack = { })
 
         }
     }
 }
 
+@Composable
+fun DateDisplayField(date: String, backgroundColor: Color, textColor: Color, fontSize: TextUnit) {
+    TODO("Not yet implemented")
+}
+
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
 fun RecognisedPreview() {
     GreenTheme {
-        val context = LocalContext.current
-        val bitmap = BitmapFactory.decodeResource(context.resources, R.drawable.loading_4)
-        RecognisedContent(imageBitmap = bitmap.asImageBitmap())
+//        val context = LocalContext.current
+//        val bitmap = BitmapFactory.decodeResource(context.resources, R.drawable.loading_4)
+        RecognisedContent()
     }
 }

@@ -16,6 +16,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
@@ -28,7 +30,9 @@ import androidx.compose.ui.unit.sp
 import com.example.myapplication.R
 import com.example.myapplication.ui.components.FieldLabel
 import com.example.myapplication.ui.components.HeaderSection
+import com.example.myapplication.ui.components.InfoNotePill
 import com.example.myapplication.ui.components.LocationPickerField
+import com.example.myapplication.ui.components.RecordConversationField
 import com.example.myapplication.ui.components.ShadowButton
 import com.example.myapplication.ui.components.ShadowTextField
 import com.example.myapplication.ui.theme.AppTheme
@@ -50,7 +54,9 @@ class NotRecognisedScreen : ComponentActivity() {
 @Composable
 fun NotRecognisedContent(
     imageBitmap: ImageBitmap? = null,  // ← passed from previous screen or DB
-    onSubmit: (name: String, relation: String, address: String) -> Unit = { _, _, _ -> }
+    onSubmit: (name: String, relation: String, address: String) -> Unit = { _, _, _ -> },
+    onVoiceSampleClick: () -> Unit = {},   // ← add this
+    onBack: (() -> Unit)? = null,
 ) {
     val appColors = AppTheme.colors
     var nameText by remember { mutableStateOf("") }
@@ -145,7 +151,11 @@ fun NotRecognisedContent(
                         cornerRadius = 15.dp,
                     )
 
-                    Spacer(modifier = Modifier.height(26.dp))
+                    Spacer(modifier = Modifier.height(36.dp))
+
+                    InfoNotePill(text = "* Select location/record conversation or both")
+
+                    Spacer(modifier = Modifier.height(21.dp))
 
                     // ── Address * + Add Voice * side by side ──────────────────────
                     Row(
@@ -175,7 +185,7 @@ fun NotRecognisedContent(
                                 height = 51.dp,
                                 color = appColors.popupText,
                                 cornerRadius = 15.dp,
-                                onClick = { /* navigate to voice recording */ }
+                                onClick = { onVoiceSampleClick() }
                             ) {
                                 Icon(
                                     painter = painterResource(id = R.drawable.microphone_icon),
@@ -187,49 +197,64 @@ fun NotRecognisedContent(
                         }
                     }
 
-                    Spacer(modifier = Modifier.height(55.dp))
+                    Spacer(modifier = Modifier.height(48.dp))
 
-                    // ── Save + Score buttons side by side ─────────────────────────
-                    Row(
-                        horizontalArrangement = Arrangement.spacedBy(12.dp),
-                        modifier = Modifier.fillMaxWidth()
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(1.dp)
+                            .background(
+                                Brush.horizontalGradient(
+                                    colors = listOf(
+                                        Color.Transparent,
+                                        appColors.pagesText.copy(alpha = 0.5f),
+                                        Color.Transparent
+                                    )
+                                )
+                            )
+                    )
+                    Spacer(modifier = Modifier.height(27.dp))
+
+
+                    // Recording
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth(0.70f)
                     ) {
-                        Box(modifier = Modifier.weight(0.5f)) {
-                            ShadowButton(
-                                height = 56.dp,
-                                color = appColors.popupText,
-                                cornerRadius = 28.dp,
-                                onClick = {
-                                    onSubmit(nameText, relationText, selectedAddress)
-                                }
-                            ) {
-                                Text(
-                                    text = "Save",
-                                    color = appColors.pagesText,
-                                    fontSize = 22.sp,
-                                    fontWeight = FontWeight.Medium,
-                                    fontFamily = OutfitFont
 
-                                )
-                            }
-                        }
+                        FieldLabel(
+                            "Record Conversation *",
+                            18.sp,
+                            OutfitFont,
+                            FontWeight.Medium
+                        )
 
-                        Box(modifier = Modifier.weight(1f)) {
-                            ShadowButton(
-                                height = 56.dp,
-                                color = appColors.pagesText,
-                                cornerRadius = 28.dp,
-                                onClick = { /* score action */ }
-                            ) {
-                                Text(
-                                    text = "Record Conversation",
-                                    color = appColors.popupText,
-                                    fontSize = 19.sp,
-                                    fontWeight = FontWeight.Medium,
-                                    fontFamily = OutfitFont
-                                )
-                            }
+                        Spacer(modifier = Modifier.height(12.dp))
+
+                        RecordConversationField(
+                            value = selectedAddress,
+                            placeholder = "Click to record",
+                            onClick = { }
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(32.dp))
+
+                    ShadowButton(
+                        height = 56.dp,
+                        color = appColors.popupText,
+                        cornerRadius = 28.dp,
+                        onClick = {
+                            onSubmit(nameText, relationText, selectedAddress)
                         }
+                    ) {
+                        Text(
+                            text = "Save",
+                            color = appColors.pagesText,
+                            fontSize = 22.sp,
+                            fontWeight = FontWeight.Medium,
+                            fontFamily = OutfitFont
+                        )
                     }
 
                     Spacer(modifier = Modifier.height(64.dp))
@@ -243,8 +268,8 @@ fun NotRecognisedContent(
                 "Not-Recognised",
                 218.dp,
                 33.sp,
-                43.dp,
-                (22).dp,
+                41.dp,
+                (28).dp,
                 leaves = 4.dp,
                 onBack = { })
 

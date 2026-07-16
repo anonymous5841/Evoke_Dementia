@@ -12,13 +12,11 @@ import androidx.compose.ui.unit.sp
 import com.example.myapplication.ui.components.HeaderSection
 import com.example.myapplication.ui.theme.GreenTheme
 import com.example.myapplication.ui.theme.OutfitFont
-
-// ─── Extracted components — import these ───────────────────────────────────
 import com.example.myapplication.ui.components.MenuItemData
 import com.example.myapplication.ui.components.RowContent
 import com.example.myapplication.ui.components.RotatingRowGrid
-import com.example.myapplication.ui.components.White
 import com.example.myapplication.ui.components.TextDark
+import com.example.myapplication.ui.theme.AppTheme
 
 @Composable
 fun HomeScreen(
@@ -31,15 +29,16 @@ fun HomeScreen(
     initialPage         : Int = 0,
     startExpanded       : Boolean = false
 ) {
-
+    val appColors = AppTheme.colors
     // Fixed row identities — top row is the "big" pair, then medium, then small.
     val rowsData = remember {
         listOf(
             RowContent(
                 left  = MenuItemData(
-                    "Recognize \n/\nRegister", R.drawable.ic_recognize,
+                    "Recognize \n/\nRegister", appColors.recognizeIcon,
                     iconSizeSmall = 50.dp, iconSizeBig = 50.dp,
-                    fontSizeSmall = 20.sp, fontSizeBig = 20.sp
+                    fontSizeSmall = 20.sp, fontSizeBig = 20.sp,
+                    tintIcon = false
                 ) { onRecognizeClick() },
                 right = MenuItemData(
                     "Add location", R.drawable.ic_location,
@@ -49,13 +48,13 @@ fun HomeScreen(
             ),
             RowContent(
                 left  = MenuItemData(
-                    "Help", R.drawable.ic_help,
-                    iconSizeSmall = 45.dp, iconSizeBig = 45.dp,
-                    fontSizeSmall = 22.sp, fontSizeBig = 22.sp
+                    "Help", R.drawable.help_icon,
+                    iconSizeSmall = 41.dp, iconSizeBig = 60.dp,
+                    fontSizeSmall = 18.sp, fontSizeBig = 23.sp
                 ) { onHelpClick() },
                 right = MenuItemData(
                     "Search\n\nName / Location", R.drawable.ic_search,
-                    iconSizeSmall = 20.dp, iconSizeBig = 50.dp,
+                    iconSizeSmall = 18.dp, iconSizeBig = 50.dp,
                     fontSizeSmall = 10.sp, fontSizeBig = 18.sp
                 ) { onSearchClick() }
             ),
@@ -74,7 +73,7 @@ fun HomeScreen(
         )
     }
     Scaffold(
-        containerColor = White,
+        containerColor = appColors.background,
     ) { innerPadding ->
         val layoutDirection = LocalLayoutDirection.current
         Column(

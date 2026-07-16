@@ -1,7 +1,7 @@
 package com.example.myapplication.ui
 
+import android.os.Build
 import android.os.Bundle
-
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
@@ -11,18 +11,29 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.scale
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.BlurEffect
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.CompositingStrategy
+import androidx.compose.ui.graphics.Shadow
+import androidx.compose.ui.graphics.TileMode
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.myapplication.R
 import com.example.myapplication.ui.components.HeaderSection
+import com.example.myapplication.ui.components.IconWithShadow
 import com.example.myapplication.ui.components.SettingsRow
+import com.example.myapplication.ui.components.ThemeToggleSwitch
+import com.example.myapplication.ui.theme.AppTheme
 import com.example.myapplication.ui.theme.GreenTheme
 import com.example.myapplication.ui.theme.MartelFont
 
@@ -48,11 +59,12 @@ fun SettingsContent(
     onSelectLanguage: () -> Unit
 ) {
 
-    var darkThemeEnabled by remember { mutableStateOf(false) }
+    var blueThemeEnabled by remember { mutableStateOf(false) }
     var showEraseDialog by remember { mutableStateOf(false) }
+    val appColors = AppTheme.colors
 
     Scaffold(
-        containerColor = MaterialTheme.colorScheme.background
+        containerColor = appColors.background
     ) { innerPadding ->
 
         Box(
@@ -65,7 +77,7 @@ fun SettingsContent(
                 modifier = Modifier.fillMaxSize()
             ) {
 
-                Spacer(modifier = Modifier.height(218.dp))
+                Spacer(modifier = Modifier.height(270.dp))
 
                 Column(
                     modifier = Modifier
@@ -78,7 +90,7 @@ fun SettingsContent(
                     SettingsRow(
                         label = "Cloud Backup",
                         iconRes = R.drawable.ic_backup,
-                        iconSize = 35.dp,
+                        iconSize = 38.dp,
                         onClick = { }
                     )
 
@@ -91,81 +103,70 @@ fun SettingsContent(
                     )
 
                     Spacer(modifier = Modifier.height(28.dp)) // larger gap before Select Theme (no card)
-                        //select theme
+                    //select theme
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(start = 16.dp, end = 10.dp),
+                            .padding(start = 20.dp, end = 10.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
                             text = "Select Theme",
                             modifier = Modifier.weight(1f),
                             fontFamily = MartelFont,
-                            fontSize = 20.sp,
-                            color = MaterialTheme.colorScheme.onBackground
+                            fontSize = 22.sp,
+                            color = Color.Black
                         )
 
-                        Switch(
-                            modifier = Modifier
-                                .graphicsLayer(
-                                    scaleX = 1.5f,   // wider
-                                    scaleY = 1.3f      // same height
-                                )
-                                .offset(x = (-6).dp), // move slightly left
-                            checked = darkThemeEnabled,
-                            onCheckedChange = { darkThemeEnabled = it },
-                            colors = SwitchDefaults.colors(
-                                checkedThumbColor = MaterialTheme.colorScheme.primary,
-                                checkedTrackColor = MaterialTheme.colorScheme.surface,
-                                uncheckedThumbColor = MaterialTheme.colorScheme.surface,
-                                uncheckedTrackColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f)
-                            )
+                        ThemeToggleSwitch(
+                            checked = blueThemeEnabled,
+                            onCheckedChange = { blueThemeEnabled = it }
                         )
                     }
 
-                    Spacer(modifier = Modifier.height(23.dp)) // gap before Erase Data
+                    Spacer(modifier = Modifier.height(8.dp)) // larger gap before Select Theme (no card)
 
                     Row(
                         modifier = Modifier
                             .clickable { showEraseDialog = true }
-                            .padding(start = 6.dp),
+                            .padding(start = 20.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Image(
+                        IconWithShadow(
                             painter = painterResource(R.drawable.ic_delete),
                             contentDescription = null,
-                            modifier = Modifier.size(30.dp),
-                            colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.error),
-                            contentScale = ContentScale.Fit
+                            tint = Color.Red,
+                            modifier = Modifier.size(35.dp)
                         )
 
-                        Spacer(modifier = Modifier.width(10.dp))
+                        Spacer(modifier = Modifier.width(12.dp))
 
                         Text(
                             text = "Erase Data",
-                            fontSize = 20.sp,
+                            fontSize = 22.sp,
                             fontWeight = FontWeight.Medium,
-                            color = MaterialTheme.colorScheme.error,
-                            modifier = Modifier.padding(top = 10.dp)
+                            color = Color.Red,
+                            fontFamily = MartelFont,
+                            style = TextStyle(
+                                shadow = Shadow(
+                                    color = Color.Black.copy(alpha = 0.4f), // [SHADOW OPACITY]
+                                    offset = Offset(x = 5f, y = 4f),          // [SHADOW OFFSET]
+                                    blurRadius = 5f                            // [SHADOW BLUR]
+                                )
+                            ),
+                            modifier = Modifier.padding(top = 15.dp)
                         )
                     }
                 }
             }
-            }
 
-        HeaderSection(
-            title = "Settings",
-            secondaryTitle = null,
-            headerHeight = 218.dp,
-            textSize = 40.sp,
-            spacing = 60.dp,
-            bottomspace = 37.dp,
-            leaves = (-9).dp,
-            onBack = onBack
-        )
+            HeaderSection(
+                title = "Settings",
+                spacing = 65.dp,
+                onBack = onBack
+            )
+        }
     }
-
 }
 
 

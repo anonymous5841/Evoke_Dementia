@@ -1,11 +1,11 @@
 package com.example.myapplication.ui.components
+
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Text
@@ -27,63 +27,48 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.GenericShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.foundation.layout.Spacer
-
 import androidx.compose.ui.text.style.TextAlign
-
 import com.example.myapplication.ui.theme.OutfitFont
-
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Pause
-import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.*
-import androidx.compose.runtime.*
 import androidx.compose.ui.graphics.ColorFilter
-
 import androidx.compose.animation.core.CubicBezierEasing
 import androidx.compose.animation.core.animateFloatAsState
-
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-
 import androidx.compose.ui.unit.TextUnit
+import com.example.myapplication.ui.theme.AppTheme
 
-val DarkGreen  = Color(0xFF2D5A27)
-val LightGreen = Color(0xFFDBE1DD)
-val MedGreen   = Color(0xFF3D7A35)
-val YellowBtn  = Color(0xFFF5C518)
 val TextDark   = Color(0xFF1A2E18)
-val White      = Color(0xFFFFFFFF)
+val appColors = AppTheme
+
 @Composable
 fun DateDisplayField(
     date: String,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    backgroundColor: Color = AppTheme.colors.textfield,
+    textColor: Color =  AppTheme.colors.pagesText,
+    fontSize: TextUnit = 16.sp
 ) {
     Box(
         modifier = modifier
@@ -95,15 +80,15 @@ fun DateDisplayField(
                 clip = false
             )
             .clip(RoundedCornerShape(15.dp))
-            .background(MaterialTheme.colorScheme.surface),
+            .background(backgroundColor),
         contentAlignment = Alignment.CenterStart
     ) {
         Text(
             text = date,
             modifier = Modifier.padding(horizontal = 16.dp),
-            fontSize = 16.sp,          // Same as Location field
-            fontFamily = OutfitFont,   // Same font
-            color = MaterialTheme.colorScheme.onSurface
+            fontSize = fontSize,
+            fontFamily = OutfitFont,
+            color = textColor
         )
     }
 }
@@ -121,166 +106,9 @@ fun DiscussionSummaryBox(
                 clip = false
             )
             .clip(RoundedCornerShape(15.dp))
-            .background(MaterialTheme.colorScheme.surface)
+            .background(appColors.colors.textfield)
     )
 }
-
-@Composable
-fun DiscussionVoiceSnippet(
-    modifier: Modifier = Modifier
-) {
-
-    var isPlaying by remember { mutableStateOf(true) }
-    var speedMultiplier by remember { mutableStateOf(1f) }
-
-    val waveformHeights = remember {
-        listOf(
-            6f, 12f, 18f, 8f, 22f,
-            14f, 26f, 10f, 20f, 16f,
-            28f, 6f, 18f, 12f, 24f,
-            8f, 20f, 14f, 10f, 22f,
-            6f, 16f, 26f, 12f, 18f
-        )
-    }
-
-    val infiniteTransition = rememberInfiniteTransition(label = "waveform")
-
-    Surface(
-        modifier = modifier
-            .fillMaxWidth()
-            .height(62.dp)
-            .shadow(
-                elevation = 6.dp,
-                shape = RoundedCornerShape(15.dp),
-                clip = false
-            ),
-        shape = RoundedCornerShape(15.dp),
-        color = MaterialTheme.colorScheme.surface
-    ) {
-
-        Row(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(horizontal = 14.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-
-            // Play / Pause Button
-            Box(
-                modifier = Modifier
-                    .size(36.dp)
-                    .clip(CircleShape)
-                    .background(
-                        MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)
-                    ),
-                contentAlignment = Alignment.Center
-            ) {
-
-                IconButton(
-                    modifier = Modifier.size(36.dp),
-                    onClick = {
-                        isPlaying = !isPlaying
-                    }
-                ) {
-
-                    Icon(
-                        imageVector =
-                            if (isPlaying)
-                                Icons.Default.Pause
-                            else
-                                Icons.Default.PlayArrow,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.primary
-                    )
-                }
-            }
-
-            Spacer(modifier = Modifier.width(14.dp))
-
-            // Waveform
-            Row(
-                modifier = Modifier.weight(1f),
-                horizontalArrangement = Arrangement.SpaceEvenly,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-
-                waveformHeights.forEachIndexed { index, baseHeight ->
-
-                    val animatedHeight by infiniteTransition.animateFloat(
-
-                        initialValue = baseHeight,
-
-                        targetValue =
-                            if (isPlaying)
-                                baseHeight * 1.75f
-                            else
-                                baseHeight,
-
-                        animationSpec = infiniteRepeatable(
-
-                            animation = tween(
-                                durationMillis = (380 / speedMultiplier).toInt(),
-                                delayMillis = index * 22
-                            ),
-
-                            repeatMode = RepeatMode.Reverse
-
-                        ),
-
-                        label = "bar$index"
-                    )
-
-                    Box(
-                        modifier = Modifier
-                            .width(3.5.dp)
-                            .height(
-                                if (isPlaying)
-                                    animatedHeight.dp
-                                else
-                                    baseHeight.dp
-                            )
-                            .clip(RoundedCornerShape(2.dp))
-                            .background(
-                                if (isPlaying)
-                                    MaterialTheme.colorScheme.primary
-                                else
-                                    MaterialTheme.colorScheme.primary.copy(alpha = .45f)
-                            )
-                    )
-                }
-            }
-
-            Spacer(modifier = Modifier.width(12.dp))
-
-            Text(
-
-                text = when (speedMultiplier) {
-                    1.5f -> "x1.5"
-                    2f -> "x2"
-                    else -> "x1"
-                },
-
-                fontFamily = OutfitFont,
-
-                fontSize = 14.sp,
-
-                color = MaterialTheme.colorScheme.onSurface,
-
-                modifier = Modifier.clickable {
-
-                    speedMultiplier =
-                        when (speedMultiplier) {
-                            1f -> 1.5f
-                            1.5f -> 2f
-                            else -> 1f
-                        }
-
-                }
-            )
-        }
-    }
-}
-
 
 @Composable
 fun PersonCard(
@@ -307,19 +135,19 @@ fun PersonCard(
                 clip = false
             )
             .clip(cardShape)
-            .background(Color(0xFFE8F7EF))
+            .background(appColors.colors.pictureBox)
             .clickable { onClick() }
     ) {
 
         Box(
             modifier = Modifier
                 .padding(
-                    start = 13.dp,
-                    top = 18.dp,
-                    end = 13.dp
+                    start = 12.dp,
+                    top = 11.dp,
+                    end = 12.dp
                 )
                 .fillMaxWidth()
-                .height(110.dp)
+                .height(125.dp)
                 .clip(
                     RoundedCornerShape(
                         topStart = 0.dp,
@@ -351,39 +179,37 @@ fun PersonCard(
             fontFamily = MartelFont,
             fontWeight = FontWeight.Normal,
             fontSize = 22.sp,
-            color = MaterialTheme.colorScheme.onBackground
+            color = Color.Black
         )
     }
 }
 
 
-private val YellowAccent = Color(0xFFF5C518)
-
 @Composable
 fun BackIconButton(
     onBack: () -> Unit,
-    iconRes: Int = R.drawable.ic_backgreen
+    iconRes: Int = R.drawable.back_icon
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(15.dp),
         modifier = Modifier
-            .padding(start = 16.dp, top = 10.dp)
+            .padding(start = 6.dp, top = 4.dp)
             .clickable { onBack() }
     ) {
 
-        Image(
+        Icon(
             painter = painterResource(id = iconRes),
             contentDescription = "Back",
+            tint = appColors.colors.backButton,
             modifier = Modifier
                 .size(22.dp)
 
         )
 
-        Spacer(modifier = Modifier.width(6.dp))
-
         Text(
             text = "Back",
-            color = YellowAccent,
+            color = appColors.colors.backText,
             fontSize = 30.sp,
             fontWeight = FontWeight.Medium,
             fontFamily = PompiereFont
@@ -402,15 +228,14 @@ fun CameraPreviewPlaceholder() {
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(500.dp)
-                .padding(top = 30.dp)
+                .height(520.dp)
                 .shadow(
                     elevation = 8.dp,
                     shape = RoundedCornerShape(18.dp),
                     clip = false
                 )
                 .clip(RoundedCornerShape(18.dp))
-                .background(MaterialTheme.colorScheme.surface)
+                .background(appColors.colors.textfield)
                 .border(
                     0.dp,
                     MaterialTheme.colorScheme.outline.copy(alpha = 0.25f),
@@ -428,8 +253,8 @@ fun GlowCaptureButton(
     val infiniteTransition = rememberInfiniteTransition(label = "captureGlow")
 
     val glowAlpha by infiniteTransition.animateFloat(
-        initialValue  = 0.15f,
-        targetValue   = 0.55f,
+        initialValue  = 1f,
+        targetValue   = 1f,
         animationSpec = infiniteRepeatable(
             animation  = tween(900, easing = FastOutSlowInEasing),
             repeatMode = RepeatMode.Reverse
@@ -438,8 +263,8 @@ fun GlowCaptureButton(
     )
 
     val glowRadius by infiniteTransition.animateFloat(
-        initialValue  = 1.0f,
-        targetValue   = 1.15f,
+        initialValue  = 0.9f,
+        targetValue   = 1.05f,
         animationSpec = infiniteRepeatable(
             animation  = tween(900, easing = FastOutSlowInEasing),
             repeatMode = RepeatMode.Reverse
@@ -449,6 +274,7 @@ fun GlowCaptureButton(
 
     val animAlpha  = glowAlpha
     val animRadius = glowRadius
+    val backButtonColor = appColors.colors.backButton
 
     // Just enough extra space for the subtle outer glow
     val totalSizeDp = size + 40.dp
@@ -465,9 +291,9 @@ fun GlowCaptureButton(
                 drawCircle(
                     brush = Brush.radialGradient(
                         colorStops = arrayOf(
-                            0.00f to MedGreen.copy(alpha = animAlpha),
-                            0.45f to DarkGreen.copy(alpha = animAlpha * 0.9f),
-                            0.75f to DarkGreen.copy(alpha = animAlpha * 0.5f),
+                            0.00f to backButtonColor.copy(alpha = animAlpha),
+                            0.45f to backButtonColor.copy(alpha = animAlpha * 0.95f),
+                            0.75f to backButtonColor.copy(alpha = animAlpha * 0.6f),
                             1.00f to Color.Transparent
                         ),
                         radius = glowR
@@ -482,19 +308,20 @@ fun GlowCaptureButton(
             modifier = Modifier
                 .size(size + 10.dp)
                 .clip(CircleShape)
-                .border(5.dp, DarkGreen, CircleShape)
+                .border(5.dp, appColors.colors.cameraOuter, CircleShape)
         ) {
             // Plain light green fill — no gradient
             Box(
                 modifier = Modifier
                     .size(size)
                     .clip(CircleShape)
-                    .background(LightGreen)          // ← solid flat color, matches Figma
+                    .background(appColors.colors.cameraInner)          // ← solid flat color, matches Figma
                     .clickable { onClick() }
             )
         }
     }
 }
+
 @Composable
 fun SettingsRow(
     label: String,
@@ -503,6 +330,7 @@ fun SettingsRow(
     onClick: () -> Unit
 
 ) {
+    val appColors = AppTheme.colors
     Card(
         onClick = onClick,
         modifier = Modifier
@@ -514,7 +342,7 @@ fun SettingsRow(
             ),
         shape = RoundedCornerShape(15.dp),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface  // white/light bg
+            containerColor = appColors.textfield // white/light bg
         ),
         elevation = CardDefaults.cardElevation(
             defaultElevation = 0.dp  // shadow comes from Modifier.shadow, not Card elevation
@@ -528,11 +356,12 @@ fun SettingsRow(
         ) {
             Text(
                 text = label,
-                modifier = Modifier.weight(1f),
+                modifier = Modifier.weight(1f).padding(start = 6.dp),
                 fontFamily = MartelFont,
                 fontWeight = FontWeight.Normal,  // regular weight matches Figma
-                fontSize = 20.sp,
-                color = MaterialTheme.colorScheme.onBackground
+                fontSize = 21.sp,
+                color = Color.Black,
+
             )
 
             Image(
@@ -541,7 +370,7 @@ fun SettingsRow(
                 modifier = Modifier.size(iconSize),
                 contentScale = ContentScale.Fit,
                 colorFilter = ColorFilter.tint(
-                    MaterialTheme.colorScheme.primary  // green icon tint
+                    appColors.backButton  // green icon tint
                 )
             )
         }
@@ -714,7 +543,7 @@ fun CascadeCard(
         onClick = onClick,
         modifier = modifier,
         shape = RoundedCornerShape(corner.dp),
-        colors = CardDefaults.cardColors(containerColor = LightGreen),
+        colors = CardDefaults.cardColors(containerColor = appColors.colors.mainButton),
         elevation = CardDefaults.cardElevation(8.dp)
     ) {
         Box(
@@ -748,6 +577,7 @@ fun CardContent(
         Image(
             painter            = painterResource(id = item.iconRes),
             contentDescription = item.label,
+            colorFilter        = if (item.tintIcon) ColorFilter.tint(appColors.colors.backButton) else null,
             modifier           = Modifier.size(iconSize)
         )
         Spacer(Modifier.height(8.dp))
@@ -771,6 +601,7 @@ data class MenuItemData(
     val iconSizeBig  : Dp       = 44.dp,
     val fontSizeSmall: TextUnit = 14.sp,
     val fontSizeBig  : TextUnit = 17.sp,
+    val tintIcon     : Boolean  = true,
     val onClick      : () -> Unit = {}
 )
 
