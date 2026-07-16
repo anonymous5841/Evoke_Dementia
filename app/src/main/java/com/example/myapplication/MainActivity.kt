@@ -91,12 +91,18 @@ class MainActivity : ComponentActivity() {
             )
         )
 
-        setContent {
-            AppNavigation()
+
+            setContent {
+                AppNavigation()
 
             }
 
 
         }
     }
+
+
+
+
+
 

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="demo">ڈیمو</string>
+
+    <string name="person_registration">شخص کی رجسٹریشن</string>
+    <string name="person_recognition">شخص کی پہچان</string>
+    <string name="add_location">جگہ شامل کریں</string>
+    <string name="search_location">جگہ تلاش کریں</string>
+    <string name="search_person_by_name">نام سے شخص کو تلاش کریں</string>
+    <string name="navigation_to_home">گھر تک رہنمائی</string>
+
+</resources>

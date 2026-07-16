@@ -21,6 +21,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.*
 import com.example.myapplication.R
 import com.example.myapplication.ui.theme.AppTheme
@@ -367,7 +368,7 @@ fun HeaderSection(
                         modifier           = Modifier.size(20.dp)
                     )
                     Text(
-                        text     = "Back",
+                        text = stringResource(R.string.back),
                         color    = appColors.backText,
                         fontSize = 30.sp,          // changed from 30.sp
                         fontFamily = PompiereFont
