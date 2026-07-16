@@ -40,6 +40,7 @@ class CameraPreviewScreen : ComponentActivity() {
     }
 }
 
+
 @Composable
 fun CameraPreviewContent(
     onBack: () -> Unit = {},
