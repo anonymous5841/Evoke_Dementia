@@ -187,7 +187,7 @@ fun HeaderSection(
     textSize       : TextUnit          = 40.sp,
     spacing        : Dp                = 91.dp,
     bottomspace    : Dp                = 37.dp,
-    leaves         : Dp                = (-9).dp,
+    leaves         : Dp                = AppTheme.colors.headerDecorOffset1,
     onBack         : (() -> Unit)?     = null,
     centerButton   : String?           = null,
     onCenterButton : (() -> Unit)?     = null
@@ -289,7 +289,7 @@ fun HeaderSection(
                 modifier = Modifier
                     .size(390.dp)
                     .align(Alignment.TopEnd)
-                    .offset(x = 0.dp, y = leaves)
+                    .offset(x = appColors.headerDecorX, y = leaves)
             ) {
                 // Shadow layer — same image, blurred + darkened + shifted down
                 Box(

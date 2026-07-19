@@ -1,4 +1,6 @@
 package com.example.myapplication.ui
+import android.annotation.SuppressLint
+import androidx.compose.foundation.background
 import androidx.compose.ui.platform.LocalLayoutDirection
 import com.example.myapplication.R
 import androidx.compose.ui.tooling.preview.Preview
@@ -16,9 +18,10 @@ import com.example.myapplication.ui.components.MenuItemData
 import com.example.myapplication.ui.components.RowContent
 import com.example.myapplication.ui.components.RotatingRowGrid
 import com.example.myapplication.ui.components.TextDark
+import com.example.myapplication.ui.components.rememberBottomNavBarHeight
 import com.example.myapplication.ui.theme.AppTheme
 
-@Composable
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter") @Composable
 fun HomeScreen(
     onSettingsClick     : () -> Unit,
     onSearchClick       : () -> Unit = {},
@@ -30,6 +33,7 @@ fun HomeScreen(
     startExpanded       : Boolean = false
 ) {
     val appColors = AppTheme.colors
+    val bottomNavHeight = rememberBottomNavBarHeight()
     // Fixed row identities — top row is the "big" pair, then medium, then small.
     val rowsData = remember {
         listOf(
@@ -72,49 +76,48 @@ fun HomeScreen(
             )
         )
     }
+
+    val layoutDirection = LocalLayoutDirection.current
     Scaffold(
         containerColor = appColors.background,
-    ) { innerPadding ->
-        val layoutDirection = LocalLayoutDirection.current
-        Column(
+        contentWindowInsets = WindowInsets(0, 0, 0, 0)  // insets already handled at root
+
+    ) {innerpadding ->
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(bottom = bottomNavHeight)
+
+    ) {
+        HeaderSection(
+            title        = "Home",
+            centerButton = "Emergency Call",
+            onCenterButton = {
+                // emergency action
+            }
+        )
+
+        Spacer(Modifier.height(10.dp))
+        Text(
+            text       = "Hi User",
+            fontFamily = OutfitFont,
+            fontSize   = 28.sp,
+            fontWeight = FontWeight.Bold,
+            color      = TextDark,
+            modifier   = Modifier.padding(horizontal = 24.dp).offset(y = (-20).dp)
+        )
+        Spacer(Modifier.height(30.dp))
+
+        RotatingRowGrid(
+            rowsData = rowsData,
+            startExpanded = startExpanded,
             modifier = Modifier
-                .fillMaxSize()
-                .statusBarsPadding()
-                .padding(
-                    start  = innerPadding.calculateStartPadding(layoutDirection),
-                    end    = innerPadding.calculateEndPadding(layoutDirection),
-                    bottom = innerPadding.calculateBottomPadding()
-                )
-        ) {
-            HeaderSection(
-                title        = "Home",
-                centerButton = "Emergency Call",
-                onCenterButton = {
-                    // emergency action
-                }
-            )
-
-            Spacer(Modifier.height(10.dp))
-            Text(
-                text       = "Hi User",
-                fontFamily = OutfitFont,
-                fontSize   = 28.sp,
-                fontWeight = FontWeight.Bold,
-                color      = TextDark,
-                modifier   = Modifier.padding(horizontal = 24.dp).offset(y = (-20).dp)
-            )
-            Spacer(Modifier.height(30.dp))
-
-            RotatingRowGrid(
-                rowsData = rowsData,
-                startExpanded = startExpanded,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 24.dp)
-            )
-        }
+                .fillMaxWidth()
+                .padding(horizontal = 24.dp)
+        )
     }
-}
+}}
+
 
 @Preview(name = "Home", showSystemUi = true)
 @Composable

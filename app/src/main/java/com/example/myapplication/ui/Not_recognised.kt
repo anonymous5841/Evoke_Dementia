@@ -37,6 +37,7 @@ import com.example.myapplication.ui.components.ShadowButton
 import com.example.myapplication.ui.components.ShadowTextField
 import com.example.myapplication.ui.theme.AppTheme
 import com.example.myapplication.ui.theme.BaumansFont
+import com.example.myapplication.ui.theme.BlueTheme
 import com.example.myapplication.ui.theme.GreenTheme
 import com.example.myapplication.ui.theme.OutfitFont
 
@@ -54,9 +55,10 @@ class NotRecognisedScreen : ComponentActivity() {
 @Composable
 fun NotRecognisedContent(
     imageBitmap: ImageBitmap? = null,  // ← passed from previous screen or DB
-    onSubmit: (name: String, relation: String, address: String) -> Unit = { _, _, _ -> },
+//    onSubmit: (name: String, relation: String, address: String) -> Unit = { _, _, _ -> },
     onVoiceSampleClick: () -> Unit = {},   // ← add this
-    onBack: (() -> Unit)? = null,
+    onSave: () -> Unit = {},
+    onBack: () -> Unit = {}
 ) {
     val appColors = AppTheme.colors
     var nameText by remember { mutableStateOf("") }
@@ -65,6 +67,7 @@ fun NotRecognisedContent(
 
     Scaffold(
         containerColor = appColors.background,
+        contentWindowInsets = WindowInsets(0, 0, 0, 0)  // insets already handled at root
     ) { innerPadding ->
         Box(
             modifier = Modifier
@@ -234,7 +237,7 @@ fun NotRecognisedContent(
                         RecordConversationField(
                             value = selectedAddress,
                             placeholder = "Click to record",
-                            onClick = { }
+                            onClick = { onVoiceSampleClick() }
                         )
                     }
 
@@ -245,7 +248,8 @@ fun NotRecognisedContent(
                         color = appColors.popupText,
                         cornerRadius = 28.dp,
                         onClick = {
-                            onSubmit(nameText, relationText, selectedAddress)
+//                            onSubmit(nameText, relationText, selectedAddress)
+                            onSave()
                         }
                     ) {
                         Text(
@@ -270,8 +274,8 @@ fun NotRecognisedContent(
                 33.sp,
                 41.dp,
                 (28).dp,
-                leaves = 4.dp,
-                onBack = { })
+                leaves = appColors.headerDecorOffset2,
+                onBack = { onBack()})
 
         }
     }
@@ -280,7 +284,7 @@ fun NotRecognisedContent(
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
 fun NotRecognisedPreview() {
-    GreenTheme {
+    BlueTheme {
         val context = LocalContext.current
         val bitmap = BitmapFactory.decodeResource(context.resources, R.drawable.loading_4)
         NotRecognisedContent(imageBitmap = bitmap.asImageBitmap())

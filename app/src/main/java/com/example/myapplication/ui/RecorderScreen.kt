@@ -20,6 +20,7 @@ import androidx.compose.ui.draw.blur
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.myapplication.ui.theme.OutfitFont
 import com.example.myapplication.ui.components.ShadowButton
+import com.example.myapplication.ui.theme.AppTheme
 import com.example.myapplication.ui.theme.GreenTheme
 
 
@@ -29,9 +30,10 @@ fun RecordScreen(
     onDoneClick: () -> Unit = {}
 ) {
     var isRecording by remember { mutableStateOf(true) }
-
+    val appColors = AppTheme.colors
     Scaffold(
-        containerColor = Color.White
+        containerColor = Color.White,
+        contentWindowInsets = WindowInsets(0, 0, 0, 0)  // insets already handled at root
     ) { innerPadding ->
         Column(
             modifier = Modifier
@@ -59,7 +61,7 @@ fun RecordScreen(
                         spotColor = Color.DarkGray.copy(alpha = 0.9f)
                     )
                     .background(
-                        Color(0xFF3E634F),
+                        appColors.pagesText,
                         shape = RoundedCornerShape(62.dp)
                     ), // ✅ background with shape
                 contentAlignment = Alignment.Center
@@ -112,7 +114,7 @@ fun RecordScreen(
                     ShadowButton(
                         width = 252.dp,             // [BUTTON WIDTH] matches Recorder.svg (252dp)
                         height = 48.dp,              // [BUTTON HEIGHT] matches Recorder.svg (48dp)
-                        color = Color(0xFFFFC107),  // [BUTTON COLOR] matches Recorder.svg (#FFC107)
+                        color = appColors.popupText,  // [BUTTON COLOR] matches Recorder.svg (#FFC107)
                         cornerRadius = 24.dp,              // full pill — matches Recorder.svg rx=24
                         shadowColor  = Color.White,
                         onClick = { onDoneClick() }

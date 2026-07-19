@@ -22,7 +22,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.myapplication.R
@@ -37,6 +36,7 @@ import com.example.myapplication.ui.theme.BaumansFont
 import com.example.myapplication.ui.theme.GreenTheme
 import com.example.myapplication.ui.theme.OutfitFont
 import androidx.compose.ui.graphics.Brush
+import com.example.myapplication.ui.components.DateDisplayField
 import com.example.myapplication.ui.components.InfoNotePill
 import com.example.myapplication.ui.components.RecordConversationField
 import com.example.myapplication.ui.components.VoicePlayerBar
@@ -55,7 +55,11 @@ class RecognisedScreen : ComponentActivity() {
 @Composable
 fun RecognisedContent(
     imageBitmap: ImageBitmap? = null,  // ← passed from previous screen or DB
-    onSubmit: (name: String, relation: String, address: String) -> Unit = { _, _, _ -> }
+//    onSubmit: (name: String, relation: String, address: String) -> Unit = { _, _, _ -> },
+    onBack: () -> Unit = {},
+    onSave: () -> Unit = {},
+    onVoiceSampleClick: () -> Unit = {},
+    onViewmore: () -> Unit = {}
 ) {
     val appColors = AppTheme.colors
     var nameText by remember { mutableStateOf("") }
@@ -67,6 +71,7 @@ fun RecognisedContent(
 
     Scaffold(
         containerColor = appColors.background,
+        contentWindowInsets = WindowInsets(0, 0, 0, 0)  // insets already handled at root
     ) { innerPadding ->
         Box(
             modifier = Modifier
@@ -267,7 +272,7 @@ fun RecognisedContent(
                         height = 56.dp,
                         color = appColors.popupText,
                         cornerRadius = 28.dp,
-                        onClick = { }
+                        onClick = { onViewmore()}
                     ) {
                         Text(
                             text = "View More",
@@ -406,7 +411,7 @@ fun RecognisedContent(
                             RecordConversationField(
                                 value = selectedAddress,
                                 placeholder = "Click to record",
-                                onClick = { }
+                                onClick = {  onVoiceSampleClick() }
                             )
                         }
 
@@ -417,7 +422,8 @@ fun RecognisedContent(
                             color = appColors.popupText,
                             cornerRadius = 28.dp,
                             onClick = {
-                                onSubmit(nameText, relationText, selectedAddress)
+//                                onSubmit(nameText, relationText, selectedAddress)
+                                onSave()
                             }
                         ) {
                             Text(
@@ -441,17 +447,13 @@ fun RecognisedContent(
                 33.sp,
                 60.dp,
                 (28).dp,
-                leaves = 4.dp,
-                onBack = { })
+                leaves = appColors.headerDecorOffset2,
+                onBack = { onBack()})
 
         }
     }
 }
 
-@Composable
-fun DateDisplayField(date: String, backgroundColor: Color, textColor: Color, fontSize: TextUnit) {
-    TODO("Not yet implemented")
-}
 
 @Preview(showBackground = true, showSystemUi = true)
 @Composable

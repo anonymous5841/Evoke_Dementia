@@ -64,6 +64,7 @@ import com.example.myapplication.ui.theme.PompiereFont
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.runtime.saveable.rememberSaveable
 
 private enum class Screen { Loading3, Loading4 }
 
@@ -135,48 +136,47 @@ private const val TEXT_SHADOW_OFFSET_Y = 2
 // ─── Main composable ──────────────────────────────────────────────────────────
 @Composable
 fun FigmaMotionApp(
-    onAddComplete: () -> Unit = {}   // ← add this
+    onContinueClick: () -> Unit = {}
 ) {
-    var current by remember { mutableStateOf(Screen.Loading3) }
+    var introPlayed by rememberSaveable { mutableStateOf(false) }
+    var current by remember { mutableStateOf(if (introPlayed) Screen.Loading4 else Screen.Loading3) }
 
-    val bubbleReveal  = remember { Animatable(0f) }
-    val imageReveal   = remember { Animatable(0f) }
-    val contentReveal = remember { Animatable(0f) }
-    val riseContent   = remember { Animatable(0f) }
-
-    // slideUp: 0f = language block at rest, 1f = fully slid off screen upward
-    val slideUp = remember { Animatable(0f) }
-
-    val scope = rememberCoroutineScope()
-
+    val bubbleReveal  = remember { Animatable(if (introPlayed) 1f else 0f) }
+    val imageReveal   = remember { Animatable(if (introPlayed) 1f else 0f) }
+    val contentReveal = remember { Animatable(if (introPlayed) 1f else 0f) }
+    val riseContent   = remember { Animatable(if (introPlayed) 1f else 0f) }
+    val slideUp       = remember { Animatable(0f) }   // unchanged — this one's unrelated to the intro
     LaunchedEffect(Unit) {
-        delay(2200)
-        current = Screen.Loading4
-        bubbleReveal.snapTo(0f); imageReveal.snapTo(0f)
-        contentReveal.snapTo(0f); riseContent.snapTo(0f)
-        slideUp.snapTo(0f)
+        if (!introPlayed) {
+            delay(2200)
+            current = Screen.Loading4
+            bubbleReveal.snapTo(0f); imageReveal.snapTo(0f)
+            contentReveal.snapTo(0f); riseContent.snapTo(0f)
+            slideUp.snapTo(0f)
 
-        kotlinx.coroutines.coroutineScope {
-            // Bubbles: same pace as before but no pauses — smooth continuous flow
-            launch {
-                bubbleReveal.animateTo(0.60f, tween(3500, easing = LinearEasing))
-                bubbleReveal.animateTo(0.75f, tween(1500, easing = LinearEasing))
-                bubbleReveal.animateTo(1f,    tween(1200, easing = FastOutSlowInEasing))
+            kotlinx.coroutines.coroutineScope {
+                // Bubbles: same pace as before but no pauses — smooth continuous flow
+                launch {
+                    bubbleReveal.animateTo(0.60f, tween(3500, easing = LinearEasing))
+                    bubbleReveal.animateTo(0.75f, tween(1500, easing = LinearEasing))
+                    bubbleReveal.animateTo(1f, tween(1200, easing = FastOutSlowInEasing))
+
+                }
+                // Content: starts 2 seconds earlier than before (was after all bubble phases + delays)
+                launch {
+                    delay(5000)  // ← was ~5800ms before (3500 + 800 + 1500 + 400 delays removed)
+                    imageReveal.animateTo(1f, tween(900, easing = FastOutSlowInEasing))
+                }
+                launch {
+                    delay(5000)
+                    contentReveal.animateTo(1f, tween(900, easing = FastOutSlowInEasing))
+                }
             }
-            // Content: starts 2 seconds earlier than before (was after all bubble phases + delays)
-            launch {
-                delay(5000)  // ← was ~5800ms before (3500 + 800 + 1500 + 400 delays removed)
-                imageReveal.animateTo(1f, tween(900, easing = FastOutSlowInEasing))
-            }
-            launch {
-                delay(5000)
-                contentReveal.animateTo(1f, tween(900, easing = FastOutSlowInEasing))
-            }
+
+            riseContent.animateTo(1f, tween(700, easing = FastOutSlowInEasing))
+            introPlayed = true   // ← mark done so it never replays
         }
-
-        riseContent.animateTo(1f, tween(700, easing = FastOutSlowInEasing))
     }
-
     BoxWithConstraints(Modifier.fillMaxSize()) {
         val screenHeight = maxHeight
 
@@ -192,25 +192,7 @@ fun FigmaMotionApp(
                     // ── Layer 1 (bottom): Profile screen — always rendered ─────
                     // Revealed as language block slides up
                     // In FigmaMotionApp, add a reverse slideUp state
-                    GreenTheme {
-                        PersonFormContent(
-                            mode   = PersonFormMode.ADD,
-                            onAdd  = { _, _, _, _ ->
-                                onAddComplete()           // ← fires when Add button clicked
-                            },
-                            onBack = {
-                                // reverse the slide — animate slideUp back to 0
-                                scope.launch {
-                                    slideUp.animateTo(
-                                        0f,
-                                        tween(600, easing = FastOutSlowInEasing)
-                                    )
-                                    // go back to Loading4 language screen
-                                    current = Screen.Loading4
-                                }
-                            }
-                        )
-                    }
+
 
                     // ── Layer 2: Language block slides upward on Continue ──────
                     // Offset goes from 0 → -screenHeight as slideUp 0 → 1
@@ -312,13 +294,8 @@ fun FigmaMotionApp(
                                 .align(Alignment.BottomCenter)
                                 .offset(y = (140f * (1f - riseContent.value)).dp)
                                 .alpha(riseContent.value),
-                            onContinue  = {
-                                // Slide the whole layer upward — profile revealed underneath
-                                slideUp.animateTo(
-                                    1f,
-                                    tween(600, easing = FastOutSlowInEasing)
-                                )
-                            }
+                            onContinue  = { onContinueClick() }   // ← just calls the callback now
+
                         )
                     }
                 }
@@ -392,7 +369,7 @@ private fun BoxScope.TransitionBubble(
 private fun BottomLanguageBlockWithShadow(
     titleReveal : Float,
     modifier    : Modifier = Modifier,
-    onContinue  : suspend () -> Unit = {}
+    onContinue  : () -> Unit = {}
 ) {
     val fullTitle    = "Language"
     val visibleChars = (fullTitle.length * titleReveal).roundToInt().coerceIn(0, fullTitle.length)
@@ -586,7 +563,7 @@ private fun BottomLanguageBlockWithShadow(
                     modifier = Modifier
                         .align(Alignment.BottomEnd)
                         .padding(end = 12.dp, bottom = 8.dp)
-                        .clickable { scope.launch { onContinue() } },
+                        .clickable { onContinue()},
                     verticalAlignment     = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                 ) {

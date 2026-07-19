@@ -40,15 +40,9 @@ fun MeowBottomNavigation(
     hasAnimation      : Boolean  = true
 ) {
     val density      = LocalDensity.current
-    val navBarInset = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
-    val systemGestureInset = WindowInsets.systemGestures.asPaddingValues().calculateBottomPadding()
-
-// Only add padding if it's button navigation (not gesture)
-// Gesture nav inset is typically >= navigationBars inset
-    val extraBottomPadding = if (systemGestureInset <= navBarInset) navBarInset * 0.4f else 0.dp
-
+    val totalHeight  = rememberBottomNavBarHeight()
     val designHeight = 108.dp
-    val totalHeight  = designHeight + extraBottomPadding
+
     val barTopFrac   = 38f   / 108f
     val circleCYFrac = 33f   / 108f
     val circleRFrac  = 33f   / 108f
@@ -63,12 +57,12 @@ fun MeowBottomNavigation(
     BoxWithConstraints(
         modifier = modifier
             .fillMaxWidth()
-            .height(totalHeight)          // ← outer box is taller
+            .height(totalHeight)
             .graphicsLayer { renderEffect = null }
     ) {
         val W  = with(density) { maxWidth.toPx() }
-        val H  = with(density) { designHeight.toPx() }   // ← design draws against 108dp only
-        val HH = with(density) { totalHeight.toPx() }    // ← full height for background fill
+        val H  = with(density) { designHeight.toPx() }
+        val HH = with(density) { totalHeight.toPx() }
 
         val selectedIndex = models.indexOfFirst { it.id == selectedId }.coerceAtLeast(0)
         val targetX       = W * (selectedIndex + 0.5f) / models.size

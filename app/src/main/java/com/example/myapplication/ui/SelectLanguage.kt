@@ -56,7 +56,8 @@ fun SelectLanguageContent(
     )
 
     Scaffold(
-        containerColor = appColors.background
+        containerColor = appColors.background,
+        contentWindowInsets = WindowInsets(0, 0, 0, 0)  // insets already handled at root
     ) { innerPadding ->
 
         Box(

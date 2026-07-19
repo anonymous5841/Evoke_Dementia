@@ -34,7 +34,9 @@ fun HelpScreen(
     val appColors = AppTheme.colors
     val headerHeight = 260.dp // matches profile.kt's headerHeight — adjust if HelpScreen's header renders taller/shorter
 
-    Scaffold(containerColor = appColors.background) { innerPadding ->
+    Scaffold(containerColor = appColors.background,
+        contentWindowInsets = WindowInsets(0, 0, 0, 0)  // insets already handled at root
+    ) { innerPadding ->
         Box(
             modifier = Modifier
                 .fillMaxSize()
@@ -51,7 +53,7 @@ fun HelpScreen(
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 20.dp)
+                        .padding(horizontal = 22.dp)
                         .offset(y = (-30).dp), // small nudge so it peeks under the header's curved edge
                     verticalArrangement = Arrangement.spacedBy(24.dp)
                 ) {
@@ -98,7 +100,7 @@ fun HelpCard(
     val appColors = AppTheme.colors
     Column(
         modifier = Modifier
-            .width(170.dp)
+            .width(175.dp)
             .height(125.dp)
             .shadow(
                 elevation = 10.dp,

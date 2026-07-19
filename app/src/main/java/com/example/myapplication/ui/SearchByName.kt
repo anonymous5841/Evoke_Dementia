@@ -34,7 +34,7 @@ import com.example.myapplication.ui.components.ShadowTextField
 import com.example.myapplication.ui.theme.AppTheme
 import com.example.myapplication.ui.theme.GreenTheme
 import androidx.compose.runtime.*
-
+import com.example.myapplication.ui.components.rememberBottomNavBarHeight
 
 class PersonListScreen : ComponentActivity() {
 
@@ -67,15 +67,18 @@ fun PersonListContent(
 
     onSearch: () -> Unit = {},
 
-    onPersonClick: (PersonItem) -> Unit = {}
+    onPersonClick: () -> Unit = {},
+//    onPersonClick: (PersonItem) -> Unit = {},
 
 ) {
 
     val appColors = AppTheme.colors
+    val bottomNavHeight = rememberBottomNavBarHeight()
     var searchQuery by remember { mutableStateOf("") }
 
     Scaffold(
-        containerColor = appColors.background
+        containerColor = appColors.background,
+        contentWindowInsets = WindowInsets(0, 0, 0, 0)  // insets already handled at root
     ) { innerPadding ->
 
         Column(
@@ -96,14 +99,13 @@ fun PersonListContent(
             Row(
                 modifier = Modifier.fillMaxWidth(),   // ← needed so there's room to push into
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween             ) {
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
 
                 SearchFieldWithIcon(
                     value = searchQuery,
                     onValueChange = { searchQuery = it }
                 )
-
-                Spacer(modifier = Modifier.width(12.dp))
 
                 ShadowButton(
 
@@ -137,8 +139,8 @@ fun PersonListContent(
                 horizontalArrangement = Arrangement.spacedBy(10.dp),
 
                 verticalArrangement = Arrangement.spacedBy(22.dp),
-
-                modifier = Modifier.fillMaxSize()
+                contentPadding = PaddingValues(bottom = bottomNavHeight),
+                modifier = Modifier.weight(1f)
 
             ) {
 
@@ -159,7 +161,8 @@ fun PersonListContent(
 
                             onClick = {
 
-                                onPersonClick(person)
+//                                onPersonClick(person)
+                                onPersonClick()
 
                             }
                         )

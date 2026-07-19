@@ -15,6 +15,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.compose.rememberNavController
 import com.example.myapplication.R
 import com.example.myapplication.ui.components.FieldLabel
 import com.example.myapplication.ui.components.HeaderSection
@@ -72,7 +73,7 @@ fun PersonFormContent(
     initialAddress: String = "",
     onAdd: (String, String, List<String>, String) -> Unit = { _, _, _, _ -> },
     onEdit: (String, String, List<String>, String) -> Unit = { _, _, _, _ -> },
-    onBack: (() -> Unit)? = null,
+    onBack:  () -> Unit = {},
     onVoiceSampleClick: () -> Unit = {},
 ) {
     val appColors = AppTheme.colors
@@ -84,7 +85,9 @@ fun PersonFormContent(
     }
     var selectedAddress by remember { mutableStateOf(initialAddress) }
 
-    Scaffold(containerColor = appColors.background) { innerPadding ->
+    Scaffold(containerColor = appColors.background,
+        contentWindowInsets = WindowInsets(0, 0, 0, 0)  // insets already handled at root
+    ) { innerPadding ->
         Box(
             modifier = Modifier
                 .fillMaxSize()
@@ -210,9 +213,9 @@ fun PersonFormContent(
                 spacing = if (mode == PersonFormMode.ADD) 72.dp else 77.dp,
                 textSize = if (mode == PersonFormMode.ADD) 39.sp else 44.sp,
                 bottomspace = if (mode == PersonFormMode.ADD) 37.dp else 28.dp,
-                leaves = 4.dp,
+                leaves = appColors.headerDecorOffset2,
                 headerHeight = 218.dp,
-                onBack = onBack
+                onBack = {onBack()}
             )
         }
     }

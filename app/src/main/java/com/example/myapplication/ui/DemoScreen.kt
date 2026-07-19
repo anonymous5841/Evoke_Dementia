@@ -3,6 +3,7 @@ package com.example.myapplication.ui
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -115,7 +116,9 @@ fun DemoScreen(
 ) {
     val headerHeight = 247.dp // matches profile.kt's headerHeight
 
-    Scaffold(containerColor = MaterialTheme.colorScheme.background) { innerPadding ->
+    Scaffold(containerColor = AppTheme.colors.background,
+            contentWindowInsets = WindowInsets(0, 0, 0, 0)  // insets already handled at root
+    ) { innerPadding ->
         Box(
             modifier = Modifier
                 .fillMaxSize()
@@ -133,7 +136,7 @@ fun DemoScreen(
                         .fillMaxWidth(0.96f)                       // ← reduce this fraction to make cards narrower
                         .align(Alignment.CenterHorizontally)
                         .padding(horizontal = 16.dp)
-                        .padding(bottom = 24.dp)
+                        .padding(bottom = 50.dp)
                         .offset(y = (-30).dp),
                     verticalArrangement = Arrangement.spacedBy(28.dp)
                 ) {

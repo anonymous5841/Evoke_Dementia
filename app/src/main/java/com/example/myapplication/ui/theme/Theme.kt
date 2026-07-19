@@ -62,6 +62,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 import com.example.myapplication.R
 
 // ── Green color tokens ────────────────────────────────────────────────────────
@@ -96,6 +98,9 @@ val BlueAfterPlay   = Color(0xFF002B31)
 // ── App color set — single source of truth ─────────────────────────────────────
 data class AppColors(
     val headerDecorationRes : Int,    // leaves.xml / clouds.xml
+    val headerDecorOffset1  : Dp,
+    val headerDecorOffset2  : Dp,
+    val headerDecorX        : Dp,
     val recognizeIcon       : Int,
     val background          : Color,
     val headerBg            : Color,  // header bg + footer/nav bg
@@ -132,6 +137,9 @@ data class AppColors(
 // ── Green values ──────────────────────────────────────────────────────────────
 val GreenAppColors = AppColors(
     headerDecorationRes  = R.drawable.leaves,
+    headerDecorOffset1   = (-9).dp,
+    headerDecorOffset2   = 4.dp,
+    headerDecorX         = 0.dp,
     recognizeIcon = R.drawable.ic_recognize,
     background           = White,
     headerBg             = DarkGreen,
@@ -166,6 +174,9 @@ val GreenAppColors = AppColors(
 // ── Blue values ───────────────────────────────────────────────────────────────
 val BlueAppColors = AppColors(
     headerDecorationRes  = R.drawable.clouds,
+    headerDecorOffset1   = (-12).dp,
+    headerDecorOffset2   = (-17).dp,
+    headerDecorX         = 12.dp,
     recognizeIcon = R.drawable.recognise_icon,
     background           = White,
     headerBg             = BlueHeader,
@@ -209,15 +220,15 @@ object AppTheme {
 
 // ── Theme composables ─────────────────────────────────────────────────────────
 @Composable
-fun GreenTheme(content: @Composable () -> Unit) {
-    CompositionLocalProvider(LocalAppColors provides GreenAppColors) {
+fun AppTheme(isBlue: Boolean, content: @Composable () -> Unit) {
+    val colors = if (isBlue) BlueAppColors else GreenAppColors
+    CompositionLocalProvider(LocalAppColors provides colors) {
         MaterialTheme(typography = AppTypography, content = content)
     }
 }
 
 @Composable
-fun BlueTheme(content: @Composable () -> Unit) {
-    CompositionLocalProvider(LocalAppColors provides BlueAppColors) {
-        MaterialTheme(typography = AppTypography, content = content)
-    }
-}
+fun GreenTheme(content: @Composable () -> Unit) = AppTheme(isBlue = false, content = content)
+
+@Composable
+fun BlueTheme(content: @Composable () -> Unit) = AppTheme(isBlue = true, content = content)

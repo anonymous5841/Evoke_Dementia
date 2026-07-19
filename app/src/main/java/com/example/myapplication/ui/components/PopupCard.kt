@@ -29,14 +29,29 @@ import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.ColorFilter
 import com.example.myapplication.ui.theme.MargarineFont
 import com.example.myapplication.ui.components.ShadowButton
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.compose.rememberNavController
+import com.example.myapplication.ui.offsetShadow
+import com.example.myapplication.ui.theme.AppTheme
+import com.example.myapplication.ui.theme.GreenTheme
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.DpOffset
+
 @Composable
 fun PopupCard(
     messageText: String,
+    buttonText: String = "Record",
+    height: Float = 0.3f,
+    upperPadding: Dp = 20.dp,
     showButton: Boolean = false,
+    textOffset: DpOffset = DpOffset(x = (-34).dp, y = 293.dp),
+    shapeOffset: DpOffset = DpOffset(x = (-6).dp, y = 285.dp),
     navController: NavController,
-    onRecordClick: () -> Unit = {},
-    onDismiss: () -> Unit = {}
+    onDismiss: () -> Unit = {},
+    onButtonClick: () -> Unit = {},
 ) {
+    val appColors = AppTheme.colors
     // ══════════════════════════════════════════════════════
     // REMOVED — the full-screen dark overlay Box that used to
     // live here. Blurring/dimming the screen BEHIND this popup
@@ -49,30 +64,33 @@ fun PopupCard(
     // ── OUTER WRAPPER — NOT clipped, lets yellow ellipse and X text escape freely ──
     Box(
         modifier = Modifier
-            .fillMaxSize(),
-        contentAlignment = Alignment.Center
+            .fillMaxSize()
+        .background(Color.Black.copy(alpha = 0.6f)),   // ← dim scrim, added here
+    contentAlignment = Alignment.Center
     ) {
         // ── POPUP CARD — clipping happens HERE only ──
         Box(
             modifier = Modifier
-                .width(300.dp)
-                .height(220.dp)
+                .fillMaxWidth(0.93f)   // ← 80% of screen width, replaces fixed 300.dp
+                .fillMaxHeight(height)
                 .clip(RoundedCornerShape(20.dp))
-                .background(Color(0xFF3E634F))
+                .background(appColors.pagesText)
                 .padding(24.dp)
         ) {
             Column(
                 modifier = Modifier.fillMaxSize()
-                    .padding(top = 20.dp),
+                    .padding(top = upperPadding),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
             ) {
                 Text(
                     text = messageText,
-                    color = Color(0xFFFFC006),
-                    fontSize = 26.sp,
+                    color = appColors.popupText,
+                    fontSize = 33.sp,
                     fontWeight = FontWeight.Normal,
                     fontFamily = OutfitFont,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.fillMaxWidth(),
                     style = TextStyle(
                         shadow = Shadow(
                             color = Color.Gray,
@@ -83,97 +101,109 @@ fun PopupCard(
                 )
 
                 if (showButton) {
-                    Spacer(modifier = Modifier.height(30.dp))  // [GAP ABOVE BUTTON] change dp
+                    Spacer(modifier = Modifier.height(34.dp))  // [GAP ABOVE BUTTON] change dp
                     ShadowButton(
-                        width        = 160.dp,                 // [BUTTON WIDTH] change dp
-                        height       = 50.dp,                 // [BUTTON HEIGHT] change dp
-                        color        = Color(0xFFFFC006),     // [BUTTON COLOR] = yellow
+                        width        = 200.dp,                 // [BUTTON WIDTH] change dp
+                        height       = 52.dp,                 // [BUTTON HEIGHT] change dp
+                        color = appColors.popupText,
                         cornerRadius = 50.dp,                 // [BUTTON CORNER] = pill shape
-                        onClick      = { navController.navigate("record_screen") }
+                        onClick      = { onButtonClick()}
                     ) {
                         Text(
-                            text       = "Record",            // [BUTTON TEXT] change text
-                            color      = Color.White,         // [TEXT COLOR] change color
-                            fontSize   = 16.sp,               // [TEXT SIZE] change sp
-                            fontWeight = FontWeight.Bold      // [TEXT WEIGHT] change weight
+                            text       = buttonText,            // [BUTTON TEXT] change text
+                            color      = appColors.pagesText,         // [TEXT COLOR] change color
+                            fontSize   = 27.sp,               // [TEXT SIZE] change sp
+                            fontWeight = FontWeight.Medium,
+                            fontFamily = OutfitFont
                         )
                     }
-                    Spacer(modifier = Modifier.height(10.dp)) // [GAP BELOW BUTTON] change dp
                 }
             }
         }   // ← closes POPUP CARD Box
 
-        // ══════════════════════════════════════════════════════
-        // YELLOW ELLIPSE — background shape only, fully independent
-        // Moved OUT of the popup card, now a sibling living in the
-        // unclipped outer wrapper — same fix pattern used in
-        // ViewMoreScreen and DetailedSummaryScreen.
-        // [ELLIPSE SIZE] change size(72.dp)
-        // [ELLIPSE OFFSET X] positive = right, negative = left
-        // [ELLIPSE OFFSET Y] negative = up, positive = down
-        // ══════════════════════════════════════════════════════
-        Box(
+        Image(
+            painter = painterResource(id = R.drawable.add_shape),
+            contentDescription = "Close",
+            contentScale = ContentScale.Crop,
+            colorFilter = ColorFilter.tint(
+                color =  appColors.popupText,
+                blendMode = BlendMode.SrcIn
+            ),
             modifier = Modifier
-                .size(72.dp)
                 .align(Alignment.TopEnd)
-                .offset(
-                    x = (-20).dp,
-                    y = (268).dp
+                .offset(x = shapeOffset.x, y = shapeOffset.y)
+                .size(height = 70.dp, width = 78.dp)
+                .offsetShadow(
+                    offsetX = (-14).dp,
+                    offsetY = 14.dp
                 )
-        ) {
-            // ── SHADOW LAYER — separate, offset down so it doesn't show on top ──
-            Box(
-                modifier = Modifier
-                    .size(92.dp)
-                    .offset(
-                        x = 0.dp,
-                        y = 6.dp
-                    )
-                    .shadow(
-                        elevation = 8.dp,
-                        shape = RoundedCornerShape(28.dp),
-                        clip = false,                       // ADDED — was missing here, needed for shadow to render
-                        ambientColor = Color(0xFF000000),
-                        spotColor = Color(0xFF000000)
-                    )
-                    .background(Color.Transparent)          // ADDED — gives shadow a surface to render against
-            )
+                .size(72.dp)                     // if not already applied here
+                .clip(RoundedCornerShape(
+                    topStart = 14.dp,
+                    topEnd = 0.dp,
+                    bottomStart = 30.dp,
+                    bottomEnd = 0.dp
+                ))
+                .clickable { onDismiss() }
+        )
 
-            // ── REAL YELLOW SHAPE — on top, no shadow attached directly to it ──
-            Image(
-                painter = painterResource(id = R.drawable.add_shape),
-                contentDescription = "Close",
-                colorFilter = ColorFilter.tint(
-                    color = Color(0xFFFFC006),         // [TINT COLOR] change to any color
-                    blendMode = BlendMode.SrcIn        // SrcIn replaces all colors with tint color
-                ),
-                modifier = Modifier
-                    .matchParentSize()
-                    .clip(RoundedCornerShape(16.dp))
-                    .clickable { onDismiss() }              // uses onDismiss — matches PopupCard's actual parameter
-            )
-        }
-
-        // ══════════════════════════════════════════════════════
-        // X TEXT — replaces the old Icon(R.drawable.x), now Text,
-        // fully independent of the yellow ellipse.
-        // [X TEXT SIZE] change fontSize 18.sp
-        // [X TEXT OFFSET X] positive = right, negative = left
-        // [X TEXT OFFSET Y] negative = up, positive = down
-        // ══════════════════════════════════════════════════════
+        // ── X TEXT ──
         Text(
             text = "X",
-            color = Color(0xFF3E634F),
+            color = appColors.pagesText,
             fontSize = 38.sp,
             fontFamily = MargarineFont,
             fontWeight = FontWeight.Bold,
             modifier = Modifier
                 .align(Alignment.TopEnd)
-                .offset(
-                    x = (-45).dp,
-                    y = (280).dp
-                )
-                .clickable { onDismiss() }                  // uses onDismiss — matches PopupCard's actual parameter
+                .offset(x = textOffset.x, y = textOffset.y)
+                .clickable { onDismiss() }
         )
     }   // ← closes OUTER WRAPPER Box
 }
+
+
+@Preview(showBackground = true, showSystemUi = true)
+@Composable
+fun PopupCardNoButtonPreview() {
+    val navController = rememberNavController()
+    GreenTheme {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color.Black.copy(alpha = 0.5f))
+        ) {
+            PopupCard(
+                messageText = "Record Deleted Successfully!",
+                height = 0.25f,
+                upperPadding = 10.dp,
+                textOffset = DpOffset(x = (-36).dp, y = 312.dp),
+                shapeOffset = DpOffset(x = (-8).dp, y = 304.dp),
+                showButton = false,
+                navController = navController,
+                onDismiss = {}
+            )
+        }
+    }
+}
+
+//@Preview(showBackground = true, showSystemUi = true)
+//@Composable
+//fun PopupCardPreview() {
+//    val navController = rememberNavController()
+//    GreenTheme {
+//        Box(
+//            modifier = Modifier
+//                .fillMaxSize()
+//                .background(Color.Black.copy(alpha = 0.5f))  // simulate dimmed background behind the popup
+//        ) {
+//            PopupCard(
+//                messageText = "Delete Record?",
+//                buttonText = "Delete",
+//                showButton = true,
+//                navController = navController,
+//                onDismiss = {}
+//            )
+//        }
+//    }
+//}

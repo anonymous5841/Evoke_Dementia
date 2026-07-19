@@ -19,14 +19,15 @@ import com.example.myapplication.ui.components.LocationPickerField
 import com.example.myapplication.ui.components.ShadowButton
 import com.example.myapplication.ui.components.ShadowTextField
 import com.example.myapplication.ui.theme.AppTheme
+import com.example.myapplication.ui.theme.BlueTheme
 import com.example.myapplication.ui.theme.GreenTheme
 import com.example.myapplication.ui.theme.OutfitFont
 
 @Composable
 fun AddLocationContent(
-    onHomeClick: () -> Unit = {},
-    onProfileClick: () -> Unit = {},
-    onAddClick: () -> Unit = {}
+    onAddClick: () -> Unit = {},
+    onBack: () -> Unit = {}
+
 ) {
     val appColors = AppTheme.colors
     var titleText by remember { mutableStateOf("") }
@@ -35,6 +36,7 @@ fun AddLocationContent(
 
     Scaffold(
         containerColor = appColors.background,
+        contentWindowInsets = WindowInsets(0, 0, 0, 0)  // insets already handled at root
     ) { innerPadding ->
         Box(
             modifier = Modifier
@@ -146,7 +148,7 @@ fun AddLocationContent(
             HeaderSection(
                 "Add Location",
                 spacing = 57.dp,
-                onBack = { })
+                onBack = { onBack()})
 
         }
     }
@@ -155,7 +157,7 @@ fun AddLocationContent(
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
 fun AddLocationPreview() {
-    GreenTheme {
+    BlueTheme {
         AddLocationContent()
     }
 }

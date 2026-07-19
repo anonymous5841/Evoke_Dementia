@@ -33,8 +33,9 @@ class LocationSearch : ComponentActivity() {
 // ── Location picker row ───────────────────────────────────────────────────────
 @Composable
 fun LocationSearchContent(
-    onHomeClick: () -> Unit = {},
-    onProfileClick: () -> Unit = {}
+    onBack: () -> Unit = {},
+    onEdit: () -> Unit = {},
+    onDelete: () -> Unit = {},
 ) {
     val appColors = AppTheme.colors
     var titleText by remember { mutableStateOf("") }
@@ -43,6 +44,7 @@ fun LocationSearchContent(
 
     Scaffold(
         containerColor = appColors.background,
+        contentWindowInsets = WindowInsets(0, 0, 0, 0)  // insets already handled at root
     ) { innerPadding ->
         Box(
             modifier = Modifier
@@ -114,7 +116,7 @@ fun LocationSearchContent(
                         height = 56.dp,
                         color = appColors.pagesText,
                         cornerRadius = 30.dp,
-                        onClick = { }
+                        onClick = { onEdit()}
                     ) {
                         Text(
                             text = "Edit",
@@ -131,7 +133,7 @@ fun LocationSearchContent(
                         height = 56.dp,
                         color = appColors.popupText,
                         cornerRadius = 30.dp,
-                        onClick = { }
+                        onClick = { onDelete() }
                     ) {
                         Text(
                             text = "Delete",
@@ -148,7 +150,7 @@ fun LocationSearchContent(
 
             HeaderSection(
                 spacing = 68.dp,
-                onBack = { }
+                onBack = { onBack()}
             )
 
         }

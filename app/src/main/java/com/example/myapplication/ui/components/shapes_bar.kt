@@ -54,7 +54,7 @@ fun SearchFieldWithIcon(
     modifier: Modifier = Modifier,
 
     // Box sizing — pass null for boxWidth to fillMaxWidth instead of a fixed width
-    boxWidth: Dp? = 280.dp,
+    boxWidth: Dp? = 300.dp,
     boxHeight: Dp = 54.dp,
 
     // Text field
@@ -262,7 +262,7 @@ fun AddShapeButton(
 private val waveformHeights = listOf(
     6f, 12f, 18f, 8f, 22f, 14f, 26f, 10f, 20f, 16f,
     28f, 6f, 18f, 12f, 24f, 8f, 20f, 14f, 10f, 22f,
-    6f, 16f, 26f, 12f, 18f, 8f, 24f, 10f, 20f, 12f, 18f
+    6f, 16f, 26f, 12f, 18f, 8f, 24f, 10f, 20f, 12f, 18f, 26f
 )
 
 // ══════════════════════════════════════════════════════
@@ -282,7 +282,7 @@ fun WaveformAnimated(
 
     Row(
         modifier = modifier,
-        horizontalArrangement = Arrangement.spacedBy(3.dp), //changed space
+        horizontalArrangement = Arrangement.spacedBy(3.5.dp), //changed space
         verticalAlignment = Alignment.CenterVertically
     ) {
         waveformHeights.forEachIndexed { index, baseHeight ->
@@ -300,7 +300,7 @@ fun WaveformAnimated(
             )
             Box(
                 modifier = Modifier
-                    .width(3.5.dp)
+                    .width(4.dp)
                     .height(animatedHeight.dp)
                     .clip(RoundedCornerShape(2.dp))
                     .background(AppTheme.colors.pagesText)
@@ -318,7 +318,7 @@ fun WaveformAnimated(
 fun WaveformStatic(modifier: Modifier = Modifier) {
     Row(
         modifier = modifier,
-        horizontalArrangement = Arrangement.spacedBy(3.dp),
+        horizontalArrangement = Arrangement.spacedBy(3.5.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         waveformHeights.forEach { height ->
@@ -339,7 +339,7 @@ fun VoicePlayerBar(
     speedMultiplier: Float,
     onPlayPauseClick: () -> Unit,
     onSpeedClick: () -> Unit,
-    width: Dp = 320.dp,
+    width: Dp = 350.dp,
     height: Dp = 57.dp,
     backgroundColor: Color = AppTheme.colors.boxInner,
     playColor: Color = AppTheme.colors.afterPlayColor,
@@ -353,7 +353,7 @@ fun VoicePlayerBar(
             .clip(RoundedCornerShape(20.dp))
             .background(backgroundColor)
             .padding(horizontal = 8.dp)
-            .padding(start = 7.dp),
+            .padding(start = 9.dp),
         contentAlignment = Alignment.CenterStart
     ) {
         Row(
@@ -375,7 +375,7 @@ fun VoicePlayerBar(
                     modifier = Modifier.size(26.dp)
                 )
             }
-            Spacer(modifier = Modifier.width(4.dp))
+            Spacer(modifier = Modifier.width(6.dp))
 
             // Waveform — fills remaining space between button and speed text
             if (isPlaying) {
@@ -401,7 +401,7 @@ fun VoicePlayerBar(
                 fontWeight = FontWeight.Bold,
                 fontFamily = OutfitFont,
                 modifier = Modifier
-                    .width(34.dp)
+                    .width(32.dp)
                     .clickable { onSpeedClick() }
             )
         }

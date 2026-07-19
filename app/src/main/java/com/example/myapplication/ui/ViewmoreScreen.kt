@@ -3,6 +3,8 @@ package com.example.myapplication.ui
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -45,74 +47,68 @@ fun ViewMoreScreen(
 ) {
     var searchQuery by remember { mutableStateOf("") }
     val recordings = remember { mutableStateListOf(1, 2, 3) }
-    // FIX: isPlaying and speedMultiplier at screen level — passed down to RecordingItem
-    // [PER CARD STATES] each card index has independent play/speed state
     val playingStates = remember { mutableStateMapOf<Int, Boolean>() }
     val speedStates = remember { mutableStateMapOf<Int, Float>() }
     val appColors = AppTheme.colors
 
     Scaffold(
-        containerColor = appColors.background
+        containerColor = appColors.background,
+        contentWindowInsets = WindowInsets(0, 0, 0, 0)  // insets already handled at root
     ) { innerPadding ->
 
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .verticalScroll(rememberScrollState())
                 .padding(horizontal = 16.dp)
+            // ← no .verticalScroll() here anymore — this Column no longer scrolls
         ) {
             Spacer(modifier = Modifier.height(18.dp))
 
-            // Back button row
-            BackIconButton(
-                onBackClick
-            )
+            BackIconButton(onBackClick)
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // Search bar outer wrapper — allows ellipse and icon to move independently
-            // ── SEARCH INPUT BOX ──────────────
-            // CHANGED: wrapped in outer Box, layered shadow approach
-            // same pattern as SearchLocationScreen search input box
             SearchFieldWithIcon(
                 placeholder = "Search by Date",
                 value = searchQuery,
                 onValueChange = { searchQuery = it },
                 greenIconOffset = DpOffset(x = (-20).dp, y = (-1).dp),
                 searchIconOffset = DpOffset(x = (4.4).dp, y = (-9).dp),
-                boxWidth = null   // ← fills available width instead of a fixed 280.dp
+                boxWidth = null
             )
 
             Spacer(modifier = Modifier.height(35.dp))
-            // List of recordings
-            recordings.forEachIndexed { index, _ ->
-                RecordingItem(
-                    index = index,
-                    onDeleteClick = { onDeleteClick(index) },
-                    onEllipseClick = onEllipseClick,
-                    isPlaying = playingStates[index] ?: false,         // each card independent
-                    speedMultiplier = speedStates[index] ?: 1f,        // each card independent
-                    onPlayPauseClick = {
-                        // only toggles THIS card's play state
-                        playingStates[index] = !(playingStates[index] ?: false)
-                    },
-                    onSpeedClick = {
-                        // only changes THIS card's speed
-                        val current = speedStates[index] ?: 1f
-                        speedStates[index] = when (current) {
-                            1f -> 1.5f
-                            1.5f -> 2f
-                            else -> 1f
+
+            // ← only this part scrolls now
+            LazyColumn(
+                modifier = Modifier.weight(1f)
+            ) {
+                itemsIndexed(recordings) { index, _ ->
+                    RecordingItem(
+                        index = index,
+                        onDeleteClick = { onDeleteClick(index) },
+                        onEllipseClick = onEllipseClick,
+                        isPlaying = playingStates[index] ?: false,
+                        speedMultiplier = speedStates[index] ?: 1f,
+                        onPlayPauseClick = {
+                            playingStates[index] = !(playingStates[index] ?: false)
+                        },
+                        onSpeedClick = {
+                            val current = speedStates[index] ?: 1f
+                            speedStates[index] = when (current) {
+                                1f -> 1.5f
+                                1.5f -> 2f
+                                else -> 1f
+                            }
                         }
-                    }
-                )
-                Spacer(modifier = Modifier.height(70.dp))
+                    )
+                    Spacer(modifier = Modifier.height(70.dp))
+                }
             }
         }
     }
 }
-
 // ══════════════════════════════════════════════════════
 // RECORDING ITEM
 // FIX: isPlaying, speedMultiplier, onPlayPauseClick, onSpeedClick
@@ -226,7 +222,7 @@ fun RecordingItem(
                         fontSize = 17.sp,
                         color = Color.Black,
                         fontWeight = FontWeight.Medium,
-                        modifier = Modifier.padding(start = 17.dp,8.dp)
+                        modifier = Modifier.padding(start = 15.dp,8.dp)
                     )
                 }
             }
@@ -236,9 +232,9 @@ fun RecordingItem(
                 plusColor = appColors.popupText,
                 shapeShadowHeight = 70.dp,
                 shapeShadowWidth = 88.dp,
-                boxOffset = DpOffset(x = (280).dp, y = (-42).dp),
+                boxOffset = DpOffset(x = (298).dp, y = (-42).dp),
                 plusFontSize = 67.sp,
-                plusOffset = DpOffset(x = (271).dp, y = (-31).dp)
+                plusOffset = DpOffset(x = (289).dp, y = (-29).dp)
             )
 
             VoicePlayerBar(

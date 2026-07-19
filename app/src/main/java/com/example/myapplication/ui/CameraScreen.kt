@@ -51,7 +51,9 @@ fun CameraPreviewContent(
     val appColors = AppTheme.colors
 
     Scaffold(
-        containerColor = appColors.background
+        containerColor = appColors.background,
+        contentWindowInsets = WindowInsets(0, 0, 0, 0)  // insets already handled at root
+
     ) { innerPadding ->
 
         Column(
@@ -70,8 +72,6 @@ fun CameraPreviewContent(
             Spacer(modifier = Modifier.height(28.dp))
 
             CameraPreviewPlaceholder()
-
-            Spacer(modifier = Modifier.weight(1f))
 
             CameraActions(
                 onCapture = onCapture,
@@ -96,7 +96,7 @@ private fun CameraActions(
         modifier = Modifier
             .fillMaxWidth()
             .height(170.dp)
-            .padding(top = 20.dp)
+            .padding(top = 15.dp)
 
     ) {
 

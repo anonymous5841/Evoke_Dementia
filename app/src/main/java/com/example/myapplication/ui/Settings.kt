@@ -34,37 +34,42 @@ import com.example.myapplication.ui.components.IconWithShadow
 import com.example.myapplication.ui.components.SettingsRow
 import com.example.myapplication.ui.components.ThemeToggleSwitch
 import com.example.myapplication.ui.theme.AppTheme
+import com.example.myapplication.ui.theme.BlueAppColors
+import com.example.myapplication.ui.theme.GreenAppColors
 import com.example.myapplication.ui.theme.GreenTheme
 import com.example.myapplication.ui.theme.MartelFont
 
-class SettingsScreen : ComponentActivity() {
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-
-        setContent {
-            GreenTheme {
-                SettingsContent(
-                    onBack = {},
-                    onSelectLanguage = {}
-                )
-            }
-        }
-    }
-}
+//class SettingsScreen : ComponentActivity() {
+//
+//    override fun onCreate(savedInstanceState: Bundle?) {
+//        super.onCreate(savedInstanceState)
+//
+//        setContent {
+//            GreenTheme {
+//                SettingsContent(
+//                    onBack = {},
+//                    onSelectLanguage = {}
+//                )
+//            }
+//        }
+//    }
+//}
 
 @Composable
 fun SettingsContent(
     onBack: () -> Unit,
-    onSelectLanguage: () -> Unit
+    onSelectLanguage: () -> Unit,
+    isBlueTheme: Boolean,
+    onThemeToggle: (Boolean) -> Unit
 ) {
 
-    var blueThemeEnabled by remember { mutableStateOf(false) }
     var showEraseDialog by remember { mutableStateOf(false) }
     val appColors = AppTheme.colors
 
     Scaffold(
-        containerColor = appColors.background
+        containerColor = appColors.background,
+        contentWindowInsets = WindowInsets(0, 0, 0, 0)  // insets already handled at root
+
     ) { innerPadding ->
 
         Box(
@@ -119,8 +124,10 @@ fun SettingsContent(
                         )
 
                         ThemeToggleSwitch(
-                            checked = blueThemeEnabled,
-                            onCheckedChange = { blueThemeEnabled = it }
+                            checked = isBlueTheme,
+                            onCheckedChange = onThemeToggle,
+                            checkedThumbColor = BlueAppColors.toggleColor,
+                            uncheckedThumbColor = GreenAppColors.toggleColor
                         )
                     }
 
@@ -170,19 +177,16 @@ fun SettingsContent(
 }
 
 
-        @Preview(
-            showBackground = true,
-            showSystemUi = true
+@Preview(showBackground = true, showSystemUi = true)
+@Composable
+private fun SettingsPreview() {
+    var isBlue by remember { mutableStateOf(false) }
+    GreenTheme {
+        SettingsContent(
+            onBack = {},
+            onSelectLanguage = {},
+            isBlueTheme = isBlue,
+            onThemeToggle = { isBlue = it }
         )
-        @Composable
-        private fun SettingsPreview() {
-
-            GreenTheme {
-
-                SettingsContent(
-                    onBack = {},
-                    onSelectLanguage = {}
-                )
-
-            }
-        }
+    }
+}

@@ -32,7 +32,7 @@ import com.example.myapplication.ui.components.SearchFieldWithIcon
 
 @Composable
 fun SearchLocationScreen(
-    onBackClick: () -> Unit = {},
+    onBack: () -> Unit = {},
     onEllipseClick: () -> Unit = {},
     onSearch: () -> Unit = {},
 
@@ -42,7 +42,8 @@ fun SearchLocationScreen(
     val appColors = AppTheme.colors
 
     Scaffold(
-        containerColor = appColors.background
+        containerColor = appColors.background,
+        contentWindowInsets = WindowInsets(0, 0, 0, 0)  // insets already handled at root
     ) { innerPadding ->
 
         Column(
@@ -56,7 +57,7 @@ fun SearchLocationScreen(
 
             // Back button row
             BackIconButton(
-                onBackClick
+                onBack
             )
 
             Spacer(modifier = Modifier.height(24.dp))

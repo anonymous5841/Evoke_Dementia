@@ -472,10 +472,11 @@ fun RotatingRowGrid(
             val t1 = sizeTFor(h1)
             val t2 = sizeTFor(h2)
 
+            // Left column
             CascadeCard(
                 item = rowsData[0].left, corner = cornerFor(h0), contentAlpha = row1ContentAlpha,
                 iconSize = iconSizeFor(rowsData[0].left, t0), fontSize = fontSizeFor(rowsData[0].left, t0),
-                onClick = { rowsData[0].left.onClick(); if (expanded) collapse() },
+                onClick = { if (!expanded) rowsData[0].left.onClick() else collapse() },
                 modifier = Modifier.fillMaxWidth().height(h0.dp)
             )
             CascadeCard(
@@ -487,7 +488,7 @@ fun RotatingRowGrid(
             CascadeCard(
                 item = rowsData[2].left, corner = cornerFor(h2), contentAlpha = row3ContentAlpha,
                 iconSize = iconSizeFor(rowsData[2].left, t2), fontSize = fontSizeFor(rowsData[2].left, t2),
-                onClick = { rowsData[2].left.onClick(); if (!expanded) expand() },
+                onClick = { if (expanded) rowsData[2].left.onClick() else expand() },
                 modifier = Modifier.fillMaxWidth().height(h2.dp)
             )
         }
@@ -507,7 +508,7 @@ fun RotatingRowGrid(
             CascadeCard(
                 item = rowsData[0].right, corner = cornerFor(h0), contentAlpha = row1ContentAlpha,
                 iconSize = iconSizeFor(rowsData[0].right, t0), fontSize = fontSizeFor(rowsData[0].right, t0),
-                onClick = { rowsData[0].right.onClick(); if (expanded) collapse() },
+                onClick = { if (!expanded) rowsData[0].right.onClick() else collapse() },
                 modifier = Modifier.fillMaxWidth().height(h0.dp)
             )
             CascadeCard(
@@ -519,7 +520,7 @@ fun RotatingRowGrid(
             CascadeCard(
                 item = rowsData[2].right, corner = cornerFor(h2), contentAlpha = row3ContentAlpha,
                 iconSize = iconSizeFor(rowsData[2].right, t2), fontSize = fontSizeFor(rowsData[2].right, t2),
-                onClick = { rowsData[2].right.onClick(); if (!expanded) expand() },
+                onClick = { if (expanded) rowsData[2].right.onClick() else expand() },   // ← fixed
                 modifier = Modifier.fillMaxWidth().height(h2.dp)
             )
         }

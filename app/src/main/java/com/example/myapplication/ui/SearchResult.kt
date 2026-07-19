@@ -54,7 +54,12 @@ class SearchResultsScreen : ComponentActivity() {
 @Composable
 fun SearchResultsContent(
     imageBitmap: ImageBitmap? = null,  // ← passed from previous screen or DB
-    onSubmit: (name: String, relation: String, address: String) -> Unit = { _, _, _ -> }
+//    onSubmit: (name: String, relation: String, address: String) -> Unit = { _, _, _ -> },
+    onEdit: () -> Unit = {},
+    onDelete: () -> Unit = {},
+    onBack: () -> Unit = {},
+    onViewmore: () -> Unit = {},
+
 ) {
     var nameText by remember { mutableStateOf("") }
     var relationText by remember { mutableStateOf("") }
@@ -66,6 +71,7 @@ fun SearchResultsContent(
 
     Scaffold(
         containerColor = appColors.background,
+        contentWindowInsets = WindowInsets(0, 0, 0, 0)  // insets already handled at root
     ) { innerPadding ->
         Box(
             modifier = Modifier
@@ -264,7 +270,7 @@ fun SearchResultsContent(
                         height = 56.dp,
                         color = appColors.popupText,
                         cornerRadius = 28.dp,
-                        onClick = { }
+                        onClick = { onViewmore()}
                     ) {
                         Text(
                             text = "View More",
@@ -292,7 +298,7 @@ fun SearchResultsContent(
                                 height = 56.dp,
                                 color = appColors.pagesText,
                                 cornerRadius = 30.dp,
-                                onClick = { }
+                                onClick = { onEdit()}
                             ) {
 
                                 Text(
@@ -314,7 +320,7 @@ fun SearchResultsContent(
                                 height = 56.dp,
                                 color = appColors.pagesText,
                                 cornerRadius = 30.dp,
-                                onClick = { }
+                                onClick = {onDelete() }
                             ) {
 
                                 Text(
@@ -338,8 +344,8 @@ fun SearchResultsContent(
                         textSize = 37.sp,
                         spacing = 58.dp,
                         bottomspace = 34.dp,
-                        leaves = 4.dp,
-                        onBack = { })
+                        leaves = appColors.headerDecorOffset2,
+                        onBack = { onBack()})
                 }
             }
         }
