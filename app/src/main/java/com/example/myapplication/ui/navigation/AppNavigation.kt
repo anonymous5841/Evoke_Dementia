@@ -25,7 +25,6 @@ import com.example.myapplication.ui.LocationSearchContent
 import com.example.myapplication.ui.PersonFormContent
 import com.example.myapplication.ui.PersonFormMode
 import com.example.myapplication.ui.NotRecognisedContent
-import com.example.myapplication.ui.PersonListContent
 import com.example.myapplication.ui.RecognisedContent
 import com.example.myapplication.ui.RecordScreen
 import com.example.myapplication.ui.SearchLocationScreen
@@ -42,7 +41,7 @@ import com.example.myapplication.ui.components.PopupCard
 import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.tween
-
+import com.example.myapplication.ui.SearchScreen
 
 
 //newly one
@@ -322,21 +321,10 @@ fun AppNavigation(
                 }
 
                 composable("search") {
-                    PersonListContent(
-                        onBack = {
-                            navController.popBackStack()
-                        },
-
-//                        onViewMoreClick = {
-//                            navController.navigate(Screen.ViewMore.route)
-//                        },
-                        onPersonClick = {
-                            navController.navigate("searchresult")
-                        },
-//
-                        onSearch = {
-                            navController.navigate("locationQuery")
-                        }
+                    SearchScreen(
+                        onBack = { navController.popBackStack() },
+                        onPersonClick = { navController.navigate("searchresult") },
+                        onAddLocationClick = { navController.navigate("locationSearch") }
                     )
                 }
                 composable("searchresult") {
@@ -355,19 +343,6 @@ fun AppNavigation(
                         }
                     )
                 }
-
-
-                composable("locationQuery") {
-                    SearchLocationScreen(
-                        onBack = {
-                            navController.popBackStack()
-                        },
-                        onEllipseClick = {
-                            navController.navigate("locationSearch")
-                        }
-                    )
-                }
-
 
                 composable("viewmore") {
                     ViewMoreScreen(

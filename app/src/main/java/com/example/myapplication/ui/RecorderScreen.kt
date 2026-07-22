@@ -1,7 +1,8 @@
 package com.example.myapplication.ui
+
+import android.os.Build
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -15,15 +16,23 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.myapplication.R
 import com.example.myapplication.ui.components.HeaderSection
-import com.airbnb.lottie.compose.*
 import androidx.compose.ui.draw.blur
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
+import com.example.animation.VoiceRecorderAnimation
 import com.example.myapplication.ui.theme.OutfitFont
 import com.example.myapplication.ui.components.ShadowButton
 import com.example.myapplication.ui.theme.AppTheme
 import com.example.myapplication.ui.theme.GreenTheme
 
 
+private fun Modifier.blurIfSupported(radius: Dp): Modifier {
+    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+        this.blur(radius = radius)
+    } else {
+        this
+    }
+}
 @Composable
 fun RecordScreen(
     onBack: () -> Unit = {},
@@ -75,33 +84,34 @@ fun RecordScreen(
                     // Animation + Icon
                     Box(
                         contentAlignment = Alignment.Center,
-                        modifier = Modifier.size(380.dp)
+                        modifier = Modifier.
+                        fillMaxWidth(1f).
+                        fillMaxHeight(0.7f)
                     ) {
-                        val composition by rememberLottieComposition(
-                            LottieCompositionSpec.RawRes(R.raw.recording_animation)
-                        )
-                        val progress by animateLottieCompositionAsState(
-                            composition = composition,
-                            iterations = LottieConstants.IterateForever,
-                            speed = 1.3f
-                        )
-
-
-                        LottieAnimation(
-                            composition = composition,
-                            progress = { progress },
+                        VoiceRecorderAnimation(
                             modifier = Modifier
-                                .size(380.dp)
-                                .offset(y = (-45).dp)  // [ANIMATION OFFSET] nudged up so the rings sit above card center, matching Recorder.svg
-                                .blur(20.dp)   // ✅ Apply blur here
+                                .size(400.dp, 300.dp)
                         )
 
-                        Icon(
-                            painter = painterResource(id = R.drawable.recording_icon),
-                            contentDescription = "Recording",
-                            tint = Color(0xFFFFC006), // [MIC COLOR] matches Recorder.svg mic fill
-                            modifier = Modifier.size(50.dp).offset(y = (-45).dp)
-                        )
+                        Box(contentAlignment = Alignment.Center) {
+                            // White shadow - same icon shape, blurred, 30% opacity, drawn behind
+                            Icon(
+                                painter = painterResource(id = R.drawable.recording_icon),
+                                contentDescription = null, // decorative, real description is on the icon above
+                                tint = Color.White.copy(alpha = 0.4f),
+                                modifier = Modifier
+                                    .size(50.dp)
+                                    .blurIfSupported(6.dp)
+                            )
+
+                            // The actual icon, drawn on top - unchanged
+                            Icon(
+                                painter = painterResource(id = R.drawable.recording_icon),
+                                contentDescription = "Recording",
+                                tint = appColors.popupText, // [MIC COLOR] matches Recorder.svg mic fill
+                                modifier = Modifier.size(50.dp)
+                            )
+                        }
                     }
                 }
 
@@ -111,6 +121,7 @@ fun RecordScreen(
                         .align(Alignment.BottomCenter)    // [BUTTON POSITION] bottom center
                         .padding(bottom = 52.dp)           // [BUTTON BOTTOM MARGIN] matches Recorder.svg spacing from card bottom
                 ) {
+
                     ShadowButton(
                         width = 252.dp,             // [BUTTON WIDTH] matches Recorder.svg (252dp)
                         height = 48.dp,              // [BUTTON HEIGHT] matches Recorder.svg (48dp)
