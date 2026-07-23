@@ -5,8 +5,6 @@ import androidx.compose.animation.animateColor
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
-import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.blur
@@ -21,6 +19,26 @@ import androidx.compose.ui.unit.dp
 import com.example.myapplication.ui.theme.AppTheme
 import kotlin.math.min
 import kotlin.math.sin
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.size
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.withFrameNanos
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.drawscope.withTransform
+import androidx.compose.ui.tooling.preview.Preview
+import com.example.myapplication.ui.theme.BlueTheme
+import com.example.myapplication.ui.theme.GreenTheme
+import kotlin.math.PI
+import kotlin.math.cos
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.ui.graphics.Color
+
 
 /**
  * Animated voice recorder component.
@@ -556,5 +574,155 @@ fun VoiceRecorderAnimationPreview() {
             modifier = Modifier
                 .size(400.dp, 300.dp)
         )
+    }
+}
+
+
+/**
+ * A soft, organic "liquid blob" animation built entirely with Compose Canvas
+ * primitives (Path + gradients). No RenderEffect/blur, no dynamic color —
+ * both require API 31+ — so this renders identically on API 21-30 and 31+.
+ *
+ * WHY THIS VERSION IS SMOOTH (laminar, not glitchy):
+ * The previous version drove the wobble from four separate
+ * `infiniteRepeatable` animations, each restarting on its own independent
+ * schedule (6s / 9s / 3.2s / 24s). Individually each one loops cleanly, but
+ * four independently-restarting clocks never restart in lockstep with each
+ * other, so their combination stutters. On top of that, only 10 sample
+ * points were used to draw noise with a frequency up to 5 — right at the
+ * Nyquist edge — so as the phases drifted apart the sampled outline would
+ * occasionally under-resolve and pinch/cross itself for a frame.
+ *
+ * The fix: everything here derives from ONE continuously-increasing time
+ * value read straight off the frame clock (`withFrameNanos`). It never
+ * restarts, so there's nothing to desync. Point count is also raised so the
+ * curve always has enough resolution to stay smooth at every phase
+ * combination.
+ *
+ * Colors are pulled from [AppTheme.colors], so wrapping this in [GreenTheme]
+ * or [BlueTheme] automatically re-skins it.
+ */
+@Composable
+fun LiquidBlobAnimation(
+    modifier: Modifier = Modifier.size(220.dp), // only used if the caller passes no modifier
+    points: Int = 24 // more samples = no pinching/aliasing between the noise waves
+) {
+    val colors = AppTheme.colors
+
+    // Single free-running clock, in seconds, driven by actual frame time.
+    var timeSeconds by remember { mutableStateOf(0f) }
+    LaunchedEffect(Unit) {
+        val start = withFrameNanos { it }
+        while (true) {
+            withFrameNanos { now ->
+                timeSeconds = (now - start) / 1_000_000_000f
+            }
+        }
+    }
+
+    val twoPi = (2f * PI).toFloat()
+    val phase1 = timeSeconds * (twoPi / 6f)          // ~6s wobble cycle
+    val phase2 = timeSeconds * (twoPi / 9f)          // ~9s wobble cycle
+    val rotation = (timeSeconds * (360f / 24f)) % 360f // one revolution / 24s
+    val scalePulse = 1f + 0.06f * sin(timeSeconds * (twoPi / 3.2f)) // ~3.2s breathing
+
+    Box(modifier = modifier) {
+        Canvas(modifier = Modifier.fillMaxSize()) {
+            val w = this.size.width
+            val h = this.size.height
+            val cx = w / 2f
+            val cy = h / 2f
+            val baseRadius = (min(w, h) / 2f) * 0.7f
+
+            // Builds a smooth closed blob path: raw sampled points become
+            // control points, and the curve passes through the midpoints
+            // between consecutive points, so there are never sharp corners.
+            fun blobPath(noise: (Float) -> Float): Path {
+                val angleStep = twoPi / points
+                val raw = (0 until points).map { i ->
+                    val angle = angleStep * i
+                    val r = baseRadius + noise(angle)
+                    Offset(cx + r * cos(angle), cy + r * sin(angle))
+                }
+                val path = Path()
+                val firstMid = Offset(
+                    (raw[0].x + raw[points - 1].x) / 2f,
+                    (raw[0].y + raw[points - 1].y) / 2f
+                )
+                path.moveTo(firstMid.x, firstMid.y)
+                for (i in 0 until points) {
+                    val current = raw[i]
+                    val next = raw[(i + 1) % points]
+                    val mid = Offset((current.x + next.x) / 2f, (current.y + next.y) / 2f)
+                    path.quadraticTo(current.x, current.y, mid.x, mid.y)
+                }
+                path.close()
+                return path
+            }
+
+            // Layered sine/cosine waves at low, well-resolved frequencies —
+            // cheap smooth pseudo-noise, safe against the 24-point sampling.
+            fun noiseFor(seed: Float): (Float) -> Float = { angle ->
+                sin(angle * 3f + phase1 + seed) * (baseRadius * 0.10f) +
+                        cos(angle * 4f - phase2 + seed) * (baseRadius * 0.06f) +
+                        sin(angle * 2f + phase1 * 0.5f + seed) * (baseRadius * 0.08f)
+            }
+
+            withTransform({
+                rotate(rotation, pivot = Offset(cx, cy))
+                scale(scalePulse, scalePulse, pivot = Offset(cx, cy))
+            }) {
+                // 1) Soft shadow blob behind everything, for depth (no blur used)
+                drawPath(
+                    path = blobPath(noiseFor(1.7f)),
+                    color = Color(0xFFFF9838).copy(alpha = 0.16f)
+                )
+
+                // 2) Main liquid body with a radial gradient fill
+                drawPath(
+                    path = blobPath(noiseFor(0f)),
+                    brush = Brush.radialGradient(
+                        colors = listOf(colors.cameraInner, colors.cameraOuter),
+                        center = Offset(cx * 0.85f, cy * 0.8f),
+                        radius = baseRadius * 1.6f
+                    )
+                )
+
+                // 3) Inner highlight blob to sell the "liquid sheen"
+                drawPath(
+                    path = blobPath(noiseFor(3.4f)),
+                    brush = Brush.radialGradient(
+                        colors = listOf(
+                            colors.boxInner.copy(alpha = 0.35f),
+                            colors.boxInner.copy(alpha = 0f)
+                        ),
+                        center = Offset(cx * 0.7f, cy * 0.65f),
+                        radius = baseRadius * 1.1f
+                    )
+                )
+
+                // 4) Small floating accent blob for extra life
+                drawPath(
+                    path = blobPath(noiseFor(5.2f)),
+                    color = colors.staticwave.copy(alpha = 0.20f)
+                )
+            }
+        }
+    }
+}
+
+@Preview(showBackground = true, name = "Liquid Blob - Green")
+@Composable
+private fun LiquidBlobGreenPreview() {
+    GreenTheme {
+        LiquidBlobAnimation()
+    }
+}
+
+@Preview(showBackground = true, name = "Liquid Blob - Blue")
+@Composable
+private fun LiquidBlobBluePreview() {
+    BlueTheme {
+        LiquidBlobAnimation()
     }
 }

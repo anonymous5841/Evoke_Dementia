@@ -19,6 +19,7 @@ import com.example.myapplication.ui.components.HeaderSection
 import androidx.compose.ui.draw.blur
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
+import com.example.animation.LiquidBlobAnimation
 import com.example.animation.VoiceRecorderAnimation
 import com.example.myapplication.ui.theme.OutfitFont
 import com.example.myapplication.ui.components.ShadowButton
@@ -33,6 +34,24 @@ private fun Modifier.blurIfSupported(radius: Dp): Modifier {
         this
     }
 }
+
+/**
+ * The blur/glow-heavy [VoiceRecorderAnimation] uses Modifier.blur (via its
+ * own blurIfSupported helper) and layered translucent gradients that are
+ * tuned to look right with real blur behind them. Below API 31 that blur
+ * silently becomes a no-op, so those rings would render sharp-edged and
+ * flat instead of glassy — it still "works", it just doesn't look right.
+ *
+ * [LiquidBlobAnimation] was built from the ground up with no blur/RenderEffect
+ * dependency at all, so it looks correct and intentional on every version
+ * below that cutoff.
+ *
+ * This flag is the single switch point for that decision — check it once
+ * here rather than duplicating the SDK check anywhere else in the screen.
+ */
+private val supportsBlurAndGlow: Boolean
+    get() = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
+
 @Composable
 fun RecordScreen(
     onBack: () -> Unit = {},
@@ -40,7 +59,13 @@ fun RecordScreen(
 ) {
     var isRecording by remember { mutableStateOf(true) }
     val appColors = AppTheme.colors
-    Scaffold(
+    var Colory = Color.Unspecified
+    if (supportsBlurAndGlow) {
+        Colory= Color.White
+    } else {
+        Colory = Color.Black
+    }
+        Scaffold(
         containerColor = Color.White,
         contentWindowInsets = WindowInsets(0, 0, 0, 0)  // insets already handled at root
     ) { innerPadding ->
@@ -88,17 +113,27 @@ fun RecordScreen(
                         fillMaxWidth(1f).
                         fillMaxHeight(0.7f)
                     ) {
-                        VoiceRecorderAnimation(
-                            modifier = Modifier
-                                .size(400.dp, 300.dp)
-                        )
+                        // API 31+ gets the blur/glow version (it's built to
+                        // rely on real Modifier.blur); everything below that
+                        // gets the no-blur liquid blob so it still looks
+                        // intentional instead of flat.
+                        if (supportsBlurAndGlow) {
+                            VoiceRecorderAnimation(
+                                modifier = Modifier.size(400.dp, 300.dp),
+                                isAnimating = isRecording
+                            )
+                        } else {
+                            LiquidBlobAnimation(
+                                modifier = Modifier.size(400.dp, 400.dp)
+                            )
+                        }
 
                         Box(contentAlignment = Alignment.Center) {
                             // White shadow - same icon shape, blurred, 30% opacity, drawn behind
                             Icon(
                                 painter = painterResource(id = R.drawable.recording_icon),
                                 contentDescription = null, // decorative, real description is on the icon above
-                                tint = Color.White.copy(alpha = 0.4f),
+                                tint = Colory.copy(alpha = 0.4f),
                                 modifier = Modifier
                                     .size(50.dp)
                                     .blurIfSupported(6.dp)
