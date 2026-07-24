@@ -54,7 +54,7 @@ fun HelpScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 22.dp)
-                        .offset(y = (-30).dp), // small nudge so it peeks under the header's curved edge
+                        .offset(y = (-15).dp), // small nudge so it peeks under the header's curved edge
                     verticalArrangement = Arrangement.spacedBy(24.dp)
                 ) {
                     Row(

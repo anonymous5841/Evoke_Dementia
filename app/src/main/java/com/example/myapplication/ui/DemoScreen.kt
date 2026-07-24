@@ -136,7 +136,7 @@ fun DemoScreen(
                         .fillMaxWidth(0.96f)                       // ← reduce this fraction to make cards narrower
                         .align(Alignment.CenterHorizontally)
                         .padding(horizontal = 16.dp)
-                        .padding(bottom = 50.dp)
+                        .padding(bottom = 70.dp)
                         .offset(y = (-30).dp),
                     verticalArrangement = Arrangement.spacedBy(28.dp)
                 ) {

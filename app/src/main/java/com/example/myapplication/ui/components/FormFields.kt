@@ -26,6 +26,7 @@ import com.example.myapplication.ui.theme.OutfitFont
 import android.os.Build
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
+import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.ui.graphics.BlurEffect
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.CompositingStrategy
@@ -283,9 +284,16 @@ fun IconWithShadow(
     shadowColor: Color = Color.Black.copy(alpha = 0.35f),
     blurRadius: Dp = 4.dp,
     offsetY: Dp = 2.dp,
-    offsetX: Dp = 0.dp
+    offsetX: Dp = 0.dp,
+    onClick: (() -> Unit)? = null
 ) {
-    Box(modifier = modifier) {
+    Box(
+        modifier = modifier
+            .then(
+                if (onClick != null) Modifier.clickable(onClick = onClick)
+                else Modifier
+            )
+    ) {
         // Blurred silhouette of the icon, offset behind — only this part is blurred
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             Image(

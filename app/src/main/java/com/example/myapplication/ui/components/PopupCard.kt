@@ -95,7 +95,7 @@ fun PopupCard(
                         shadow = Shadow(
                             color = Color.Gray,
                             offset = Offset(-2f, 8f),
-                            blurRadius = 5f
+                            blurRadius = 18f
                         )
                     )
                 )

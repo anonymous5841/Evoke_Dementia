@@ -57,9 +57,9 @@ fun HomeScreen(
                     fontSizeSmall = 18.sp, fontSizeBig = 23.sp
                 ) { onHelpClick() },
                 right = MenuItemData(
-                    "Search\n\nName / Location", R.drawable.ic_search,
+                    "Search\nName / Location", R.drawable.ic_search,
                     iconSizeSmall = 18.dp, iconSizeBig = 50.dp,
-                    fontSizeSmall = 10.sp, fontSizeBig = 18.sp
+                    fontSizeSmall = 16.sp, fontSizeBig = 18.sp
                 ) { onSearchClick() }
             ),
             RowContent(

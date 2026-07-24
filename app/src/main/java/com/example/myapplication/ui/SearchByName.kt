@@ -31,6 +31,11 @@ import com.example.myapplication.ui.theme.AppTheme
 import com.example.myapplication.ui.theme.GreenTheme
 import com.example.myapplication.ui.theme.MartelFont
 import com.example.myapplication.ui.theme.OutfitFont
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.unit.DpOffset
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.myapplication.ui.navigation.SearchViewModel
+
 
 /** Which result list the shared search screen is currently showing. */
 enum class SearchDisplayMode { PEOPLE, LOCATION }
@@ -42,18 +47,13 @@ data class PersonItem(
 
 @Composable
 fun SearchScreen(
-    people: List<PersonItem> = List(20) { PersonItem(name = "Name") },
+    viewModel: SearchViewModel = viewModel(),
     onBack: () -> Unit = {},
     onPersonClick: () -> Unit = {},
-    onAddLocationClick: () -> Unit = {}, // was onEllipseClick in SearchLocationScreen
+    onMoreInfoLocationClick: () -> Unit = {}, // was onEllipseClick in SearchLocationScreen
 ) {
     val appColors = AppTheme.colors
     val bottomNavHeight = rememberBottomNavBarHeight()
-
-    var searchQuery by remember { mutableStateOf("") }
-    var selectedLocation by remember { mutableStateOf("") }
-    // Default view - change to LOCATION if that should be the starting state instead
-    var mode by remember { mutableStateOf(SearchDisplayMode.PEOPLE) }
 
     Scaffold(
         containerColor = appColors.background,
@@ -79,11 +79,8 @@ fun SearchScreen(
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 SearchFieldWithIcon(
-                    value = searchQuery,
-                    onValueChange = {
-                        searchQuery = it
-                        mode = SearchDisplayMode.PEOPLE // typing a name switches to people results
-                    }
+                    value = viewModel.searchQuery,
+                    onValueChange = { viewModel.onSearchQueryChange(it) }
                 )
 
                 Spacer(modifier = Modifier.width(12.dp))
@@ -93,7 +90,7 @@ fun SearchScreen(
                     height = 51.dp,
                     color = appColors.popupText,
                     cornerRadius = 16.dp,
-                    onClick = { mode = SearchDisplayMode.LOCATION } // no navigation - just flips the view
+                    onClick = { viewModel.onLocationButtonClick() }
                 ) {
                     Icon(
                         painter = painterResource(R.drawable.location_icon),
@@ -107,21 +104,31 @@ fun SearchScreen(
 
             // ---- The part that actually swaps ----
             AnimatedContent(
-                targetState = mode,
+                targetState = viewModel.mode,
                 transitionSpec = { fadeIn() togetherWith fadeOut() },
                 modifier = Modifier.weight(1f),
                 label = "searchModeSwitch"
             ) { currentMode ->
                 when (currentMode) {
-                    SearchDisplayMode.PEOPLE -> PeopleResultsGrid(
-                        people = people,
-                        bottomPadding = bottomNavHeight,
-                        onPersonClick = onPersonClick
-                    )
+                    SearchDisplayMode.PEOPLE -> {
+                        val filtered = if (viewModel.searchQuery.isBlank()) {
+                            viewModel.people
+                        } else {
+                            viewModel.people.filter {
+                                it.name.startsWith(viewModel.searchQuery, ignoreCase = true)
+                            }
+                        }
+                        PeopleResultsGrid(
+                            people = filtered,
+                            bottomPadding = bottomNavHeight,
+                            onPersonClick = onPersonClick
+                        )
+                    }
                     SearchDisplayMode.LOCATION -> LocationResultsList(
-                        selectedLocation = selectedLocation,
-                        onLocationChange = { selectedLocation = it },
-                        onAddLocationClick = onAddLocationClick
+                        selectedLocation = viewModel.selectedLocation,
+                        bottomPadding = bottomNavHeight,
+                        onLocationChange = { viewModel.onSelectedLocationChange(it) },
+                        onAddLocationClick = onMoreInfoLocationClick
                     )
                 }
             }
@@ -158,6 +165,7 @@ private fun PeopleResultsGrid(
 @Composable
 private fun LocationResultsList(
     selectedLocation: String,
+    bottomPadding: androidx.compose.ui.unit.Dp,
     onLocationChange: (String) -> Unit,
     onAddLocationClick: () -> Unit
 ) {
@@ -165,8 +173,10 @@ private fun LocationResultsList(
 
     LazyColumn(
         verticalArrangement = Arrangement.spacedBy(10.dp),
-        modifier = Modifier.fillMaxSize()
-    ) {
+        modifier = Modifier.fillMaxSize(),
+        contentPadding = PaddingValues(bottom = bottomPadding),
+
+        ) {
         items(5) { index ->
             Column {
                 Text(
@@ -209,6 +219,8 @@ private fun LocationResultsList(
                         onClick = onAddLocationClick,
                         shapeColor = appColors.pagesText,
                         plusColor = appColors.popupText,
+                        boxOffset = DpOffset(x = (299).dp, y = (-39).dp),
+                        plusOffset = DpOffset(x = (296).dp, y = (-26).dp),
                     )
                 }
 
@@ -222,8 +234,6 @@ private fun LocationResultsList(
                     backgroundColor = appColors.boxInner,
                     showShadow = true
                 )
-
-                Spacer(modifier = Modifier.height(16.dp))
             }
         }
     }
@@ -236,3 +246,14 @@ fun SearchScreenReview(){
         SearchScreen()
     }
 }
+
+//@Preview(showBackground = true, showSystemUi = true)
+//@Composable
+//fun SearchScreenLocationModePreview() {
+//    val previewViewModel = SearchViewModel().apply {
+//        onLocationButtonClick() // flips mode to LOCATION for this preview
+//    }
+//    GreenTheme {
+//        SearchScreen(viewModel = previewViewModel)
+//    }
+//}

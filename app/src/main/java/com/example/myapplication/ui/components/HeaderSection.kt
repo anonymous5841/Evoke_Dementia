@@ -369,10 +369,11 @@ fun HeaderSection(
                     )
                     Text(
                         text = stringResource(R.string.back),
-                        color    = appColors.backText,
+                        color    = appColors.popupText,
                         fontSize = 30.sp,          // changed from 30.sp
-                        fontFamily = PompiereFont
-                    )
+                        fontFamily = PompiereFont,
+                        fontWeight = FontWeight.Bold,
+                        )
                 }
 
                 val titleModifier = Modifier

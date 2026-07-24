@@ -22,6 +22,7 @@ import com.example.myapplication.ui.components.HeaderSection
 import com.example.myapplication.ui.components.LocationPickerField
 import com.example.myapplication.ui.components.ShadowButton
 import com.example.myapplication.ui.components.ShadowTextField
+import com.example.myapplication.ui.components.rememberBottomNavBarHeight
 import com.example.myapplication.ui.theme.AppTheme
 import com.example.myapplication.ui.theme.GreenTheme
 import com.example.myapplication.ui.theme.OutfitFont
@@ -84,6 +85,7 @@ fun PersonFormContent(
         mutableStateListOf(*initialEmergencyContacts.toTypedArray())
     }
     var selectedAddress by remember { mutableStateOf(initialAddress) }
+    val bottomPadding = rememberBottomNavBarHeight()
 
     Scaffold(containerColor = appColors.background,
         contentWindowInsets = WindowInsets(0, 0, 0, 0)  // insets already handled at root
@@ -205,7 +207,7 @@ fun PersonFormContent(
                         )
                     }
                 }
-                Spacer(modifier = Modifier.height(if (mode == PersonFormMode.ADD) 10.dp else 60.dp))
+                Spacer(modifier = Modifier.height(if (mode == PersonFormMode.ADD) 10.dp else bottomPadding))
             }
 
             HeaderSection(

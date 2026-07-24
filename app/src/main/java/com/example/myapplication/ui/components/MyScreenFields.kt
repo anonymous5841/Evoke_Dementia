@@ -55,6 +55,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.unit.TextUnit
 import com.example.myapplication.ui.theme.AppTheme
@@ -413,7 +414,7 @@ fun RotatingRowGrid(
     modifier      : Modifier = Modifier,
     startExpanded : Boolean = false
 ) {
-    var expanded by remember { mutableStateOf(startExpanded) }
+    var expanded by rememberSaveable { mutableStateOf(startExpanded) }
 
     val progress by animateFloatAsState(
         targetValue   = if (expanded) 1f else 0f,
@@ -586,7 +587,7 @@ fun CardContent(
             text       = item.label,
             fontSize   = fontSize,
             fontFamily = MartelFont,
-            fontWeight = FontWeight.Normal,
+            fontWeight = FontWeight.Bold,
             color      = TextDark,
             lineHeight = fontSize,
             textAlign  = TextAlign.Center

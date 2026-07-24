@@ -42,7 +42,7 @@ import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.tween
 import com.example.myapplication.ui.SearchScreen
-
+import androidx.lifecycle.viewmodel.compose.viewModel
 
 //newly one
 @SuppressLint("SuspiciousIndentation")
@@ -137,6 +137,41 @@ fun AppNavigation(
                         }
                     )
                 }
+                dialog(
+                    "delete_viewmore_popup",
+                    dialogProperties = DialogProperties(usePlatformDefaultWidth = false)
+                ) {
+                    PopupCard(
+                        messageText = "Delete Record?",
+                        buttonText = "Delete",
+                        showButton = true,
+                        navController = navController,
+                        onDismiss = { navController.popBackStack() },
+                        onButtonClick = {
+                            navController.popBackStack()
+                            navController.navigate("delete_success_popup")
+
+                        }
+                    )
+                }
+
+                dialog(
+                    "save_success_popup",
+                    dialogProperties = DialogProperties(usePlatformDefaultWidth = false)
+                ) {
+                    PopupCard(
+                        messageText = "Record Saved Successfully!",
+                        height = 0.25f,
+                        upperPadding = 10.dp,
+                        textOffset = DpOffset(x = (-36).dp, y = 312.dp),
+                        shapeOffset = DpOffset(x = (-8).dp, y = 304.dp),
+                        showButton = false,
+                        navController = navController,
+                        onDismiss = {
+                            navController.popBackStack()
+                            navController.popBackStack()                        }
+                    )
+                }
 
                 dialog(
                     "editpopup",
@@ -207,23 +242,6 @@ fun AppNavigation(
                     )
                 }
 
-                dialog(
-                    "save_success_popup",
-                    dialogProperties = DialogProperties(usePlatformDefaultWidth = false)
-                ) {
-                    PopupCard(
-                        messageText = "Record Saved Successfully!",
-                        height = 0.25f,
-                        upperPadding = 10.dp,
-                        textOffset = DpOffset(x = (-36).dp, y = 312.dp),
-                        shapeOffset = DpOffset(x = (-8).dp, y = 304.dp),
-                        showButton = false,
-                        navController = navController,
-                        onDismiss = {
-                            navController.navigate("search")
-                        }
-                    )
-                }
 
                 dialog(
                     "confirmationpopup",
@@ -239,6 +257,36 @@ fun AppNavigation(
                             navController.popBackStack()
                             navController.popBackStack()
                         }
+                    )
+                }
+                dialog(
+                    "record_back_popup",
+                    dialogProperties = DialogProperties(usePlatformDefaultWidth = false)
+                ) {
+                    PopupCard(
+                        messageText = "Don't Save Recording?",
+                        buttonText = "Back",
+                        showButton = true,
+                        navController = navController,
+                        onDismiss = { navController.popBackStack() },
+                        onButtonClick = {
+                            navController.popBackStack()
+                            navController.popBackStack()
+                        }
+                    )
+                }
+
+                dialog(
+                    "delete_data_popup",
+                    dialogProperties = DialogProperties(usePlatformDefaultWidth = false)
+                ) {
+                    PopupCard(
+                        messageText = "Erase Data & Restart?",
+                        buttonText = "Erase Data",
+                        showButton = true,
+                        navController = navController,
+                        onDismiss = { navController.popBackStack() },
+                        onButtonClick = {}
                     )
                 }
 
@@ -320,13 +368,16 @@ fun AppNavigation(
                     )
                 }
 
-                composable("search") {
+                composable("search") { backStackEntry ->
+                    val searchViewModel: SearchViewModel = viewModel(backStackEntry)
                     SearchScreen(
+                        viewModel = searchViewModel,
                         onBack = { navController.popBackStack() },
                         onPersonClick = { navController.navigate("searchresult") },
-                        onAddLocationClick = { navController.navigate("locationSearch") }
+                        onMoreInfoLocationClick = { navController.navigate("locationSearch") }
                     )
                 }
+
                 composable("searchresult") {
                     SearchResultsContent(
                         onBack = {
@@ -351,6 +402,9 @@ fun AppNavigation(
                         },
                         onEllipseClick = {
                             navController.navigate("detailpopup")
+                        },
+                        onDeleteClick = {
+                            navController.navigate("delete_viewmore_popup")
                         }
                     )
                 }
@@ -382,6 +436,9 @@ fun AppNavigation(
                         onSelectLanguage = {
                             navController.navigate("language")
                         },
+                        onEraseClick = {
+                            navController.navigate("delete_data_popup")
+                        },
                         isBlueTheme = isBlueTheme,
                         onThemeToggle = onThemeToggle
                     )
@@ -402,7 +459,7 @@ fun AppNavigation(
                 composable("recorder") {
                     RecordScreen(
                         onBack      = {
-                            navController.navigate("confirmationpopup")
+                            navController.navigate("record_back_popup")
                              },
                         onDoneClick = {
                             navController.navigate("confirmationpopup")
