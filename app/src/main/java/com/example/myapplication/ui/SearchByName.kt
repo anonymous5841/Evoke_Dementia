@@ -35,6 +35,7 @@ import com.example.myapplication.ui.theme.AppTheme
 import com.example.myapplication.ui.theme.GreenTheme
 import androidx.compose.runtime.*
 import com.example.myapplication.ui.components.rememberBottomNavBarHeight
+import androidx.compose.ui.res.stringResource
 
 class PersonListScreen : ComponentActivity() {
 
@@ -58,19 +59,14 @@ data class PersonItem(
 
 @Composable
 fun PersonListContent(
-
-    people: List<PersonItem> = List(20) {
-        PersonItem(name = "Name")
-    },
-
+    people: List<PersonItem>? = null,
     onBack: () -> Unit = {},
-
     onSearch: () -> Unit = {},
-
     onPersonClick: () -> Unit = {},
-//    onPersonClick: (PersonItem) -> Unit = {},
-
 ) {
+    val personList = people ?: List(20) {
+        PersonItem(name = stringResource(R.string.name))
+    }
 
     val appColors = AppTheme.colors
     val bottomNavHeight = rememberBottomNavBarHeight()
@@ -124,7 +120,7 @@ fun PersonListContent(
                     // Replace with your search drawable later
                     Icon(
                         painter = painterResource(R.drawable.location_icon),
-                        contentDescription = "Search",
+                        contentDescription = stringResource(R.string.search),
                         tint = appColors.pagesText,
                         )
                 }
@@ -144,7 +140,7 @@ fun PersonListContent(
 
             ) {
 
-                items(people) { person ->
+                items(personList) { person ->
 
                     Box(
                         modifier = Modifier.wrapContentSize(),
@@ -182,16 +178,12 @@ fun PersonListPreview() {
     GreenTheme {
 
         PersonListContent(
-
             people = List(12) {
-
                 PersonItem(
-                    name = "Name"
+                    name = stringResource(R.string.name)
                 )
             }
-
         )
-
     }
 
 }

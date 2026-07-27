@@ -209,7 +209,7 @@ fun BackIconButton(
         )
 
         Text(
-            text = "Back",
+            text = stringResource(R.string.back),
             color = appColors.colors.backText,
             fontSize = 30.sp,
             fontWeight = FontWeight.Medium,

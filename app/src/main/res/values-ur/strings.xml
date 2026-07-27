@@ -156,4 +156,20 @@
 
     <string name="recognised">پہچانا گیا</string>
     <string name="recording">ریکارڈنگ</string>
+    <string name="search">تلاش</string>
+    <string name="name">نام</string>
+    <string name="distance_format">%1$d کلومیٹر</string>
+
+    <!-- سرچ رزلٹ اسکرین -->
+    <string name="search_result">تلاش کا نتیجہ</string>
+    <string name="discussion_summary_voice">آواز میں گفتگو کا خلاصہ</string>
+    <string name="delete_entry">اندراج حذف کریں</string>
+
+    <string name="name_placeholder">نام درج کریں</string>
+
+    <!-- رشتہ -->
+    <string name="relation">رشتہ *</string>
+    <string name="relation_placeholder">رشتہ درج کریں مثلاً دوست</string>
+    <string name="open_location_map">نقشے میں مقام کھولیں</string>
+    <string name="recording_date">24/5/2026</string>
 </resources>

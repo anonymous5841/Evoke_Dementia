@@ -151,4 +151,21 @@
     <string name="view_more">View More</string>
     <string name="recognised">Recognised</string>
     <string name="recording">Recording</string>
+
+    <string name="search">Search</string>
+    <string name="name">Name</string>
+    <string name="distance_format">%1$d km</string>
+
+    <!-- Search Results Screen -->
+    <string name="search_result">Search Result</string>
+    <string name="discussion_summary_voice">Discussion Summary in Voice</string>
+
+    <string name="delete_entry">Delete Entry</string>
+    <string name="name_placeholder">Enter name</string>
+
+    <!-- Relation -->
+    <string name="relation">Relation *</string>
+    <string name="relation_placeholder">Enter relation e.g. Friend</string>
+    <string name="open_location_map">Open location in map</string>
+    <string name="recording_date">24/5/2026</string>
 </resources>

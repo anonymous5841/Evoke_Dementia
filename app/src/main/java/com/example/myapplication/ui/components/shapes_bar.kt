@@ -44,6 +44,7 @@ import androidx.compose.ui.draw.shadow
 import com.example.myapplication.ui.theme.OutfitFont
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.ui.res.stringResource
 import com.example.myapplication.ui.theme.BlueAppColors
 import com.example.myapplication.ui.theme.GreenAppColors
 
@@ -58,7 +59,7 @@ fun SearchFieldWithIcon(
     boxHeight: Dp = 54.dp,
 
     // Text field
-    placeholder: String = "Search by name",
+    placeholder: String= stringResource(R.string.search_by_name),
     placeholderColor: Color = Color(0xFF555555),
     fontSize: TextUnit = 20.sp,
     cornerRadius: Dp = 15.dp,

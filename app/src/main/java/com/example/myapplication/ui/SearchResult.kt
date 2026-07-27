@@ -20,6 +20,7 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
@@ -116,7 +117,7 @@ fun SearchResultsContent(
                         if (imageBitmap != null) {
                             Image(
                                 bitmap = imageBitmap,
-                                contentDescription = "Profile photo",
+                                contentDescription = stringResource(R.string.profile_photo),
                                 contentScale = ContentScale.Crop,
                                 modifier = Modifier.fillMaxSize()
                             )
@@ -133,12 +134,17 @@ fun SearchResultsContent(
                     Spacer(modifier = Modifier.height(28.dp))
 
                     // ── Name * ────────────────────────────────────────────────────
-                    FieldLabel("Name *", 18.sp, OutfitFont, FontWeight.Medium)
+                    FieldLabel(
+                        stringResource(R.string.name),
+                        18.sp,
+                        OutfitFont,
+                        FontWeight.Medium
+                    )
                     Spacer(modifier = Modifier.height(8.dp))
                     ShadowTextField(
                         value = nameText,
                         onValueChange = { nameText = it },
-                        placeholder = "Enter name",
+                        placeholder = stringResource(R.string.name_placeholder),
                         leadingIconRes = R.drawable.profile_icon,
                         height = 52.dp,
                         cornerRadius = 15.dp,
@@ -147,12 +153,17 @@ fun SearchResultsContent(
                     Spacer(modifier = Modifier.height(29.dp))
 
                     // ── Relation * ────────────────────────────────────────────────
-                    FieldLabel("Relation *", 18.sp, OutfitFont, FontWeight.Medium)
+                    FieldLabel(
+                        stringResource(R.string.relation),
+                        18.sp,
+                        OutfitFont,
+                        FontWeight.Medium
+                    )
                     Spacer(modifier = Modifier.height(8.dp))
                     ShadowTextField(
                         value = relationText,
                         onValueChange = { relationText = it },
-                        placeholder = "Enter relation e.g. Friend",
+                        placeholder = stringResource(R.string.relation_placeholder),
                         leadingIconRes = R.drawable.ic_call,
                         height = 52.dp,
                         cornerRadius = 15.dp,
@@ -163,7 +174,7 @@ fun SearchResultsContent(
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         Text(
-                            text = "Last Meeting Information",
+                            text = stringResource(R.string.last_meeting_information),
                             fontSize = 32.sp,
                             fontFamily = BaumansFont,
                             fontWeight = FontWeight.Normal,
@@ -196,11 +207,16 @@ fun SearchResultsContent(
                                 .weight(1f)
                                 .padding(top = 16.dp)
                         ) {
-                            FieldLabel("Location *", 18.sp, OutfitFont, FontWeight.Medium)
+                            FieldLabel(
+                                stringResource(R.string.location),
+                                18.sp,
+                                OutfitFont,
+                                FontWeight.Medium
+                            )
                             Spacer(modifier = Modifier.height(12.dp))
                             LocationPickerField(
                                 value = selectedAddress,
-                                placeholder = "Get current location",
+                                placeholder = stringResource(R.string.get_current_location),
                                 onClick = { /* open map */ }
                             )
                         }
@@ -209,7 +225,7 @@ fun SearchResultsContent(
                             modifier = Modifier.padding(top = 16.dp)
                         ) {
                             FieldLabel(
-                                "Date",
+                                stringResource(R.string.date),
                                 18.sp,
                                 OutfitFont,
                                 FontWeight.Medium
@@ -228,7 +244,7 @@ fun SearchResultsContent(
                     Spacer(modifier = Modifier.height(36.dp))
 
                     FieldLabel(
-                        "Discussion Summary",
+                        stringResource(R.string.discussion_summary),
                         18.sp,
                         OutfitFont,
                         FontWeight.Medium
@@ -241,7 +257,7 @@ fun SearchResultsContent(
                     Spacer(modifier = Modifier.height(28.dp))
 
                     FieldLabel(
-                        "Discussion Summary in Voice",
+                        stringResource(R.string.discussion_summary_voice),
                         18.sp,
                         OutfitFont,
                         FontWeight.Medium
@@ -273,7 +289,7 @@ fun SearchResultsContent(
                         onClick = { onViewmore()}
                     ) {
                         Text(
-                            text = "View More",
+                            text = stringResource(R.string.view_more),
                             fontSize = 22.sp,
                             fontWeight = FontWeight.Medium,
                             fontFamily = OutfitFont,
@@ -302,7 +318,7 @@ fun SearchResultsContent(
                             ) {
 
                                 Text(
-                                    text = "Edit",
+                                    text = stringResource(R.string.edit),
                                     fontSize = 22.sp,
                                     fontFamily = OutfitFont,
                                     fontWeight = FontWeight.Medium,
@@ -324,7 +340,7 @@ fun SearchResultsContent(
                             ) {
 
                                 Text(
-                                    text = "Delete Entry",
+                                    text = stringResource(R.string.delete_entry),
                                     fontSize = 20.sp,
                                     fontFamily = OutfitFont,
                                     fontWeight = FontWeight.Medium,
@@ -339,7 +355,7 @@ fun SearchResultsContent(
             }
                     // ── Header ────────────────────────────────────────────────────────
                     HeaderSection(
-                        title = "Search Result",
+                        title = stringResource(R.string.search_result),
                         headerHeight = 218.dp,
                         textSize = 37.sp,
                         spacing = 58.dp,
