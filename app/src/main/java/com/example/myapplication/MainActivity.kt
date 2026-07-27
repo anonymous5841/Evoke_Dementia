@@ -34,7 +34,36 @@ import androidx.core.view.WindowInsetsControllerCompat
 import com.example.myapplication.ui.navigation.AppNavigation
 import com.example.myapplication.ui.theme.AppTheme
 
+import android.content.Context
+import android.content.ContextWrapper
+import com.example.myapplication.utils.LanguageManager
+import com.example.myapplication.utils.LocaleHelper
+
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.ui.platform.LocalLayoutDirection
+import com.example.myapplication.utils.LanguageController
+
+import com.example.myapplication.utils.LocalAppLanguage
+
 class MainActivity : ComponentActivity() {
+    override fun attachBaseContext(newBase: Context) {
+
+        val language = LanguageManager.getSavedLanguage(newBase)
+
+        val context = LocaleHelper.setLocale(
+            newBase,
+            language
+        )
+
+        super.attachBaseContext(ContextWrapper(context))
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -49,39 +78,61 @@ class MainActivity : ComponentActivity() {
             )
         )
         setContent {
-            var isBlueTheme by rememberSaveable { mutableStateOf(false) }
+            var isBlueTheme by rememberSaveable {
+                mutableStateOf(false)
+            }
+            val context = LocalContext.current
+
+            val currentLanguage = rememberSaveable {
+                mutableStateOf(
+                    LanguageManager.getSavedLanguage(context)
+                )
+            }
+            LanguageController.languageState = currentLanguage
+
             val view = LocalView.current
 
-            AppTheme(isBlue = isBlueTheme) {
-                val barColor = AppTheme.colors.headerBg
-                val useDarkIcons = barColor.luminance() > 0.5f
+            CompositionLocalProvider(
 
-                SideEffect {
-                    val window = (view.context as Activity).window
-                    WindowInsetsControllerCompat(window, view).apply {
-                        isAppearanceLightStatusBars = useDarkIcons
-                        isAppearanceLightNavigationBars = useDarkIcons
-                    }
-                    if (android.os.Build.VERSION.SDK_INT >= 29) {
-                        window.isNavigationBarContrastEnforced = false
-                    }
-                }
+                LocalAppLanguage provides currentLanguage.value,
 
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .background(barColor)
+                LocalLayoutDirection provides LayoutDirection.Ltr
+
+            ){
+
+                AppTheme(
+                    isBlue = isBlueTheme
                 ) {
+                    val barColor = AppTheme.colors.headerBg
+                    val useDarkIcons = barColor.luminance() > 0.5f
+
+                    SideEffect {
+                        val window = (view.context as Activity).window
+                        WindowInsetsControllerCompat(window, view).apply {
+                            isAppearanceLightStatusBars = useDarkIcons
+                            isAppearanceLightNavigationBars = useDarkIcons
+                        }
+                        if (android.os.Build.VERSION.SDK_INT >= 29) {
+                            window.isNavigationBarContrastEnforced = false
+                        }
+                    }
+
                     Box(
                         modifier = Modifier
                             .fillMaxSize()
-                            .windowInsetsPadding(WindowInsets.statusBars)
-                            .clipToBounds()          // ← add this
+                            .background(barColor)
                     ) {
-                        AppNavigation(
-                            isBlueTheme = isBlueTheme,
-                            onThemeToggle = { isBlueTheme = it }
-                        )
+                        Box(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .windowInsetsPadding(WindowInsets.statusBars)
+                                .clipToBounds()          // ← add this
+                        ) {
+                            AppNavigation(
+                                isBlueTheme = isBlueTheme,
+                                onThemeToggle = { isBlueTheme = it }
+                            )
+                        }
                     }
                 }
             }

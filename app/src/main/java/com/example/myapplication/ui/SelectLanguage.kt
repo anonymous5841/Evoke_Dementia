@@ -10,6 +10,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
@@ -22,6 +23,16 @@ import com.example.myapplication.ui.components.HeaderSection
 import com.example.myapplication.ui.theme.AppTheme
 import com.example.myapplication.ui.theme.GreenTheme
 import com.example.myapplication.ui.theme.MartelFont
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
+import com.example.myapplication.R
+import com.example.myapplication.utils.LanguageController
+import com.example.myapplication.utils.LanguageManager
+import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.ui.Alignment
+
 
 private val DefaultLanguage  = Color(0xFFDBE1DD)
 class SelectLanguageScreen : ComponentActivity() {
@@ -46,13 +57,15 @@ fun SelectLanguageContent(
 
     val appColors = AppTheme.colors
 
-    var selectedLanguage by remember {
-        mutableStateOf("English")
-    }
+    val context = LocalContext.current
+
+    val selectedLanguage = LanguageController.currentLanguage()
+
+    val isUrdu = selectedLanguage == LanguageManager.URDU
 
     val languages = listOf(
-        "English",
-        "Urdu"
+        LanguageManager.ENGLISH,
+        LanguageManager.URDU
     )
 
     Scaffold(
@@ -94,7 +107,11 @@ fun SelectLanguageContent(
                                     clip = false
                                 )
                                 .clickable {
-                                    selectedLanguage = language
+
+                                    LanguageController.updateLanguage(
+                                        context,
+                                        language
+                                    )
                                 },
                             shape = RoundedCornerShape(15.dp),
                             colors = CardDefaults.cardColors(
@@ -106,24 +123,33 @@ fun SelectLanguageContent(
                             ),
                             elevation = CardDefaults.cardElevation(8.dp)
                         ) {
-
-                            Box(
-                                modifier = Modifier.fillMaxSize()
+                            CompositionLocalProvider(
+                                LocalLayoutDirection provides
+                                        if (isUrdu) LayoutDirection.Rtl
+                                        else LayoutDirection.Ltr
                             ) {
 
-                                androidx.compose.material3.Text(
-                                    text = language,
-                                    modifier = Modifier
-                                        .padding(start = 30.dp)
-                                        .align(androidx.compose.ui.Alignment.CenterStart),
-                                    fontFamily = MartelFont,
-                                    fontSize = 22.sp,
-                                    fontWeight = FontWeight.Normal,
-                                    color = if(isSelected)
+                                Box(
+                                    modifier = Modifier.fillMaxSize()
+                                ) {
+
+                                    Text(
+                                        text = if (language == LanguageManager.ENGLISH)
+                                            stringResource(R.string.english)
+                                        else
+                                            stringResource(R.string.urdu),
+                                        modifier = Modifier
+                                            .padding(start = 30.dp)
+                                            .align(Alignment.CenterStart),
+                                        fontFamily = MartelFont,
+                                        fontSize = 22.sp,
+                                        fontWeight = FontWeight.Normal,
+                                        color = if (isSelected)
                                             appColors.pagesText
-                                            else
+                                        else
                                             Color.Black
-                                )
+                                    )
+                                }
                             }
                         }
                     }
@@ -131,7 +157,7 @@ fun SelectLanguageContent(
             }
 
             HeaderSection(
-                title = "Select Language",
+                title = stringResource(R.string.select_language),
                 spacing = 52.dp,
                 onBack = onBack
             )
