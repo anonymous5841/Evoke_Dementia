@@ -18,6 +18,7 @@
     <string name="location_required">Location *</string>
     <string name="open_location_in_map">Open location in map</string>
     <string name="get_location">Get Location *</string>
+    <string name="map_pin">Map pin</string>
     <string name="title_required">Title *</string>
     <string name="title_placeholder">Title for place e.g. Restaurant</string>
     <string name="description_required">Description *</string>
@@ -118,7 +119,14 @@
     <string name="english">English</string>
     <string name="urdu">Urdu</string>
 
+    <!-- Camera Preview Screen -->
+    <string name="gallery">Gallery</string>
+    <string name="capture">Capture</string>
+    <string name="refresh">Refresh</string>
 
+    <!-- Accessibility -->
+    <string name="gallery_icon">Gallery</string>
+    <string name="refresh_icon">Refresh</string>
 
 
 </resources>

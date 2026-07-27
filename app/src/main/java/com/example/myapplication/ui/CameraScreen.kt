@@ -26,6 +26,7 @@ import com.example.myapplication.ui.theme.OutfitFont
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 
 class CameraPreviewScreen : ComponentActivity() {
 
@@ -115,7 +116,7 @@ private fun CameraActions(
             ) {
                 Icon(
                     painter = painterResource(R.drawable.gallery_icon),
-                    contentDescription = "Gallery",
+                    contentDescription = stringResource(R.string.gallery_icon),
                     modifier = Modifier.size(55.dp),
                     tint = appColors.backButton,
                 )
@@ -124,7 +125,7 @@ private fun CameraActions(
             Spacer(modifier = Modifier.height(10.dp))
 
             Text(
-                text = "Gallery",
+                text = stringResource(R.string.gallery),
                 fontSize = 16.sp,
                 fontFamily = OutfitFont,
                 color = Color.Black
@@ -147,7 +148,7 @@ private fun CameraActions(
             Spacer(modifier = Modifier.height(3.dp))
 
             Text(
-                text = "Capture",
+                text = stringResource(R.string.capture),
                 fontSize = 16.sp,
                 fontFamily = OutfitFont,
                 color = Color.Black
@@ -169,7 +170,7 @@ private fun CameraActions(
             ) {
                 Icon(
                     imageVector = Icons.Default.Refresh,
-                    contentDescription = "Refresh",
+                    contentDescription = stringResource(R.string.refresh_icon),
                     modifier = Modifier.size(55.dp),
                     tint = appColors.backButton,
                 )
@@ -178,7 +179,7 @@ private fun CameraActions(
             Spacer(modifier = Modifier.height(10.dp))
 
             Text(
-                text = "Refresh",
+                text = stringResource(R.string.refresh),
                 fontSize = 16.sp,
                 fontFamily = OutfitFont,
                 color = Color.Black

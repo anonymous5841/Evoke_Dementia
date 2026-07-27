@@ -56,6 +56,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.TextUnit
 import com.example.myapplication.ui.theme.AppTheme
 
@@ -200,7 +201,7 @@ fun BackIconButton(
 
         Icon(
             painter = painterResource(id = iconRes),
-            contentDescription = "Back",
+            contentDescription = stringResource(R.string.back),
             tint = appColors.colors.backButton,
             modifier = Modifier
                 .size(22.dp)

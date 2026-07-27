@@ -23,6 +23,7 @@ import com.example.myapplication.ui.components.HeaderSection
 import com.example.myapplication.ui.theme.AppTheme
 import com.example.myapplication.ui.theme.GreenTheme
 import com.example.myapplication.ui.theme.MartelFont
+import androidx.compose.ui.res.stringResource
 
 // ══════════════════════════════════════════════════════
 // CLICKABLE SELECTION CARD — inline in this file
@@ -141,19 +142,20 @@ fun DemoScreen(
                     verticalArrangement = Arrangement.spacedBy(28.dp)
                 ) {
                     val demoItems = listOf(
-                        "Person Registration"   to onPersonRegistration,
-                        "Person Recognition"    to onPersonRecognition,
-                        "Add Location"          to onAddLocation,
-                        "Search Location"       to onSearchLocation,
-                        "Search Person by name" to onSearchPersonByName,
-                        "Navigation to home"    to onNavigationToHome,
-                        "Send help message"     to onSendHelpMessage,
-                        "Emergency call for help" to onEmergencyCall,
-                        "Change app language"   to onChangeAppLanguage,
-                        "Change app Theme"      to onChangeAppTheme,
-                        "Backup data on cloud"  to onBackup,
-                        "Recovery data from cloud" to onRecoveryData,
-                        "Completely delete app data" to onCompleteDelete
+                        stringResource(R.string.person_registration) to onPersonRegistration,
+                        stringResource(R.string.person_recognition) to onPersonRecognition,
+                        stringResource(R.string.add_location) to onAddLocation,
+                        stringResource(R.string.search_location) to onSearchLocation,
+                        stringResource(R.string.search_person_by_name) to onSearchPersonByName,
+                        stringResource(R.string.navigation_to_home) to onNavigationToHome,
+                        stringResource(R.string.send_help_message) to onSendHelpMessage,
+                        stringResource(R.string.emergency_call_for_help) to onEmergencyCall,
+                        stringResource(R.string.change_app_language) to onChangeAppLanguage,
+                        stringResource(R.string.change_app_theme) to onChangeAppTheme,
+                        stringResource(R.string.backup_data_on_cloud) to onBackup,
+                        stringResource(R.string.recover_data_from_cloud) to onRecoveryData,
+                        stringResource(R.string.delete_app_data_completely) to onCompleteDelete
+
                     )
 
                     demoItems.forEach { (title, action) ->
@@ -165,7 +167,7 @@ fun DemoScreen(
             }
 
             HeaderSection(
-                "Demo",
+                stringResource(R.string.demo),
                 spacing = 73.dp,
                 bottomspace = 44.dp,
                 onBack = onBack

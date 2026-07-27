@@ -24,6 +24,7 @@
     <string name="title_placeholder">جگہ کا عنوان مثلاً ریستوران</string>
     <string name="title_required">عنوان*</string>
     <string name="get_location">جگہ حاصل کریں*</string>
+    <string name="map_pin">نقشے کا نشان</string>
     <string name="open_location_in_map">نقشے پر جگہ کھولیں</string>
     <string name="location_required">جگہ*</string>
     //Profile
@@ -119,6 +120,13 @@
     <string name="english">انگریزی</string>
     <string name="urdu">اردو</string>
 
+    <!-- Camera Preview Screen -->
+    <string name="gallery">گیلری</string>
+    <string name="capture">تصویر لیں</string>
+    <string name="refresh">دوبارہ</string>
 
+    <!-- Accessibility -->
+    <string name="gallery_icon">گیلری</string>
+    <string name="refresh_icon">دوبارہ</string>
 
 </resources>
