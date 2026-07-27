@@ -23,6 +23,7 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -91,7 +92,12 @@ fun NotRecognisedContent(
 
                 ) {
 
-                    FieldLabel("Register", 32.sp, BaumansFont, FontWeight.Normal)
+                    FieldLabel(
+                        stringResource(R.string.register),
+                        32.sp,
+                        BaumansFont,
+                        FontWeight.Normal
+                    )
                     Spacer(modifier = Modifier.height(28.dp))
 
                     // ── Image holder ──────────────────────────────────────────────
@@ -112,14 +118,14 @@ fun NotRecognisedContent(
                         if (imageBitmap != null) {
                             Image(
                                 bitmap = imageBitmap,
-                                contentDescription = "Profile photo",
+                                contentDescription = stringResource(R.string.profile_photo),
                                 contentScale = ContentScale.Crop,
                                 modifier = Modifier.fillMaxSize()
                             )
                         } else {
                             Icon(
                                 painter = painterResource(id = R.drawable.profile_icon),
-                                contentDescription = "Profile photo",
+                                contentDescription = stringResource(R.string.profile_photo),
                                 tint = appColors.backButton,
                                 modifier = Modifier.size(64.dp)
                             )
@@ -129,12 +135,17 @@ fun NotRecognisedContent(
                     Spacer(modifier = Modifier.height(28.dp))
 
                     // ── Name * ────────────────────────────────────────────────────
-                    FieldLabel("Name *", 18.sp, OutfitFont, FontWeight.Medium)
+                    FieldLabel(
+                        stringResource(R.string.name_label),
+                        18.sp,
+                        OutfitFont,
+                        FontWeight.Medium
+                    )
                     Spacer(modifier = Modifier.height(8.dp))
                     ShadowTextField(
                         value = nameText,
                         onValueChange = { nameText = it },
-                        placeholder = "Enter name",
+                        placeholder = stringResource(R.string.enter_full_name),
                         leadingIconRes = R.drawable.profile_icon,
                         height = 52.dp,
                         cornerRadius = 15.dp,
@@ -143,12 +154,17 @@ fun NotRecognisedContent(
                     Spacer(modifier = Modifier.height(29.dp))
 
                     // ── Relation * ────────────────────────────────────────────────
-                    FieldLabel("Relation *", 18.sp, OutfitFont, FontWeight.Medium)
+                    FieldLabel(
+                        stringResource(R.string.relation_label),
+                        18.sp,
+                        OutfitFont,
+                        FontWeight.Medium
+                    )
                     Spacer(modifier = Modifier.height(8.dp))
                     ShadowTextField(
                         value = relationText,
                         onValueChange = { relationText = it },
-                        placeholder = "Enter relation e.g. Friend",
+                        placeholder = stringResource(R.string.enter_relation),
                         leadingIconRes = R.drawable.relation_icon,
                         height = 52.dp,
                         cornerRadius = 15.dp,
@@ -156,7 +172,9 @@ fun NotRecognisedContent(
 
                     Spacer(modifier = Modifier.height(36.dp))
 
-                    InfoNotePill(text = "* Select location/record conversation or both")
+                    InfoNotePill(
+                        text = stringResource(R.string.select_location_record_both)
+                    )
 
                     Spacer(modifier = Modifier.height(21.dp))
 
@@ -170,18 +188,28 @@ fun NotRecognisedContent(
                         Column(modifier = Modifier
                             .weight(1f)
                             .padding(top = 16.dp)) {
-                            FieldLabel("Location *", 18.sp, OutfitFont, FontWeight.Medium)
+                            FieldLabel(
+                                stringResource(R.string.location_label),
+                                18.sp,
+                                OutfitFont,
+                                FontWeight.Medium
+                            )
                             Spacer(modifier = Modifier.height(12.dp))
                             LocationPickerField(
                                 value = selectedAddress,
-                                placeholder = "Get current location",
+                                placeholder = stringResource(R.string.get_current_location),
                                 onClick = { /* open map */ }
                             )
                         }
 
                         // Right: label + microphone button
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            FieldLabel("Add Person's\nvoice sample *", 17.sp, OutfitFont, FontWeight.Medium)
+                            FieldLabel(
+                                stringResource(R.string.add_person_voice_sample),
+                                17.sp,
+                                OutfitFont,
+                                FontWeight.Medium
+                            )
                             Spacer(modifier = Modifier.height(8.dp))
                             ShadowButton(
                                 width = 72.dp,
@@ -192,7 +220,7 @@ fun NotRecognisedContent(
                             ) {
                                 Icon(
                                     painter = painterResource(id = R.drawable.microphone_icon),
-                                    contentDescription = "Record voice",
+                                    contentDescription = stringResource(R.string.record_voice),
                                     tint = appColors.pagesText,
                                     modifier = Modifier.size(32.dp)
                                 )
@@ -226,7 +254,7 @@ fun NotRecognisedContent(
                     ) {
 
                         FieldLabel(
-                            "Record Conversation *",
+                            stringResource(R.string.record_conversation),
                             18.sp,
                             OutfitFont,
                             FontWeight.Medium
@@ -236,7 +264,7 @@ fun NotRecognisedContent(
 
                         RecordConversationField(
                             value = selectedAddress,
-                            placeholder = "Click to record",
+                            placeholder = stringResource(R.string.click_to_record),
                             onClick = { onVoiceSampleClick() }
                         )
                     }
@@ -253,7 +281,7 @@ fun NotRecognisedContent(
                         }
                     ) {
                         Text(
-                            text = "Save",
+                            text = stringResource(R.string.save),
                             color = appColors.pagesText,
                             fontSize = 22.sp,
                             fontWeight = FontWeight.Medium,
@@ -268,8 +296,8 @@ fun NotRecognisedContent(
 
             // ── Header ────────────────────────────────────────────────────────
             HeaderSection(
-                title = "Result:",
-                "Not-Recognised",
+                title = stringResource(R.string.result),
+                secondaryTitle = stringResource(R.string.not_recognised),
                 218.dp,
                 33.sp,
                 41.dp,

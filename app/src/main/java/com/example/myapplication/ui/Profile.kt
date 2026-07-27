@@ -25,6 +25,7 @@ import com.example.myapplication.ui.components.ShadowTextField
 import com.example.myapplication.ui.theme.AppTheme
 import com.example.myapplication.ui.theme.GreenTheme
 import com.example.myapplication.ui.theme.OutfitFont
+import androidx.compose.ui.res.stringResource
 
 // ── Mode enum ─────────────────────────────────────────────────────────────────
 enum class PersonFormMode { ADD, EDIT }
@@ -107,30 +108,49 @@ fun PersonFormContent(
                         .offset(y = (-40).dp)
                 ) {
 
-                    FieldLabel("Name *", 18.sp, OutfitFont, FontWeight.Medium)
+                    FieldLabel(
+                        stringResource(R.string.name_label),
+                        18.sp,
+                        OutfitFont,
+                        FontWeight.Medium
+                    )
                     Spacer(modifier = Modifier.height(8.dp))
                     ShadowTextField(
                         value = nameText,
                         onValueChange = { nameText = it },
-                        placeholder = "Enter full name",
+                        placeholder = stringResource(R.string.enter_full_name),
                         leadingIconRes = R.drawable.profile_icon,
                     )
                     Spacer(modifier = Modifier.height(39.dp))
 
-                    FieldLabel("Phone Number *", 18.sp, OutfitFont, FontWeight.Medium)
+                    FieldLabel(
+                        stringResource(R.string.phone_number_label),
+                        18.sp,
+                        OutfitFont,
+                        FontWeight.Medium
+                    )
                     Spacer(modifier = Modifier.height(8.dp))
                     ShadowTextField(
                         value = phoneText,
                         onValueChange = { phoneText = it },
-                        placeholder = "Enter phone number",
+                        placeholder = stringResource(R.string.enter_phone_number),
                         leadingIconRes = R.drawable.phone_icon,
                     )
                     Spacer(modifier = Modifier.height(39.dp))
 
                     // ── Emergency contacts, list-driven ─────────────────────────
                     emergencyContacts.forEachIndexed { index, contact ->
-                        val label = if (index == 0) "Emergency Contact *" else "Emergency Contact ${index + 1}"
-                        val placeholder = if (index == 0) "Enter emergency contact" else "Enter emergency contact ${index + 1}"
+                        val label = if (index == 0) {
+                            stringResource(R.string.emergency_contact_label)
+                        } else {
+                            stringResource(R.string.emergency_contact_label_format, index + 1)
+                        }
+
+                        val placeholder = if (index == 0) {
+                            stringResource(R.string.enter_emergency_contact)
+                        } else {
+                            stringResource(R.string.enter_emergency_contact_format, index + 1)
+                        }
 
                         FieldLabel(label, 18.sp, OutfitFont, FontWeight.Medium)
                         Spacer(modifier = Modifier.height(8.dp))
@@ -152,17 +172,27 @@ fun PersonFormContent(
                         Column(modifier = Modifier
                             .weight(1f)
                             .padding(top = 16.dp)) {
-                            FieldLabel("Location *", 20.sp, OutfitFont, FontWeight.Medium)
+                            FieldLabel(
+                                stringResource(R.string.location_label),
+                                20.sp,
+                                OutfitFont,
+                                FontWeight.Medium
+                            )
                             Spacer(modifier = Modifier.height(12.dp))
                             LocationPickerField(
                                 value = selectedAddress,
-                                placeholder = "Get current location",
+                                placeholder = stringResource(R.string.get_current_location),
                                 onClick = { /* open map */ }
                             )
                         }
 
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            FieldLabel("Add Person's\nvoice sample *", 17.sp, OutfitFont, FontWeight.Medium)
+                            FieldLabel(
+                                stringResource(R.string.add_person_voice_sample),
+                                17.sp,
+                                OutfitFont,
+                                FontWeight.Medium
+                            )
                             Spacer(modifier = Modifier.height(8.dp))
                             ShadowButton(
                                 width = 72.dp,
@@ -173,7 +203,7 @@ fun PersonFormContent(
                             ) {
                                 Icon(
                                     painter = painterResource(id = R.drawable.microphone_icon),
-                                    contentDescription = "Record voice",
+                                    contentDescription = stringResource(R.string.record),
                                     tint = appColors.pagesText,
                                     modifier = Modifier.size(32.dp)
                                 )
@@ -197,7 +227,10 @@ fun PersonFormContent(
                         }
                     ) {
                         Text(
-                            text = if (mode == PersonFormMode.ADD) "Add" else "Save Changes",
+                            text = if (mode == PersonFormMode.ADD)
+                                stringResource(R.string.add_button)
+                            else
+                                stringResource(R.string.save_changes),
                             color = appColors.popupText,
                             fontSize = if (mode == PersonFormMode.ADD) 27.sp else 26.sp,
                             fontWeight = FontWeight.Medium,
@@ -209,7 +242,10 @@ fun PersonFormContent(
             }
 
             HeaderSection(
-                title = if (mode == PersonFormMode.ADD) "Let us know you" else "Profile",
+                title = if (mode == PersonFormMode.ADD)
+                    stringResource(R.string.let_us_know_you)
+                else
+                    stringResource(R.string.profile),
                 spacing = if (mode == PersonFormMode.ADD) 72.dp else 77.dp,
                 textSize = if (mode == PersonFormMode.ADD) 39.sp else 44.sp,
                 bottomspace = if (mode == PersonFormMode.ADD) 37.dp else 28.dp,

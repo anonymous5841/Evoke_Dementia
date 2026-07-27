@@ -28,6 +28,7 @@ import com.example.myapplication.ui.theme.AppTheme
 import com.example.myapplication.ui.theme.GreenTheme
 import com.example.myapplication.ui.theme.MargarineFont
 import com.example.myapplication.ui.theme.MartelFont
+import androidx.compose.ui.res.stringResource
 
 fun Modifier.offsetShadow(
     color: Color = Color.Black.copy(alpha = 0.19f),
@@ -62,11 +63,7 @@ fun DetailedSummaryScreen(
 ) {
     val appColors = AppTheme.colors
     val summaryPoints = listOf(
-        "Dementia is a progressive brain disorder causing cognitive decline,Memory loss,impaired thinking" +
-                " and behavioural changes_____that interferes eith daily life. It requires " +
-                "escalating care fr occasional prompts to 24/7 support.Effective management focuses on safety," +
-                "consistent routines,calm communication,and addressing behavioral triggers.Stages of progression:early stage" +
-                "involve mild memory "
+        stringResource(R.string.discussion_summary_text)
     )
 
     Scaffold(
@@ -107,7 +104,7 @@ fun DetailedSummaryScreen(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            text = "Discussion Summary",
+                            text = stringResource(R.string.discussion_summary),
                             fontSize = 23.sp,
                             fontWeight = FontWeight.Bold,
                             fontFamily = MartelFont,
@@ -123,7 +120,7 @@ fun DetailedSummaryScreen(
                             modifier = Modifier.padding(bottom = 8.dp)
                         ) {
                             Text(
-                                text = "•",
+                                text = stringResource(R.string.bullet),
                                 fontSize = 16.sp,
                                 fontFamily = MartelFont,
                                 color = Color.White,
@@ -143,7 +140,7 @@ fun DetailedSummaryScreen(
             // ── CLOSE BUTTON — yellow shape + shadow, no extra wrapping Box ──
             Image(
                 painter = painterResource(id = R.drawable.add_shape),
-                contentDescription = "Close",
+                contentDescription = stringResource(R.string.close),
                 contentScale = ContentScale.Crop,
                 colorFilter = ColorFilter.tint(
                     color = appColors.popupText,
@@ -169,7 +166,7 @@ fun DetailedSummaryScreen(
 
             // ── X TEXT ──
             Text(
-                text = "X",
+                text = stringResource(R.string.close_text),
                 color = appColors.pagesText,
                 fontSize = 38.sp,
                 fontFamily = MargarineFont,

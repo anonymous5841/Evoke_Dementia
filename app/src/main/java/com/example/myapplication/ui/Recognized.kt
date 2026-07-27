@@ -40,6 +40,7 @@ import com.example.myapplication.ui.components.DateDisplayField
 import com.example.myapplication.ui.components.InfoNotePill
 import com.example.myapplication.ui.components.RecordConversationField
 import com.example.myapplication.ui.components.VoicePlayerBar
+import androidx.compose.ui.res.stringResource
 
 class RecognisedScreen : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -123,7 +124,7 @@ fun RecognisedContent(
                         } else {
                             Icon(
                                 painter = painterResource(id = R.drawable.profile_icon),
-                                contentDescription = "Profile photo",
+                                contentDescription = stringResource(R.string.profile_photo),
                                 tint = appColors.backButton,
                                 modifier = Modifier.size(64.dp)
                             )
@@ -133,12 +134,17 @@ fun RecognisedContent(
                     Spacer(modifier = Modifier.height(28.dp))
 
                     // ── Name * ────────────────────────────────────────────────────
-                    FieldLabel("Name *", 18.sp, OutfitFont, FontWeight.Medium)
+                    FieldLabel(
+                        stringResource(R.string.name_label),
+                        18.sp,
+                        OutfitFont,
+                        FontWeight.Medium
+                    )
                     Spacer(modifier = Modifier.height(8.dp))
                     ShadowTextField(
                         value = nameText,
                         onValueChange = { nameText = it },
-                        placeholder = "Enter name",
+                        placeholder = stringResource(R.string.enter_full_name),
                         leadingIconRes = R.drawable.profile_icon,
                         height = 52.dp,
                         cornerRadius = 15.dp,
@@ -147,12 +153,17 @@ fun RecognisedContent(
                     Spacer(modifier = Modifier.height(29.dp))
 
                     // ── Relation * ────────────────────────────────────────────────
-                    FieldLabel("Relation *", 18.sp, OutfitFont, FontWeight.Medium)
+                    FieldLabel(
+                        stringResource(R.string.relation_label),
+                        18.sp,
+                        OutfitFont,
+                        FontWeight.Medium
+                    )
                     Spacer(modifier = Modifier.height(8.dp))
                     ShadowTextField(
                         value = relationText,
                         onValueChange = { relationText = it },
-                        placeholder = "Enter relation e.g. Friend",
+                        placeholder = stringResource(R.string.enter_relation),
                         leadingIconRes = R.drawable.relation_icon,
                         height = 52.dp,
                         cornerRadius = 15.dp,
@@ -165,7 +176,7 @@ fun RecognisedContent(
                     ) {
 
                         Text(
-                            text = "Last Meeting Information",
+                            text = stringResource(R.string.last_meeting_information),
                             fontSize = 30.sp,
                             fontFamily = BaumansFont,
                             fontWeight = FontWeight.Normal,
@@ -197,11 +208,16 @@ fun RecognisedContent(
                         Column(modifier = Modifier
                             .weight(1f)
                             .padding(top = 16.dp)) {
-                            FieldLabel("Location *", 18.sp, OutfitFont, FontWeight.Medium)
+                            FieldLabel(
+                                stringResource(R.string.location_label),
+                                18.sp,
+                                OutfitFont,
+                                FontWeight.Medium
+                            )
                             Spacer(modifier = Modifier.height(12.dp))
                             LocationPickerField(
                                 value = selectedAddress,
-                                placeholder = "Get current location",
+                                placeholder = stringResource(R.string.get_current_location),
                                 onClick = { /* open map */ }
                             )
                         }
@@ -210,7 +226,7 @@ fun RecognisedContent(
                             modifier = Modifier.padding(top = 16.dp)
                         ) {
                             FieldLabel(
-                                "Date",
+                                stringResource(R.string.date),
                                 18.sp,
                                 OutfitFont,
                                 FontWeight.Medium
@@ -229,7 +245,7 @@ fun RecognisedContent(
                     Spacer(modifier = Modifier.height(36.dp))
 
                     FieldLabel(
-                        "Discussion Summary",
+                        stringResource(R.string.discussion_summary),
                         18.sp,
                         OutfitFont,
                         FontWeight.Medium
@@ -242,7 +258,7 @@ fun RecognisedContent(
                     Spacer(modifier = Modifier.height(28.dp))
 
                     FieldLabel(
-                        "Discussion Summary in Voice",
+                        stringResource(R.string.discussion_summary_in_voice),
                         18.sp,
                         OutfitFont,
                         FontWeight.Medium
@@ -275,7 +291,7 @@ fun RecognisedContent(
                         onClick = { onViewmore()}
                     ) {
                         Text(
-                            text = "View More",
+                            text = stringResource(R.string.view_more),
                             fontSize = 22.sp,
                             fontWeight = FontWeight.Medium,
                             fontFamily = OutfitFont,
@@ -289,7 +305,7 @@ fun RecognisedContent(
                     ) {
 
                         Text(
-                            text = "Add New Information",
+                            text = stringResource(R.string.add_new_information),
                             fontSize = 30.sp,
                             fontFamily = BaumansFont,
                             fontWeight = FontWeight.Normal,
@@ -308,7 +324,9 @@ fun RecognisedContent(
 
                         Spacer(modifier = Modifier.height(6.dp))
 
-                        InfoNotePill(text = "* Select location/record conversation or both")
+                        InfoNotePill(
+                            text = stringResource(R.string.select_location_record_both)
+                        )
                     }
                     Spacer(modifier = Modifier.height(25.dp))
 
@@ -326,7 +344,7 @@ fun RecognisedContent(
                         ) {
 
                             FieldLabel(
-                                "Location *",
+                                stringResource(R.string.location_label),
                                 18.sp,
                                 OutfitFont,
                                 FontWeight.Medium
@@ -336,7 +354,7 @@ fun RecognisedContent(
 
                             LocationPickerField(
                                 value = selectedAddress,
-                                placeholder = "open Location in map",
+                                placeholder = stringResource(R.string.open_location_in_map),
                                 onClick = { }
                             )
                         }
@@ -348,7 +366,7 @@ fun RecognisedContent(
                         ) {
 
                             FieldLabel(
-                                "Get Location *",
+                                stringResource(R.string.get_location),
                                 17.sp,
                                 OutfitFont,
                                 FontWeight.Medium
@@ -400,7 +418,7 @@ fun RecognisedContent(
                         ) {
 
                             FieldLabel(
-                                "Record Conversation *",
+                                stringResource(R.string.record_conversation),
                                 18.sp,
                                 OutfitFont,
                                 FontWeight.Medium
@@ -410,7 +428,7 @@ fun RecognisedContent(
 
                             RecordConversationField(
                                 value = selectedAddress,
-                                placeholder = "Click to record",
+                                placeholder = stringResource(R.string.click_to_record),
                                 onClick = {  onVoiceSampleClick() }
                             )
                         }
@@ -427,7 +445,7 @@ fun RecognisedContent(
                             }
                         ) {
                             Text(
-                                text = "Save",
+                                text = stringResource(R.string.save),
                                 color = appColors.pagesText,
                                 fontSize = 22.sp,
                                 fontWeight = FontWeight.Medium,
@@ -441,8 +459,8 @@ fun RecognisedContent(
 
             // ── Header ────────────────────────────────────────────────────────
             HeaderSection(
-                title = "Result: ",
-                "Recognised",
+                title = stringResource(R.string.result),
+                secondaryTitle = stringResource(R.string.recognised),
                 218.dp,
                 33.sp,
                 60.dp,

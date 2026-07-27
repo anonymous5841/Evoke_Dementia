@@ -128,5 +128,27 @@
     <string name="gallery_icon">Gallery</string>
     <string name="refresh_icon">Refresh</string>
 
+    <string name="close">Close</string>
 
+    <!-- Home Screen -->
+    <string name="home">Home</string>
+    <string name="emergency_call">Emergency Call</string>
+    <string name="hi_user">Hi User</string>
+
+    <string name="recognize_register">Recognize\n/\nRegister</string>
+    <string name="add_location_menu">Add Location</string>
+    <string name="search_name_location">Search\n\nName / Location</string>
+
+    <!-- Not Recognised Screen -->
+    <string name="select_location_record_both">* Select location/record conversation or both</string>
+    <string name="click_to_record">Click to record</string>
+    <string name="profile_photo">Profile photo</string>
+    <string name="record_voice">Record voice</string>
+
+    <!-- Recognised Screen -->
+    <string name="last_meeting_information">Last Meeting Information</string>
+    <string name="add_new_information">Add New Information</string>
+    <string name="view_more">View More</string>
+    <string name="recognised">Recognised</string>
+    <string name="recording">Recording</string>
 </resources>

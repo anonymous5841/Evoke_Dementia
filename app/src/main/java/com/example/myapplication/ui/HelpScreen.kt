@@ -24,7 +24,7 @@ import com.example.myapplication.ui.components.HeaderSection
 import com.example.myapplication.ui.theme.AppTheme
 import com.example.myapplication.ui.theme.GreenTheme
 import com.example.myapplication.ui.theme.MartelFont
-
+import androidx.compose.ui.res.stringResource
 @Composable
 fun HelpScreen(
     onBack: () -> Unit = {},
@@ -63,13 +63,13 @@ fun HelpScreen(
                     ) {
                         HelpCard(
                             iconRes = R.drawable.message_icon,
-                            title = "Send Message",
+                            title = stringResource(R.string.send_message),
                             onClick = onSendMessage
                         )
 
                         HelpCard(
                             iconRes = R.drawable.map_to_home_icon,
-                            title = "Map to Home",
+                            title = stringResource(R.string.map_to_home),
                             onClick = onMapToHome,
                             iconWidth = 66.dp,
                             iconHeight = 56.dp
@@ -80,7 +80,7 @@ fun HelpScreen(
 
             // ── Header drawn on top, overlapping the scrolled content ───────────
             HeaderSection(
-                "Help",
+                stringResource(R.string.help),
                 spacing = 74.dp,
                 bottomspace = 44.dp,
                 onBack = onBack

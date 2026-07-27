@@ -128,5 +128,32 @@
     <!-- Accessibility -->
     <string name="gallery_icon">گیلری</string>
     <string name="refresh_icon">دوبارہ</string>
+    <string name="close">بند کریں</string>
 
+    <!-- Home Screen -->
+    <string name="home">ہوم</string>
+    <string name="emergency_call">ایمرجنسی کال</string>
+    <string name="hi_user">خوش آمدید صارف</string>
+
+    <string name="recognize_register">پہچانیں\n/\nرجسٹر کریں</string>
+    <string name="add_location_menu">مقام شامل کریں</string>
+    <string name="search_name_location">تلاش کریں\nنام / مقام</string>
+    <!-- Not Recognised Screen -->
+    <string name="select_location_record_both">* لوکیشن منتخب کریں، گفتگو ریکارڈ کریں یا دونوں کریں</string>
+
+    <string name="click_to_record">ریکارڈ کرنے کے لیے کلک کریں</string>
+
+    <string name="profile_photo">پروفائل تصویر</string>
+
+    <string name="record_voice">آواز ریکارڈ کریں</string>
+
+    <!-- Recognised Screen -->
+    <string name="last_meeting_information">آخری ملاقات کی معلومات</string>
+
+    <string name="add_new_information">نئی معلومات شامل کریں</string>
+
+    <string name="view_more">مزید دیکھیں</string>
+
+    <string name="recognised">پہچانا گیا</string>
+    <string name="recording">ریکارڈنگ</string>
 </resources>

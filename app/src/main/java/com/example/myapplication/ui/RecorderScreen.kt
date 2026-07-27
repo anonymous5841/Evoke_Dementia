@@ -22,6 +22,7 @@ import com.example.myapplication.ui.theme.OutfitFont
 import com.example.myapplication.ui.components.ShadowButton
 import com.example.myapplication.ui.theme.AppTheme
 import com.example.myapplication.ui.theme.GreenTheme
+import androidx.compose.ui.res.stringResource
 
 
 @Composable
@@ -42,7 +43,7 @@ fun RecordScreen(
         ) {
             // ── Header ────────────────────────────────────
             HeaderSection(
-                title = "Record",
+                title = stringResource(R.string.record),
                 spacing = 68.dp,
                 bottomspace = 40.dp,
                 onBack = { onBack()}
@@ -98,7 +99,7 @@ fun RecordScreen(
 
                         Icon(
                             painter = painterResource(id = R.drawable.recording_icon),
-                            contentDescription = "Recording",
+                            contentDescription = stringResource(R.string.recording),
                             tint = Color(0xFFFFC006), // [MIC COLOR] matches Recorder.svg mic fill
                             modifier = Modifier.size(50.dp).offset(y = (-45).dp)
                         )
@@ -120,7 +121,7 @@ fun RecordScreen(
                         onClick = { onDoneClick() }
                     ) {
                         Text(
-                            text = "Done",
+                            text = stringResource(R.string.done_button),
                             color = Color.White,
                             fontSize = 20.sp,
                             fontWeight = FontWeight.Bold,

@@ -21,6 +21,8 @@ import com.example.myapplication.ui.components.ShadowTextField
 import com.example.myapplication.ui.theme.AppTheme
 import com.example.myapplication.ui.theme.GreenTheme
 import com.example.myapplication.ui.theme.OutfitFont
+import androidx.compose.ui.res.stringResource
+import com.example.myapplication.R
 
 class LocationSearch : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -68,11 +70,11 @@ fun LocationSearchContent(
                 ) {
 
                     // ── Location ──────────────────────────────────────────────────
-                    FieldLabel("Location *")
+                    FieldLabel(stringResource(R.string.location_required))
                     Spacer(modifier = Modifier.height(8.dp))
                     LocationPickerField(
                         value = selectedLocation,
-                        placeholder = "Open location in map",
+                        placeholder = stringResource(R.string.open_location_in_map),
                         onClick = { /* open map or location picker here */ },
                         modifier = Modifier.fillMaxWidth(0.70f)
                     )
@@ -80,23 +82,23 @@ fun LocationSearchContent(
                     Spacer(modifier = Modifier.height(24.dp))
 
                     // ── Title ─────────────────────────────────────────────────────
-                    FieldLabel("Title *")
+                    FieldLabel(stringResource(R.string.title_required))
                     Spacer(modifier = Modifier.height(8.dp))
                     ShadowTextField(
                         value = titleText,
                         onValueChange = { titleText = it },
-                        placeholder = "Title for place e.g. Restaurant",
+                        placeholder = stringResource(R.string.title_placeholder),
                     )
 
                     Spacer(modifier = Modifier.height(24.dp))
 
                     // ── Description ───────────────────────────────────────────────
-                    FieldLabel("Description *")
+                    FieldLabel(stringResource(R.string.description_required))
                     Spacer(modifier = Modifier.height(8.dp))
                     ShadowTextField(
                         value = descriptionText,
                         onValueChange = { descriptionText = it },
-                        placeholder = "Enter Description e.g went with him/her",
+                        placeholder = stringResource(R.string.description_placeholder),
                         height = 160.dp,
                         singleLine = false,
                         maxLines = 6,
@@ -119,7 +121,7 @@ fun LocationSearchContent(
                         onClick = { onEdit()}
                     ) {
                         Text(
-                            text = "Edit",
+                            text = stringResource(R.string.edit),
                             color = appColors.popupText,
                             fontSize = 24.sp,
                             fontWeight = FontWeight.Medium,
@@ -136,7 +138,7 @@ fun LocationSearchContent(
                         onClick = { onDelete() }
                     ) {
                         Text(
-                            text = "Delete",
+                            text = stringResource(R.string.delete),
                             color = appColors.pagesText,
                             fontSize = 24.sp,
                             fontWeight = FontWeight.Medium,
