@@ -25,6 +25,8 @@ import com.example.myapplication.ui.theme.OutfitFont
 import com.example.myapplication.ui.components.ShadowButton
 import com.example.myapplication.ui.theme.AppTheme
 import com.example.myapplication.ui.theme.GreenTheme
+import androidx.compose.ui.res.stringResource
+import com.airbnb.lottie.compose.LottieAnimation
 
 
 private fun Modifier.blurIfSupported(radius: Dp): Modifier {
@@ -76,7 +78,7 @@ fun RecordScreen(
         ) {
             // ── Header ────────────────────────────────────
             HeaderSection(
-                title = "Record",
+                title = stringResource(R.string.record),
                 spacing = 68.dp,
                 bottomspace = 40.dp,
                 onBack = { onBack()}
@@ -139,6 +141,23 @@ fun RecordScreen(
                                     .blurIfSupported(6.dp)
                             )
 
+
+                        LottieAnimation(
+                            composition = composition,
+                            progress = { progress },
+                            modifier = Modifier
+                                .size(380.dp)
+                                .offset(y = (-45).dp)  // [ANIMATION OFFSET] nudged up so the rings sit above card center, matching Recorder.svg
+                                .blur(20.dp)   // ✅ Apply blur here
+                        )
+
+                        Icon(
+                            painter = painterResource(id = R.drawable.recording_icon),
+                            contentDescription = stringResource(R.string.recording),
+                            tint = Color(0xFFFFC006), // [MIC COLOR] matches Recorder.svg mic fill
+                            modifier = Modifier.size(50.dp).offset(y = (-45).dp)
+                        )
+
                             // The actual icon, drawn on top - unchanged
                             Icon(
                                 painter = painterResource(id = R.drawable.recording_icon),
@@ -147,6 +166,7 @@ fun RecordScreen(
                                 modifier = Modifier.size(50.dp)
                             )
                         }
+
                     }
                 }
 
@@ -166,7 +186,7 @@ fun RecordScreen(
                         onClick = { onDoneClick() }
                     ) {
                         Text(
-                            text = "Done",
+                            text = stringResource(R.string.done_button),
                             color = Color.White,
                             fontSize = 20.sp,
                             fontWeight = FontWeight.Bold,

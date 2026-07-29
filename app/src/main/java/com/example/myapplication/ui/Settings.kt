@@ -22,6 +22,7 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -93,7 +94,7 @@ fun SettingsContent(
                 ) {
 
                     SettingsRow(
-                        label = "Cloud Backup",
+                        label = stringResource(R.string.cloud_backup),
                         iconRes = R.drawable.ic_backup,
                         iconSize = 38.dp,
                         onClick = { }
@@ -102,7 +103,7 @@ fun SettingsContent(
                     Spacer(modifier = Modifier.height(20.dp)) // gap between Cloud Backup and Select Language
 
                     SettingsRow(
-                        label = "Select Language",
+                        label = stringResource(R.string.select_language),
                         iconRes = R.drawable.ic_selectlanguage,
                         onClick = onSelectLanguage
                     )
@@ -116,7 +117,7 @@ fun SettingsContent(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            text = "Select Theme",
+                            text = stringResource(R.string.select_theme),
                             modifier = Modifier.weight(1f),
                             fontFamily = MartelFont,
                             fontSize = 22.sp,
@@ -149,7 +150,7 @@ fun SettingsContent(
                         Spacer(modifier = Modifier.width(12.dp))
 
                         Text(
-                            text = "Erase Data",
+                            text = stringResource(R.string.erase_data),
                             fontSize = 22.sp,
                             fontWeight = FontWeight.Medium,
                             color = Color.Red,
@@ -168,7 +169,7 @@ fun SettingsContent(
             }
 
             HeaderSection(
-                title = "Settings",
+                title = stringResource(R.string.settings),
                 spacing = 65.dp,
                 onBack = onBack
             )

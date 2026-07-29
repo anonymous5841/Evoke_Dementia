@@ -29,12 +29,15 @@ import com.example.myapplication.R
 import com.example.myapplication.ui.components.*
 import com.example.myapplication.ui.theme.AppTheme
 import com.example.myapplication.ui.theme.GreenTheme
+import com.example.myapplication.ui.components.rememberBottomNavBarHeight
+import androidx.compose.ui.res.stringResource
 import com.example.myapplication.ui.theme.MartelFont
 import com.example.myapplication.ui.theme.OutfitFont
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.unit.DpOffset
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.myapplication.ui.navigation.SearchViewModel
+
 
 
 /** Which result list the shared search screen is currently showing. */
@@ -46,12 +49,25 @@ data class PersonItem(
 )
 
 @Composable
+<<<<<<< HEAD
+fun PersonListContent(
+    people: List<PersonItem>? = null,
+    onBack: () -> Unit = {},
+    onSearch: () -> Unit = {},
+    onPersonClick: () -> Unit = {},
+) {
+    val personList = people ?: List(20) {
+        PersonItem(name = stringResource(R.string.name))
+    }
+
+=======
 fun SearchScreen(
     viewModel: SearchViewModel = viewModel(),
     onBack: () -> Unit = {},
     onPersonClick: () -> Unit = {},
     onMoreInfoLocationClick: () -> Unit = {}, // was onEllipseClick in SearchLocationScreen
 ) {
+>>>>>>> origin/main
     val appColors = AppTheme.colors
     val bottomNavHeight = rememberBottomNavBarHeight()
 
@@ -94,7 +110,11 @@ fun SearchScreen(
                 ) {
                     Icon(
                         painter = painterResource(R.drawable.location_icon),
+<<<<<<< HEAD
+                        contentDescription = stringResource(R.string.search),
+=======
                         contentDescription = "Search by location",
+>>>>>>> origin/main
                         tint = appColors.pagesText,
                     )
                 }
@@ -102,6 +122,40 @@ fun SearchScreen(
 
             Spacer(modifier = Modifier.height(37.dp))
 
+<<<<<<< HEAD
+            LazyVerticalGrid(
+
+                columns = GridCells.Fixed(2),
+
+                horizontalArrangement = Arrangement.spacedBy(10.dp),
+
+                verticalArrangement = Arrangement.spacedBy(22.dp),
+                contentPadding = PaddingValues(bottom = bottomNavHeight),
+                modifier = Modifier.weight(1f)
+
+            ) {
+
+                items(personList) { person ->
+
+                    Box(
+                        modifier = Modifier.wrapContentSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+
+                        PersonCard(
+
+                            name = person.name,
+
+                            image = person.image,
+
+                            modifier = Modifier,
+
+                            onClick = {
+
+//                                onPersonClick(person)
+                                onPersonClick()
+
+=======
             // ---- The part that actually swaps ----
             AnimatedContent(
                 targetState = viewModel.mode,
@@ -116,6 +170,7 @@ fun SearchScreen(
                         } else {
                             viewModel.people.filter {
                                 it.name.startsWith(viewModel.searchQuery, ignoreCase = true)
+>>>>>>> origin/main
                             }
                         }
                         PeopleResultsGrid(
@@ -137,6 +192,19 @@ fun SearchScreen(
 }
 
 @Composable
+<<<<<<< HEAD
+fun PersonListPreview() {
+
+    GreenTheme {
+
+        PersonListContent(
+            people = List(12) {
+                PersonItem(
+                    name = stringResource(R.string.name)
+                )
+            }
+        )
+=======
 private fun PeopleResultsGrid(
     people: List<PersonItem>,
     bottomPadding: androidx.compose.ui.unit.Dp,
@@ -159,6 +227,7 @@ private fun PeopleResultsGrid(
                 )
             }
         }
+>>>>>>> origin/main
     }
 }
 

@@ -22,6 +22,7 @@ import com.example.myapplication.ui.theme.AppTheme
 import com.example.myapplication.ui.theme.BlueTheme
 import com.example.myapplication.ui.theme.GreenTheme
 import com.example.myapplication.ui.theme.OutfitFont
+import androidx.compose.ui.res.stringResource
 
 @Composable
 fun AddLocationContent(
@@ -66,11 +67,11 @@ fun AddLocationContent(
                     ) {
                         // ── Left: Label + location display ────────────────────────
                         Column(modifier = Modifier.weight(1f)) {
-                            FieldLabel("Location *")
+                            FieldLabel(stringResource(R.string.location_required))
                             Spacer(modifier = Modifier.height(8.dp))
                             LocationPickerField(
                                 value = selectedLocation,
-                                placeholder = "Open location in map",
+                                placeholder = stringResource(R.string.open_location_in_map),
                                 onClick = { /* open map */ }
                             )
                         }
@@ -79,7 +80,7 @@ fun AddLocationContent(
                         Column(
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
-                            FieldLabel("Get Location *")
+                            FieldLabel(stringResource(R.string.get_location))
                             Spacer(modifier = Modifier.height(8.dp))
                             ShadowButton(
                                 width = 92.dp,
@@ -90,7 +91,7 @@ fun AddLocationContent(
                             ) {
                                 Icon(
                                     painter = painterResource(id = R.drawable.location_icon),
-                                    contentDescription = "Map pin",
+                                    contentDescription = stringResource(R.string.map_pin),
                                     tint = appColors.pagesText,
                                     modifier = Modifier.size(35.dp)
                                 )
@@ -101,23 +102,23 @@ fun AddLocationContent(
                     Spacer(modifier = Modifier.height(24.dp))
 
                     // ── Title ─────────────────────────────────────────────────────
-                    FieldLabel("Title *")
+                    FieldLabel(stringResource(R.string.title_required))
                     Spacer(modifier = Modifier.height(8.dp))
                     ShadowTextField(
                         value = titleText,
                         onValueChange = { titleText = it },
-                        placeholder = "Title for place e.g. Restaurant",
+                        placeholder = stringResource(R.string.title_placeholder),
                     )
 
                     Spacer(modifier = Modifier.height(24.dp))
 
                     // ── Description ───────────────────────────────────────────────
-                    FieldLabel("Description *")
+                    FieldLabel(stringResource(R.string.description_required))
                     Spacer(modifier = Modifier.height(8.dp))
                     ShadowTextField(
                         value = descriptionText,
                         onValueChange = { descriptionText = it },
-                        placeholder = "Enter Description e.g went with him/her",
+                        placeholder = stringResource(R.string.description_placeholder),
                         height = 160.dp,
                         singleLine = false,
                         maxLines = 6,
@@ -133,7 +134,7 @@ fun AddLocationContent(
                         onClick = onAddClick
                     ) {
                         Text(
-                            text = "Add",
+                            text = stringResource(R.string.add),
                             color = appColors.popupText,
                             fontSize = 27.sp,
                             fontWeight = FontWeight.Medium,
@@ -146,7 +147,7 @@ fun AddLocationContent(
             }
 
             HeaderSection(
-                "Add Location",
+                stringResource(R.string.add_location_header),
                 spacing = 57.dp,
                 onBack = { onBack()})
 

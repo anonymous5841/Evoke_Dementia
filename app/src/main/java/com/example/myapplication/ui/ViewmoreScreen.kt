@@ -35,7 +35,11 @@ import com.example.myapplication.ui.theme.GreenTheme
 import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.text.TextStyle
+<<<<<<< HEAD
+import androidx.compose.ui.res.stringResource
+=======
 import com.example.myapplication.ui.components.rememberBottomNavBarHeight
+>>>>>>> origin/main
 
 // ══════════════════════════════════════════════════════
 // VIEW MORE SCREEN
@@ -73,7 +77,7 @@ fun ViewMoreScreen(
             Spacer(modifier = Modifier.height(24.dp))
 
             SearchFieldWithIcon(
-                placeholder = "Search by Date",
+                placeholder = stringResource(R.string.search_by_date),
                 value = searchQuery,
                 onValueChange = { searchQuery = it },
                 greenIconOffset = DpOffset(x = (-20).dp, y = (-1).dp),
@@ -155,7 +159,7 @@ fun RecordingItem(
             Box(modifier = Modifier.wrapContentSize()) {  // [FIX] wrapContentSize not fillMaxWidth
 
                 Text(
-                    text = "24/5/2026",
+                    text = stringResource(R.string.recording_date),
                     fontSize = 22.sp,                         // [DATE TEXT SIZE]
                     fontWeight = FontWeight.Medium,
                     color = Color.Black,
@@ -205,7 +209,7 @@ fun RecordingItem(
                         .padding(12.dp)
                 ) {
                     Text(
-                        text = "Location",    //Ag paragraph/medium font
+                        text = stringResource(R.string.location),    //Ag paragraph/medium font
                         fontSize = 18.sp,
                         color = Color.Black,
                         fontFamily = OutfitFont
@@ -214,7 +218,7 @@ fun RecordingItem(
 
                     LocationPickerField(
                         value = selectedLocation,
-                        placeholder = "Open location in map",
+                        placeholder = stringResource(R.string.open_location_map),
                         onClick = { /* open map or location picker here */ },
                         modifier = Modifier.fillMaxWidth(0.70f),
                         backgroundColor = appColors.boxInner,
@@ -224,7 +228,7 @@ fun RecordingItem(
                     Spacer(modifier = Modifier.height(16.dp))
 
                     Text(
-                        text = "Discussion Summary in Voice",   //Ag paragraph medium
+                        text = stringResource(R.string.discussion_summary_voice),  //Ag paragraph medium
                         fontSize = 17.sp,
                         color = Color.Black,
                         fontWeight = FontWeight.Medium,

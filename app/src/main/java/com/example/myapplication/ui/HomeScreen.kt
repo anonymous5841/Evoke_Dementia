@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -34,44 +35,87 @@ fun HomeScreen(
 ) {
     val appColors = AppTheme.colors
     val bottomNavHeight = rememberBottomNavBarHeight()
+
+    val recognizeRegister = stringResource(R.string.recognize_register)
+    val addLocation = stringResource(R.string.add_location_menu)
+    val help = stringResource(R.string.help)
+    val search = stringResource(R.string.search_name_location)
+    val demo = stringResource(R.string.demo)
+    val settings = stringResource(R.string.settings)
     // Fixed row identities — top row is the "big" pair, then medium, then small.
-    val rowsData = remember {
+    val rowsData = remember(
+        recognizeRegister,
+        addLocation,
+        help,
+        search,
+        demo,
+        settings
+    ) {
         listOf(
             RowContent(
-                left  = MenuItemData(
-                    "Recognize \n/\nRegister", appColors.recognizeIcon,
-                    iconSizeSmall = 50.dp, iconSizeBig = 50.dp,
-                    fontSizeSmall = 20.sp, fontSizeBig = 20.sp,
+                left = MenuItemData(
+                    recognizeRegister,
+                    appColors.recognizeIcon,
+                    iconSizeSmall = 50.dp,
+                    iconSizeBig = 50.dp,
+                    fontSizeSmall = 20.sp,
+                    fontSizeBig = 20.sp,
                     tintIcon = false
                 ) { onRecognizeClick() },
+
                 right = MenuItemData(
-                    "Add location", R.drawable.ic_location,
-                    iconSizeSmall = 44.dp, iconSizeBig = 44.dp,
-                    fontSizeSmall = 20.sp, fontSizeBig = 20.sp
+                    addLocation,
+                    R.drawable.ic_location,
+                    iconSizeSmall = 44.dp,
+                    iconSizeBig = 44.dp,
+                    fontSizeSmall = 20.sp,
+                    fontSizeBig = 20.sp
                 ) { onAddLocationClick() }
             ),
+
             RowContent(
-                left  = MenuItemData(
-                    "Help", R.drawable.help_icon,
-                    iconSizeSmall = 41.dp, iconSizeBig = 60.dp,
-                    fontSizeSmall = 18.sp, fontSizeBig = 23.sp
+                left = MenuItemData(
+                    help,
+                    R.drawable.help_icon,
+                    iconSizeSmall = 41.dp,
+                    iconSizeBig = 60.dp,
+                    fontSizeSmall = 18.sp,
+                    fontSizeBig = 23.sp
                 ) { onHelpClick() },
+
                 right = MenuItemData(
+<<<<<<< HEAD
+                    search,
+                    R.drawable.ic_search,
+                    iconSizeSmall = 18.dp,
+                    iconSizeBig = 50.dp,
+                    fontSizeSmall = 10.sp,
+                    fontSizeBig = 18.sp
+=======
                     "Search\nName / Location", R.drawable.ic_search,
                     iconSizeSmall = 18.dp, iconSizeBig = 50.dp,
                     fontSizeSmall = 16.sp, fontSizeBig = 18.sp
+>>>>>>> origin/main
                 ) { onSearchClick() }
             ),
+
             RowContent(
-                left  = MenuItemData(
-                    "Demo", R.drawable.ic_demo,
-                    iconSizeSmall = 48.dp, iconSizeBig = 48.dp,
-                    fontSizeSmall = 18.sp, fontSizeBig = 18.sp
+                left = MenuItemData(
+                    demo,
+                    R.drawable.ic_demo,
+                    iconSizeSmall = 48.dp,
+                    iconSizeBig = 48.dp,
+                    fontSizeSmall = 18.sp,
+                    fontSizeBig = 18.sp
                 ) { onDemoClick() },
+
                 right = MenuItemData(
-                    "Settings", R.drawable.ic_settings,
-                    iconSizeSmall = 58.dp, iconSizeBig = 58.dp,
-                    fontSizeSmall = 22.sp, fontSizeBig = 22.sp
+                    settings,
+                    R.drawable.ic_settings,
+                    iconSizeSmall = 58.dp,
+                    iconSizeBig = 58.dp,
+                    fontSizeSmall = 22.sp,
+                    fontSizeBig = 22.sp
                 ) { onSettingsClick() }
             )
         )
@@ -90,8 +134,8 @@ fun HomeScreen(
 
     ) {
         HeaderSection(
-            title        = "Home",
-            centerButton = "Emergency Call",
+            title = stringResource(R.string.home),
+            centerButton = stringResource(R.string.emergency_call),
             onCenterButton = {
                 // emergency action
             }
@@ -99,7 +143,7 @@ fun HomeScreen(
 
         Spacer(Modifier.height(10.dp))
         Text(
-            text       = "Hi User",
+            text = stringResource(R.string.hi_user),
             fontFamily = OutfitFont,
             fontSize   = 28.sp,
             fontWeight = FontWeight.Bold,

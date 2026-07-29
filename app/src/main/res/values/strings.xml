@@ -2,12 +2,170 @@
     <string name="app_name">dementia</string>
     <string name="demo">Demo</string>
     <string name="back">Back</string>
-
     <string name="person_registration">Person Registration</string>
     <string name="person_recognition">Person Recognition</string>
     <string name="add_location">Add Location</string>
     <string name="search_location">Search Location</string>
     <string name="search_person_by_name">Search Person by name</string>
     <string name="navigation_to_home">Navigation to home</string>
+    <string name="send_help_message">Send help message</string>
+    <string name="emergency_call_for_help">Emergency call for help</string>
+    <string name="change_app_language">Change app language</string>
+    <string name="change_app_theme">Change app Theme</string>
+    <string name="backup_data_on_cloud">Back up data on cloud</string>
+    <string name="recover_data_from_cloud">Recover data from cloud</string>
+    <string name="delete_app_data_completely">Completely delete app data</string>
+    <string name="location_required">Location *</string>
+    <string name="open_location_in_map">Open location in map</string>
+    <string name="get_location">Get Location *</string>
+    <string name="map_pin">Map pin</string>
+    <string name="title_required">Title *</string>
+    <string name="title_placeholder">Title for place e.g. Restaurant</string>
+    <string name="description_required">Description *</string>
+    <string name="description_placeholder">Enter Description e.g went with him/her</string>
+    <string name="add">Add</string>
+    <string name="add_location_header">Add Location</string>
 
+    //Profile
+    <!-- Header -->
+    <string name="let_us_know_you">Let us know you</string>
+    <string name="profile">Profile</string>
+
+    <!-- Name -->
+    <string name="name_label">Name *</string>
+    <string name="enter_full_name">Enter full name</string>
+
+    <!-- Phone -->
+    <string name="phone_number_label">Phone Number *</string>
+    <string name="enter_phone_number">Enter phone number</string>
+
+    <!-- Emergency Contacts -->
+    <string name="emergency_contact_label">Emergency Contact *</string>
+    <string name="enter_emergency_contact">Enter emergency contact</string>
+
+    <string name="emergency_contact_label_format">Emergency Contact %1$d</string>
+    <string name="enter_emergency_contact_format">Enter emergency contact %1$d</string>
+
+    <!-- Address -->
+    <string name="location_label">Location*</string>
+    <string name="get_current_location">Get current location</string>
+
+    <!-- Voice -->
+    <string name="add_person_voice_sample">Add Person voice sample *</string>
+
+
+    <!-- Buttons -->
+    <string name="add_button">Add</string>
+    <string name="save_changes">Save Changes</string>
+
+    <!-- Discussion Summary-->
+    <string name="discussion_summary">Discussion Summary</string>
+
+    <string name="discussion_summary_text">
+    Dementia is a progressive brain disorder causing cognitive decline, memory loss, impaired thinking and behavioural changes that interferes with daily life. It requires escalating care from occasional prompts to 24/7 support. Effective management focuses on safety, consistent routines, calm communication, and addressing behavioral triggers. Stages of progression: early stage involve mild memory.
+</string>
+    <string name="bullet">•</string>
+    <string name="close_text">X</string>
+
+    <!-- Help Screen -->
+    <string name="help">Help</string>
+    <string name="send_message">Send Message</string>
+    <string name="map_to_home">Map to Home</string>
+    <!-- Record Screen -->
+    <string name="record">Record</string>
+    <string name="done_button">Done</string>
+    <!-- View more -->
+    <string name="search_by_date">Search by date</string>
+    <string name="date">Date</string>
+    <string name="discussion_summary_in_voice">Discussion Summary in Voice</string>
+    <!-- Search Location-->
+    <string name="search_by_name">Search by name</string>
+    <string name="distance">Distance</string>
+    <string name="location">Location</string>
+    <string name="plus">+</string>
+    <!-- Popup Card-->
+    <string name="deleted_successfully">Deleted Successfully !</string>
+    <string name="successfully_added">Successfully Added!</string>
+    <string name="changes_saved">Changes Saved !</string>
+    <!-- not_recognised-->
+
+    <string name="result">Result:</string>
+    <string name="not_recognised">Not-Recognised</string>
+
+    <!-- Record Conversation -->
+    <string name="record_conversation">Record Conversation</string>
+
+    <!-- Buttons -->
+    <string name="save">Save</string>
+    <string name="register">Register</string>
+
+    <!-- Relation -->
+    <string name="relation_label">Relation *</string>
+    <string name="enter_relation">Enter relation e.g. Friend</string>
+
+    <!-- Location Search-->
+    <string name="edit">Edit</string>
+    <string name="delete">Delete</string>
+
+    <!-- Settings Screen -->
+    <string name="settings">Settings</string>
+    <string name="cloud_backup">Cloud Backup</string>
+    <string name="select_language">Select Language</string>
+    <string name="select_theme">Select Theme</string>
+    <string name="erase_data">Erase Data</string>
+
+    <!-- Language Screen -->
+    <string name="language_selection">Select Language</string>
+    <string name="english">English</string>
+    <string name="urdu">Urdu</string>
+
+    <!-- Camera Preview Screen -->
+    <string name="gallery">Gallery</string>
+    <string name="capture">Capture</string>
+    <string name="refresh">Refresh</string>
+
+    <!-- Accessibility -->
+    <string name="gallery_icon">Gallery</string>
+    <string name="refresh_icon">Refresh</string>
+
+    <string name="close">Close</string>
+
+    <!-- Home Screen -->
+    <string name="home">Home</string>
+    <string name="emergency_call">Emergency Call</string>
+    <string name="hi_user">Hi User</string>
+
+    <string name="recognize_register">Recognize\n/\nRegister</string>
+    <string name="add_location_menu">Add Location</string>
+    <string name="search_name_location">Search\n\nName / Location</string>
+
+    <!-- Not Recognised Screen -->
+    <string name="select_location_record_both">* Select location/record conversation or both</string>
+    <string name="click_to_record">Click to record</string>
+    <string name="profile_photo">Profile photo</string>
+    <string name="record_voice">Record voice</string>
+
+    <!-- Recognised Screen -->
+    <string name="last_meeting_information">Last Meeting Information</string>
+    <string name="add_new_information">Add New Information</string>
+    <string name="view_more">View More</string>
+    <string name="recognised">Recognised</string>
+    <string name="recording">Recording</string>
+
+    <string name="search">Search</string>
+    <string name="name">Name</string>
+    <string name="distance_format">%1$d km</string>
+
+    <!-- Search Results Screen -->
+    <string name="search_result">Search Result</string>
+    <string name="discussion_summary_voice">Discussion Summary in Voice</string>
+
+    <string name="delete_entry">Delete Entry</string>
+    <string name="name_placeholder">Enter name</string>
+
+    <!-- Relation -->
+    <string name="relation">Relation *</string>
+    <string name="relation_placeholder">Enter relation e.g. Friend</string>
+    <string name="open_location_map">Open location in map</string>
+    <string name="recording_date">24/5/2026</string>
 </resources>

@@ -29,6 +29,7 @@ import com.example.myapplication.ui.components.ShadowButton
 import com.example.myapplication.ui.theme.GreenTheme
 import com.example.myapplication.ui.theme.AppTheme
 import com.example.myapplication.ui.components.SearchFieldWithIcon
+import androidx.compose.ui.res.stringResource
 
 @Composable
 fun SearchLocationScreen(
@@ -92,7 +93,7 @@ fun SearchLocationScreen(
                     // Replace with your search drawable later
                     Icon(
                         painter = painterResource(R.drawable.location_icon),
-                        contentDescription = "Search",
+                        contentDescription = stringResource(R.string.search),
                         tint = appColors.pagesText,
 
                         )
@@ -110,7 +111,7 @@ fun SearchLocationScreen(
                     Column {
                         // Distance label
                         Text(
-                            text = "104km",
+                            text = stringResource(R.string.distance_format, 104),
                             color = Color.Black,
                             fontSize = 19.sp,
                             fontWeight = FontWeight.Bold,
@@ -138,7 +139,7 @@ fun SearchLocationScreen(
                             ) {
                                 // Location text
                                 Text(
-                                    text = "Location",
+                                    text = stringResource(R.string.location),
                                     color = Color.Black,
                                     fontSize = 17.sp,
                                     fontFamily = OutfitFont,
@@ -159,7 +160,7 @@ fun SearchLocationScreen(
                         // ── LOCATION PICKER FIELD ──────────────
                         LocationPickerField(
                             value = selectedLocation,
-                            placeholder = "Open location in map",
+                            placeholder = stringResource(R.string.open_location_in_map),
                             onClick = { /* open map or location picker here */ },
                             modifier = Modifier
                                 .fillMaxWidth(0.70f)

@@ -1,5 +1,5 @@
 package com.example.myapplication.ui
-
+import com.example.myapplication.utils.LanguageController
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.LinearEasing
@@ -65,7 +65,9 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.runtime.saveable.rememberSaveable
-
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
+import com.example.myapplication.utils.LanguageManager
 private enum class Screen { Loading3, Loading4 }
 
 // ─── bottom shape paths ────────────────────────────────────────────────────────
@@ -502,9 +504,12 @@ private fun BottomLanguageBlockWithShadow(
                     )
                 }
 
-                val selectedLanguage = remember { mutableStateOf("English") }
+                val context = LocalContext.current
+
+                val selectedLanguage =
+                    LanguageController.languageState.value
                 val selectorOffset   = animateDpAsState(
-                    if (selectedLanguage.value == "English") 0.dp else 160.dp,
+                    if (selectedLanguage == LanguageManager.ENGLISH) 0.dp else 160.dp,
                 )
 
                 Box(
@@ -532,12 +537,18 @@ private fun BottomLanguageBlockWithShadow(
                         Box(
                             modifier = Modifier
                                 .size(width = 120.dp, height = 50.dp)
-                                .clickable { selectedLanguage.value = "English" },
+                                .clickable {
+
+                                    LanguageController.updateLanguage(
+                                        context,
+                                        LanguageManager.ENGLISH
+                                    )
+                                },
                             contentAlignment = Alignment.Center,
                         ) {
                             Text(
                                 "English",
-                                color = if (selectedLanguage.value == "English") Color(0xFFFFCD38) else Color(0xFF3E634F),
+                                color = if(selectedLanguage == LanguageManager.ENGLISH) Color(0xFFFFCD38) else Color(0xFF3E634F),
                                 style = TextStyle(fontSize = 28.sp),
                                 fontFamily = BaumansFont
                             )
@@ -545,12 +556,18 @@ private fun BottomLanguageBlockWithShadow(
                         Box(
                             modifier = Modifier
                                 .size(width = 120.dp, height = 50.dp)
-                                .clickable { selectedLanguage.value = "Urdu" },
+                                .clickable {
+
+                                    LanguageController.updateLanguage(
+                                        context,
+                                        LanguageManager.URDU
+                                    )
+                                },
                             contentAlignment = Alignment.Center,
                         ) {
                             Text(
                                 "Urdu",
-                                color = if (selectedLanguage.value == "Urdu") Color(0xFFFFCD38) else Color(0xFF3E634F),
+                                color = if (selectedLanguage == LanguageManager.URDU) Color(0xFFFFCD38) else Color(0xFF3E634F),
                                 style = TextStyle(fontSize = 28.sp),
                                 fontFamily = BaumansFont
                             )

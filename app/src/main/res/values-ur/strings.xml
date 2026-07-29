@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="app_name">dementia</string>
     <string name="demo">ڈیمو</string>
+    <string name="back">پیچھے</string>
 
     <string name="person_registration">شخص کی رجسٹریشن</string>
     <string name="person_recognition">شخص کی پہچان</string>
@@ -8,5 +10,166 @@
     <string name="search_location">جگہ تلاش کریں</string>
     <string name="search_person_by_name">نام سے شخص کو تلاش کریں</string>
     <string name="navigation_to_home">گھر تک رہنمائی</string>
+    <string name="send_help_message">مدد کا پیغام بھیجیں</string>
+    <string name="emergency_call_for_help">مدد کے لیے ہنگامی کال کریں</string>
+    <string name="change_app_language">ایپ کی زبان تبدیل کریں</string>
+    <string name="change_app_theme">ایپ تھیم کو تبدیل کریں</string>
+    <string name="backup_data_on_cloud">کلاؤڈ پر ڈیٹا کا بیک اپ کریں</string>
+    <string name="recover_data_from_cloud">کلاؤڈ سے ڈیٹا بازیافت کریں</string>
+    <string name="delete_app_data_completely">ایپ کا ڈیٹا مکمل طور پر حذف کریں</string>
+    <string name="add_location_header">جگہ درج کریں</string>
+    <string name="add">شامل کریں</string>
+    <string name="description_placeholder">تفصیل درج کریں مثلاً ان کے ساتھ گیا/گئی</string>
+    <string name="description_required">تفصیل*</string>
+    <string name="title_placeholder">جگہ کا عنوان مثلاً ریستوران</string>
+    <string name="title_required">عنوان*</string>
+    <string name="get_location">جگہ حاصل کریں*</string>
+    <string name="map_pin">نقشے کا نشان</string>
+    <string name="open_location_in_map">نقشے پر جگہ کھولیں</string>
+    <string name="location_required">جگہ*</string>
+    //Profile
+    <string name="let_us_know_you">اپنے بارے میں بتائیں</string>
+    <string name="profile">پروفائل</string>
+    <!-- Name -->
+    <string name="name_label">نام*</string>
+    <string name="enter_full_name">شخص کا پورا نام لکھیں</string>
+    <!-- Phone -->
+    <string name="phone_number_label">فون نمبر*</string>
+    <string name="enter_phone_number">فون نمبر درج کریں</string>
 
+    <!-- Emergency Contacts -->
+    <string name="emergency_contact_label">ہنگامی رابطہ*</string>
+    <string name="enter_emergency_contact">اپنا ایمرجنسی فون نمبر درج کریں</string>
+
+    <string name="emergency_contact_label_format">ہنگامی رابطہ* %1$d</string>
+    <string name="enter_emergency_contact_format">اپنا ایمرجنسی فون نمبر درج کریں %1$d</string>
+
+    <!-- Location -->
+    <string name="location_label">لوکیشن *</string>
+    <string name="get_current_location">لوکیشن حاصل کرنے کے لیے کلک کری</string>
+
+    <!-- Voice -->
+    <string name="add_person_voice_sample">اپنی آواز
+شامل کریں *</string>
+
+
+
+    <!-- Buttons -->
+    <string name="add_button">اکاؤنٹ بنائیں</string>
+    <string name="save_changes">تبدیلیاں محفوظ کریں</string>
+
+
+    <!-- Discussion Summary-->
+    <string name="discussion_summary">گفتگو کا خلاصہ</string>
+    <string name="discussion_summary_text">
+    ڈیمنشیا ایک ترقی پسند دماغی عارضہ ہے جو علمی زوال کا باعث بنتا ہے — یادداشت کی کمی، سوچ میں کمی، اور رویے میں تبدیلیاں — جو روزمرہ کی زندگی میں مداخلت کرتی ہیں۔. اسے کبھی کبھار اشارے سے 24/7 سپورٹ تک بڑھتی ہوئی دیکھ بھال کی ضرورت ہوتی ہے۔. مؤثر انتظام حفاظت، مسلسل معمولات، پرسکون مواصلات، اور طرز عمل کے محرکات سے نمٹنے پر توجہ مرکوز کرتا ہے. ترقی کے مراحل: ابتدائی مراحل میں یادداشت کے ہلکے مسائل شامل ہوتے ہیں، جب کہ درمیانی مراحل میں روزمرہ کے کاموں میں مدد کی ضرورت ہوتی ہے، اور آخری مراحل کھانے اور نہانے جیسی بنیادی ضروریات کے لیے کل وقتی دیکھ بھال کا مطالبہ کرتے ہیں. دیکھ بھال کرنے والوں کو پرسکون بات چیت کا استعمال کرنا چاہیے، بحث کرنے سے گریز کرنا چاہیے، اور روزمرہ کے معمولات کو برقرار رکھنا چاہیے. ڈیمنشیا ایک ترقی پسند دماغی عارضہ ہے جو علمی زوال کا باعث بنتا ہے — یادداشت کی کمی، سوچ میں کمی، اور رویے میں تبدیلیاں — جو روزمرہ کی زندگی میں مداخلت کرتی ہیں۔. اسے کبھی کبھار اشارے سے 24/7 سپورٹ تک بڑھتی ہوئی دیکھ بھال کی ضرورت ہوتی ہے۔. مؤثر انتظام حفاظت، مسلسل معمولات، پرسکون مواصلات، اور طرز عمل کے محرکات سے نمٹنے پر توجہ مرکوز کرتا ہے. ترقی کے مراحل: ابتدائی مراحل میں یادداشت کے ہلکے مسائل شامل ہوتے ہیں، جب کہ درمیانی مراحل میں روزمرہ کے کاموں میں مدد کی ضرورت ہوتی ہے، اور آخری مراحل کھانے اور نہانے جیسی بنیادی ضروریات کے لیے کل وقتی دیکھ بھال کا مطالبہ کرتے ہیں. دیکھ بھال کرنے والوں کو پرسکون بات چیت کا استعمال کرنا چاہیے، بحث کرنے سے گریز کرنا چاہیے، اور روزمرہ کے معمولات کو برقرار رکھنا چاہیے.
+</string>
+    <string name="bullet">•</string>
+    <string name="close_text">X</string>
+    <!-- Help Screen -->
+    <string name="help">مدد</string>
+    <string name="send_message">جگہ بھیجیں</string>
+    <string name="map_to_home">گھر تک کا نقشہ</string>
+
+    <!-- Record Screen -->
+    <string name="record">ریکارڈ</string>
+    <string name="done_button">تکمیل </string>
+
+    <!-- Search Location-->
+    <string name="search_by_name">نام سے تلاش کریں</string>
+    <string name="distance">فاصلہ</string>
+    <string name="location">جگہ</string>
+    <string name="plus">+</string>
+    <!-- View more -->
+    <string name="search_by_date">تاریخ کے لحاظ سے تلاش کریں</string>
+    <string name="date">تاریخ</string>
+    <string name="discussion_summary_in_voice">آواز میں گفتگو کا خلاصہ</string>
+    <!-- Popup Card-->
+    <string name="deleted_successfully">کامیابی سے ڈیلیٹ ہو گیا !</string>
+    <string name="successfully_added">کامیابی سے شامل ہو گیا!</string>
+    <string name="changes_saved">تبدیلیاں محفوظ ہو گئیں !</string>
+
+
+    <!-- not_recognised-->
+    <!-- Result Screen -->
+    <string name="result">نتیجہ :</string>
+    <string name="not_recognised">نہیں پہچانا گیا</string>
+
+    <!-- Record Conversation -->
+    <string name="record_conversation">گفتگو ریکارڈ کریں</string>
+
+    <!-- Buttons -->
+    <string name="save">محفوظ کریں</string>
+    <string name="register">رجسٹر</string>
+
+    <!-- Relation -->
+    <string name="relation_label">رشتہ*</string>
+    <string name="enter_relation">شخص کا رشتہ لکھیں</string>
+    <!-- Location Search-->
+    <string name="edit">تبدیلی محفوظ کریں</string>
+    <string name="delete">ڈیلیٹ</string>
+    <!-- Settings Screen -->
+    <string name="settings">سیٹنگز</string>
+    <string name="cloud_backup">کلاؤڈ بیک اپ</string>
+    <string name="select_language">زبان منتخب کریں</string>
+    <string name="select_theme">تھیم منتخب کریں</string>
+    <string name="erase_data">ڈیٹا مٹائیں</string>
+
+    <!-- Language Screen -->
+    <string name="language_selection">زبان کا انتخاب</string>
+    <string name="english">انگریزی</string>
+    <string name="urdu">اردو</string>
+
+    <!-- Camera Preview Screen -->
+    <string name="gallery">گیلری</string>
+    <string name="capture">تصویر لیں</string>
+    <string name="refresh">دوبارہ</string>
+
+    <!-- Accessibility -->
+    <string name="gallery_icon">گیلری</string>
+    <string name="refresh_icon">دوبارہ</string>
+    <string name="close">بند کریں</string>
+
+    <!-- Home Screen -->
+    <string name="home">ہوم</string>
+    <string name="emergency_call">ایمرجنسی کال</string>
+    <string name="hi_user">خوش آمدید صارف</string>
+
+    <string name="recognize_register">پہچانیں\n/\nرجسٹر کریں</string>
+    <string name="add_location_menu">مقام شامل کریں</string>
+    <string name="search_name_location">تلاش کریں\nنام / مقام</string>
+    <!-- Not Recognised Screen -->
+    <string name="select_location_record_both">* لوکیشن منتخب کریں، گفتگو ریکارڈ کریں یا دونوں کریں</string>
+
+    <string name="click_to_record">ریکارڈ کرنے کے لیے کلک کریں</string>
+
+    <string name="profile_photo">پروفائل تصویر</string>
+
+    <string name="record_voice">آواز ریکارڈ کریں</string>
+
+    <!-- Recognised Screen -->
+    <string name="last_meeting_information">آخری ملاقات کی معلومات</string>
+
+    <string name="add_new_information">نئی معلومات شامل کریں</string>
+
+    <string name="view_more">مزید دیکھیں</string>
+
+    <string name="recognised">پہچانا گیا</string>
+    <string name="recording">ریکارڈنگ</string>
+    <string name="search">تلاش</string>
+    <string name="name">نام</string>
+    <string name="distance_format">%1$d کلومیٹر</string>
+
+    <!-- سرچ رزلٹ اسکرین -->
+    <string name="search_result">تلاش کا نتیجہ</string>
+    <string name="discussion_summary_voice">آواز میں گفتگو کا خلاصہ</string>
+    <string name="delete_entry">اندراج حذف کریں</string>
+
+    <string name="name_placeholder">نام درج کریں</string>
+
+    <!-- رشتہ -->
+    <string name="relation">رشتہ *</string>
+    <string name="relation_placeholder">رشتہ درج کریں مثلاً دوست</string>
+    <string name="open_location_map">نقشے میں مقام کھولیں</string>
+    <string name="recording_date">24/5/2026</string>
 </resources>
