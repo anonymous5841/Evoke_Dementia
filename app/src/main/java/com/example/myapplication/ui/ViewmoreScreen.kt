@@ -35,11 +35,11 @@ import com.example.myapplication.ui.theme.GreenTheme
 import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.text.TextStyle
-<<<<<<< HEAD
+
 import androidx.compose.ui.res.stringResource
-=======
+
 import com.example.myapplication.ui.components.rememberBottomNavBarHeight
->>>>>>> origin/main
+
 
 // ══════════════════════════════════════════════════════
 // VIEW MORE SCREEN

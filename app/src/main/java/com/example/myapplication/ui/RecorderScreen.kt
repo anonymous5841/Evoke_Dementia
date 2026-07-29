@@ -26,7 +26,6 @@ import com.example.myapplication.ui.components.ShadowButton
 import com.example.myapplication.ui.theme.AppTheme
 import com.example.myapplication.ui.theme.GreenTheme
 import androidx.compose.ui.res.stringResource
-import com.airbnb.lottie.compose.LottieAnimation
 
 
 private fun Modifier.blurIfSupported(radius: Dp): Modifier {
@@ -131,41 +130,27 @@ fun RecordScreen(
                         }
 
                         Box(contentAlignment = Alignment.Center) {
-                            // White shadow - same icon shape, blurred, 30% opacity, drawn behind
-                            Icon(
-                                painter = painterResource(id = R.drawable.recording_icon),
-                                contentDescription = null, // decorative, real description is on the icon above
-                                tint = Colory.copy(alpha = 0.4f),
-                                modifier = Modifier
-                                    .size(50.dp)
-                                    .blurIfSupported(6.dp)
-                            )
+    // White shadow - same icon shape, blurred, drawn behind
+    Icon(
+        painter = painterResource(id = R.drawable.recording_icon),
+        contentDescription = null, // decorative
+        tint = Colory.copy(alpha = 0.4f),
+        modifier = Modifier
+            .size(50.dp)
+            .blurIfSupported(6.dp)
+    )
 
 
-                        LottieAnimation(
-                            composition = composition,
-                            progress = { progress },
-                            modifier = Modifier
-                                .size(380.dp)
-                                .offset(y = (-45).dp)  // [ANIMATION OFFSET] nudged up so the rings sit above card center, matching Recorder.svg
-                                .blur(20.dp)   // ✅ Apply blur here
-                        )
-
-                        Icon(
-                            painter = painterResource(id = R.drawable.recording_icon),
-                            contentDescription = stringResource(R.string.recording),
-                            tint = Color(0xFFFFC006), // [MIC COLOR] matches Recorder.svg mic fill
-                            modifier = Modifier.size(50.dp).offset(y = (-45).dp)
-                        )
-
-                            // The actual icon, drawn on top - unchanged
-                            Icon(
-                                painter = painterResource(id = R.drawable.recording_icon),
-                                contentDescription = "Recording",
-                                tint = appColors.popupText, // [MIC COLOR] matches Recorder.svg mic fill
-                                modifier = Modifier.size(50.dp)
-                            )
-                        }
+    // Actual microphone icon
+    Icon(
+        painter = painterResource(id = R.drawable.recording_icon),
+        contentDescription = stringResource(R.string.recording),
+        tint = appColors.popupText,   // Use the themed color from main
+        modifier = Modifier
+            .size(50.dp)
+            .offset(y = (-45).dp)
+    )
+}
 
                     }
                 }
