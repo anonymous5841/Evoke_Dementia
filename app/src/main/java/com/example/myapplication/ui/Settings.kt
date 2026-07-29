@@ -61,10 +61,10 @@ fun SettingsContent(
     onBack: () -> Unit,
     onSelectLanguage: () -> Unit,
     isBlueTheme: Boolean,
-    onThemeToggle: (Boolean) -> Unit
+    onThemeToggle: (Boolean) -> Unit,
+    onEraseClick: () -> Unit = {}
 ) {
 
-    var showEraseDialog by remember { mutableStateOf(false) }
     val appColors = AppTheme.colors
 
     Scaffold(
@@ -136,7 +136,7 @@ fun SettingsContent(
 
                     Row(
                         modifier = Modifier
-                            .clickable { showEraseDialog = true }
+                            .clickable { onEraseClick() }
                             .padding(start = 20.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {

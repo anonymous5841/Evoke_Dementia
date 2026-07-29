@@ -1,7 +1,8 @@
 package com.example.myapplication.ui
+
+import android.os.Build
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -15,15 +16,43 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.myapplication.R
 import com.example.myapplication.ui.components.HeaderSection
-import com.airbnb.lottie.compose.*
 import androidx.compose.ui.draw.blur
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
+import com.example.animation.LiquidBlobAnimation
+import com.example.animation.VoiceRecorderAnimation
 import com.example.myapplication.ui.theme.OutfitFont
 import com.example.myapplication.ui.components.ShadowButton
 import com.example.myapplication.ui.theme.AppTheme
 import com.example.myapplication.ui.theme.GreenTheme
 import androidx.compose.ui.res.stringResource
+import com.airbnb.lottie.compose.LottieAnimation
 
+
+private fun Modifier.blurIfSupported(radius: Dp): Modifier {
+    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+        this.blur(radius = radius)
+    } else {
+        this
+    }
+}
+
+/**
+ * The blur/glow-heavy [VoiceRecorderAnimation] uses Modifier.blur (via its
+ * own blurIfSupported helper) and layered translucent gradients that are
+ * tuned to look right with real blur behind them. Below API 31 that blur
+ * silently becomes a no-op, so those rings would render sharp-edged and
+ * flat instead of glassy — it still "works", it just doesn't look right.
+ *
+ * [LiquidBlobAnimation] was built from the ground up with no blur/RenderEffect
+ * dependency at all, so it looks correct and intentional on every version
+ * below that cutoff.
+ *
+ * This flag is the single switch point for that decision — check it once
+ * here rather than duplicating the SDK check anywhere else in the screen.
+ */
+private val supportsBlurAndGlow: Boolean
+    get() = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
 
 @Composable
 fun RecordScreen(
@@ -32,7 +61,13 @@ fun RecordScreen(
 ) {
     var isRecording by remember { mutableStateOf(true) }
     val appColors = AppTheme.colors
-    Scaffold(
+    var Colory = Color.Unspecified
+    if (supportsBlurAndGlow) {
+        Colory= Color.White
+    } else {
+        Colory = Color.Black
+    }
+        Scaffold(
         containerColor = Color.White,
         contentWindowInsets = WindowInsets(0, 0, 0, 0)  // insets already handled at root
     ) { innerPadding ->
@@ -76,16 +111,35 @@ fun RecordScreen(
                     // Animation + Icon
                     Box(
                         contentAlignment = Alignment.Center,
-                        modifier = Modifier.size(380.dp)
+                        modifier = Modifier.
+                        fillMaxWidth(1f).
+                        fillMaxHeight(0.7f)
                     ) {
-                        val composition by rememberLottieComposition(
-                            LottieCompositionSpec.RawRes(R.raw.recording_animation)
-                        )
-                        val progress by animateLottieCompositionAsState(
-                            composition = composition,
-                            iterations = LottieConstants.IterateForever,
-                            speed = 1.3f
-                        )
+                        // API 31+ gets the blur/glow version (it's built to
+                        // rely on real Modifier.blur); everything below that
+                        // gets the no-blur liquid blob so it still looks
+                        // intentional instead of flat.
+                        if (supportsBlurAndGlow) {
+                            VoiceRecorderAnimation(
+                                modifier = Modifier.size(400.dp, 300.dp),
+                                isAnimating = isRecording
+                            )
+                        } else {
+                            LiquidBlobAnimation(
+                                modifier = Modifier.size(400.dp, 400.dp)
+                            )
+                        }
+
+                        Box(contentAlignment = Alignment.Center) {
+                            // White shadow - same icon shape, blurred, 30% opacity, drawn behind
+                            Icon(
+                                painter = painterResource(id = R.drawable.recording_icon),
+                                contentDescription = null, // decorative, real description is on the icon above
+                                tint = Colory.copy(alpha = 0.4f),
+                                modifier = Modifier
+                                    .size(50.dp)
+                                    .blurIfSupported(6.dp)
+                            )
 
 
                         LottieAnimation(
@@ -103,6 +157,16 @@ fun RecordScreen(
                             tint = Color(0xFFFFC006), // [MIC COLOR] matches Recorder.svg mic fill
                             modifier = Modifier.size(50.dp).offset(y = (-45).dp)
                         )
+
+                            // The actual icon, drawn on top - unchanged
+                            Icon(
+                                painter = painterResource(id = R.drawable.recording_icon),
+                                contentDescription = "Recording",
+                                tint = appColors.popupText, // [MIC COLOR] matches Recorder.svg mic fill
+                                modifier = Modifier.size(50.dp)
+                            )
+                        }
+
                     }
                 }
 
@@ -112,6 +176,7 @@ fun RecordScreen(
                         .align(Alignment.BottomCenter)    // [BUTTON POSITION] bottom center
                         .padding(bottom = 52.dp)           // [BUTTON BOTTOM MARGIN] matches Recorder.svg spacing from card bottom
                 ) {
+
                     ShadowButton(
                         width = 252.dp,             // [BUTTON WIDTH] matches Recorder.svg (252dp)
                         height = 48.dp,              // [BUTTON HEIGHT] matches Recorder.svg (48dp)

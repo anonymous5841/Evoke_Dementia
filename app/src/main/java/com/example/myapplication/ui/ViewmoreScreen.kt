@@ -35,7 +35,11 @@ import com.example.myapplication.ui.theme.GreenTheme
 import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.text.TextStyle
+<<<<<<< HEAD
 import androidx.compose.ui.res.stringResource
+=======
+import com.example.myapplication.ui.components.rememberBottomNavBarHeight
+>>>>>>> origin/main
 
 // ══════════════════════════════════════════════════════
 // VIEW MORE SCREEN
@@ -44,12 +48,14 @@ import androidx.compose.ui.res.stringResource
 fun ViewMoreScreen(
     onBackClick: () -> Unit = {},
     onEllipseClick: () -> Unit = {},
-    onDeleteClick: (Int) -> Unit = {},
+//    onDeleteClick: (Int) -> Unit = {},
+    onDeleteClick: () -> Unit = {},
 ) {
     var searchQuery by remember { mutableStateOf("") }
     val recordings = remember { mutableStateListOf(1, 2, 3) }
     val playingStates = remember { mutableStateMapOf<Int, Boolean>() }
     val speedStates = remember { mutableStateMapOf<Int, Float>() }
+    val bottomPadding = rememberBottomNavBarHeight()
     val appColors = AppTheme.colors
 
     Scaffold(
@@ -83,12 +89,14 @@ fun ViewMoreScreen(
 
             // ← only this part scrolls now
             LazyColumn(
-                modifier = Modifier.weight(1f)
-            ) {
+                modifier = Modifier.weight(1f),
+                contentPadding = PaddingValues(bottom = (bottomPadding - 15.dp)),
+
+                ) {
                 itemsIndexed(recordings) { index, _ ->
                     RecordingItem(
                         index = index,
-                        onDeleteClick = { onDeleteClick(index) },
+                        onDeleteClick = { onDeleteClick() },
                         onEllipseClick = onEllipseClick,
                         isPlaying = playingStates[index] ?: false,
                         speedMultiplier = speedStates[index] ?: 1f,
@@ -140,7 +148,8 @@ fun RecordingItem(
                 painter = painterResource(R.drawable.ic_delete),
                 contentDescription = null,
                 tint = Color.Red,
-                modifier = Modifier.size(27.dp)
+                modifier = Modifier.size(27.dp),
+                onClick = { onDeleteClick() }
             )
 
             Spacer(modifier = Modifier.width(8.dp))

@@ -131,6 +131,15 @@ data class AppColors(
     val toggleColor          : Color,
     val pictureBox           : Color,
     val staticwave           : Color,
+    val Voiceshadow          : Color,
+    val voiceS1E1T           : Color,
+    val voiceS1E1B           : Color,
+    val voiceS1E2T           : Color,
+    val voiceS1E2B           : Color,
+    val voiceS2E1T           : Color,
+    val voiceS2E1B           : Color,
+    val voiceS2E2T           : Color,
+    val voiceS2E2B           : Color,
 )
 
 
@@ -168,7 +177,16 @@ val GreenAppColors = AppColors(
     boxInner             = Color(0xFFC1D7C8),
     toggleColor          = DarkGreen,
     pictureBox           = Color(0xFFDDF2E4),
-    staticwave           = Color(0xFF8FB89A)
+    staticwave           = Color(0xFF8FB89A),
+    Voiceshadow          = Color(0xFFFF9838),
+    voiceS1E1T           = Color(0xFFA6FF94),
+    voiceS1E1B           = Color(0xFFF9FFA6),
+    voiceS1E2T           = Color(0xFF56F794),
+    voiceS1E2B           = Color(0xFFB0E420),
+    voiceS2E1T           = Color(0xFF34FF22),
+    voiceS2E1B           = Color(0xFFF2F20B),
+    voiceS2E2T           = Color(0xFF3CFF0B),
+    voiceS2E2B           = Color(0xFFF7FF01)
 )
 
 // ── Blue values ───────────────────────────────────────────────────────────────
@@ -205,7 +223,16 @@ val BlueAppColors = AppColors(
     boxInner             = BlueBoxInner,
     toggleColor          = BlueToggle,
     pictureBox           = BluePictureBox,
-    staticwave           = Color(0xFF8FACB8)
+    staticwave           = Color(0xFF8FACB8),
+    Voiceshadow          = Color(0xFF0BBCF3),
+    voiceS1E1T           = Color(0xFF94CDFF),
+    voiceS1E1B           = Color(0xFFFF9838),
+    voiceS1E2T           = Color(0xFF569EF7),
+    voiceS1E2B           = Color(0xFF20DEE4),
+    voiceS2E1T           = Color(0xFF2D22FF),
+    voiceS2E1B           = Color(0xFFFF9838),
+    voiceS2E2T           = Color(0xFF0B44FF),
+    voiceS2E2B           = Color(0xFF01E1FF)
 )
 
 
