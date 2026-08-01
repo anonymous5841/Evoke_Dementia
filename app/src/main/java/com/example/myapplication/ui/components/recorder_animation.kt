@@ -451,8 +451,10 @@ private const val BASELINE_CENTER_Y = 150f
  * whatever container size is given, preserving the ellipses' true aspect
  * ratio instead of stretching them to fill a non-4:3 box.
  */
+private const val ANIMATION_SCALE = 1.15f
+
 private fun fitScale(size: Size): Float =
-    min(size.width / BASELINE_WIDTH, size.height / BASELINE_HEIGHT)
+    min(size.width / BASELINE_WIDTH, size.height / BASELINE_HEIGHT) * ANIMATION_SCALE
 
 /** Maps a design-space X coordinate (0-400) to actual canvas pixels, centered. */
 private fun baseCenterX(size: Size, scale: Float, designX: Float): Float =

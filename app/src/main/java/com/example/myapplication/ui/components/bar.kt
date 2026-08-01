@@ -27,6 +27,11 @@ data class MeowBottomNavigationModel(
     val count: String = ""
 )
 
+// Shared with BottomNavBar.kt — the reserved headroom above the solid bar,
+// where the selected tab's bubble pops up into.
+internal val NAV_BAR_DESIGN_HEIGHT = 108f
+internal val NAV_BAR_TOP_FRACTION  = 38f / NAV_BAR_DESIGN_HEIGHT
+
 @Composable
 fun MeowBottomNavigation(
     models            : List<MeowBottomNavigationModel>,
@@ -41,9 +46,9 @@ fun MeowBottomNavigation(
 ) {
     val density      = LocalDensity.current
     val totalHeight  = rememberBottomNavBarHeight()
-    val designHeight = 108.dp
+    val designHeight = NAV_BAR_DESIGN_HEIGHT.dp
 
-    val barTopFrac   = 38f   / 108f
+    val barTopFrac   = NAV_BAR_TOP_FRACTION
     val circleCYFrac = 33f   / 108f
     val circleRFrac  = 33f   / 108f
     val notchBotFrac = 79.5f / 108f
@@ -60,12 +65,12 @@ fun MeowBottomNavigation(
             .height(totalHeight)
             .graphicsLayer { renderEffect = null }
     ) {
-        val W  = with(density) { maxWidth.toPx() }
-        val H  = with(density) { designHeight.toPx() }
-        val HH = with(density) { totalHeight.toPx() }
+        val w  = with(density) { maxWidth.toPx() }
+        val h  = with(density) { designHeight.toPx() }
+        val hh = with(density) { totalHeight.toPx() }
 
         val selectedIndex = models.indexOfFirst { it.id == selectedId }.coerceAtLeast(0)
-        val targetX       = W * (selectedIndex + 0.5f) / models.size
+        val targetX       = w * (selectedIndex + 0.5f) / models.size
 
         val animX by animateFloatAsState(
             targetValue   = targetX,
@@ -77,22 +82,22 @@ fun MeowBottomNavigation(
         )
 
         Canvas(modifier = Modifier.fillMaxSize()) {
-            val bTop  = H * barTopFrac
-            val cY    = H * circleCYFrac
-            val cR    = H * circleRFrac
-            val nBot  = H * notchBotFrac
-            val nHalf = W * notchHWFrac
-            val cRad  = W * cornerRFrac
+            val bTop  = h * barTopFrac
+            val cY    = h * circleCYFrac
+            val cR    = h * circleRFrac
+            val nBot  = h * notchBotFrac
+            val nHalf = w * notchHWFrac
+            val cRad  = w * cornerRFrac
             val cx    = animX
 
             if (isNone) {
                 val barPath = Path().apply {
-                    moveTo(0f, HH)              // ← bottom goes to full height
+                    moveTo(0f, hh)
                     lineTo(0f, bTop + cRad)
                     quadraticBezierTo(0f, bTop, cRad, bTop)
-                    lineTo(W - cRad, bTop)
-                    quadraticBezierTo(W, bTop, W, bTop + cRad)
-                    lineTo(W, HH)               // ← bottom goes to full height
+                    lineTo(w - cRad, bTop)
+                    quadraticBezierTo(w, bTop, w, bTop + cRad)
+                    lineTo(w, hh)
                     close()
                 }
 
@@ -116,15 +121,15 @@ fun MeowBottomNavigation(
                 val rx = cx + nHalf
 
                 val barWithNotch = Path().apply {
-                    moveTo(0f, HH)              // ← bottom goes to full height
+                    moveTo(0f, hh)
                     lineTo(0f, bTop + cRad)
                     quadraticBezierTo(0f, bTop, cRad, bTop)
                     lineTo(lx, bTop)
                     cubicTo(cx - nHalf * 0.66f, bTop, cx - nHalf * 0.40f, nBot, cx, nBot)
                     cubicTo(cx + nHalf * 0.40f, nBot, cx + nHalf * 0.66f, bTop, rx, bTop)
-                    lineTo(W - cRad, bTop)
-                    quadraticBezierTo(W, bTop, W, bTop + cRad)
-                    lineTo(W, HH)               // ← bottom goes to full height
+                    lineTo(w - cRad, bTop)
+                    quadraticBezierTo(w, bTop, w, bTop + cRad)
+                    lineTo(w, hh)
                     close()
                 }
 
@@ -147,11 +152,11 @@ fun MeowBottomNavigation(
             }
         }
 
-        // ── Icons in bar — positions unchanged, still based on H (108dp) ─────
+        // ── Icons in bar — positions unchanged, still based on h (108dp) ─────
         models.forEachIndexed { index, model ->
             val isSelected = model.id == selectedId
-            val iconCXDp   = with(density) { (W * (index + 0.5f) / models.size).toDp() }
-            val iconBarYDp = with(density) { (H * iconBarYFrac).toDp() }
+            val iconCXDp   = with(density) { (w * (index + 0.5f) / models.size).toDp() }
+            val iconBarYDp = with(density) { (h * iconBarYFrac).toDp() }
 
             val scale by animateFloatAsState(
                 targetValue   = if (isNone) 1f else if (isSelected) 0f else 1f,
@@ -184,7 +189,7 @@ fun MeowBottomNavigation(
             val selectedModel = models.find { it.id == selectedId }
             if (selectedModel != null) {
                 val bubbleCXDp = with(density) { animX.toDp() }
-                val bubbleYDp  = with(density) { (H * iconPopYFrac).toDp() }
+                val bubbleYDp  = with(density) { (h * iconPopYFrac).toDp() }
 
                 Box(
                     modifier         = Modifier

@@ -47,6 +47,7 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.platform.LocalLayoutDirection
+import com.example.myapplication.ui.PhoneOnlyGate
 import com.example.myapplication.utils.LanguageController
 
 import com.example.myapplication.utils.LocalAppLanguage
@@ -128,10 +129,12 @@ class MainActivity : ComponentActivity() {
                                 .windowInsetsPadding(WindowInsets.statusBars)
                                 .clipToBounds()          // ← add this
                         ) {
-                            AppNavigation(
-                                isBlueTheme = isBlueTheme,
-                                onThemeToggle = { isBlueTheme = it }
-                            )
+                            PhoneOnlyGate {
+                                AppNavigation(
+                                    isBlueTheme = isBlueTheme,
+                                    onThemeToggle = { isBlueTheme = it }
+                                )
+                            }
                         }
                     }
                 }

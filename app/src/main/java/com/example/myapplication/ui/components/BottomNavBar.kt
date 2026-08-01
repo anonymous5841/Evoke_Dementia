@@ -50,5 +50,11 @@ fun rememberBottomNavBarHeight(): Dp {
     val navBarInset        = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
     val systemGestureInset = WindowInsets.systemGestures.asPaddingValues().calculateBottomPadding()
     val extraBottomPadding = if (systemGestureInset <= navBarInset) navBarInset * 0.4f else 0.dp
-    return 108.dp + extraBottomPadding
+    return NAV_BAR_DESIGN_HEIGHT.dp + extraBottomPadding
+}
+
+
+@Composable
+fun rememberBottomContentPadding(): Dp {
+    return rememberBottomNavBarHeight() - (NAV_BAR_DESIGN_HEIGHT * NAV_BAR_TOP_FRACTION).dp
 }

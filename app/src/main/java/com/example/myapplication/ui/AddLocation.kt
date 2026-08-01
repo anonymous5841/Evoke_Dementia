@@ -23,6 +23,7 @@ import com.example.myapplication.ui.theme.BlueTheme
 import com.example.myapplication.ui.theme.GreenTheme
 import com.example.myapplication.ui.theme.OutfitFont
 import androidx.compose.ui.res.stringResource
+import com.example.myapplication.ui.components.rememberBottomContentPadding
 
 @Composable
 fun AddLocationContent(
@@ -143,8 +144,7 @@ fun AddLocationContent(
                     }
                 }
 
-                Spacer(modifier = Modifier.height(24.dp))
-            }
+                Spacer(modifier = Modifier.height(rememberBottomContentPadding()))            }
 
             HeaderSection(
                 stringResource(R.string.add_location_header),

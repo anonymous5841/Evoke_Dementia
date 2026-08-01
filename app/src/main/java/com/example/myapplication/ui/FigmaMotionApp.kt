@@ -70,6 +70,10 @@ import androidx.compose.ui.res.stringResource
 import com.example.myapplication.utils.LanguageManager
 private enum class Screen { Loading3, Loading4 }
 
+// Put near the top of the file
+private const val REF_WIDTH_DP  = 412f   // the Pixel 6 emulator width you designed on
+private const val REF_HEIGHT_DP = 915f   // adjust this to whatever you actually saw — see note below
+
 // ─── bottom shape paths ────────────────────────────────────────────────────────
 private fun buildMainGreenPath(w: Float, h: Float): Path {
     val sx = w / 412f; val sy = h / 433f
@@ -182,6 +186,8 @@ fun FigmaMotionApp(
     BoxWithConstraints(Modifier.fillMaxSize()) {
         val screenHeight = maxHeight
 
+        val scale = minOf(maxWidth.value / REF_WIDTH_DP, maxHeight.value / REF_HEIGHT_DP)
+
         when (current) {
             Screen.Loading3 -> Box(Modifier.fillMaxSize().background(Color(0xFF3E634F)))
 
@@ -220,7 +226,7 @@ fun FigmaMotionApp(
                         Box(Modifier.fillMaxSize().background(Color(0xFF3E634F)))
 
                         Box(Modifier.fillMaxSize().alpha(contentAlpha)) {
-                            WhiteBubbleFill(progress = p)
+                            WhiteBubbleFill(progress = p, scale = scale)
 
                             val whiteFillP = ((p - 0.72f) / 0.18f).coerceIn(0f, 1f)
                             if (whiteFillP > 0f) {
@@ -238,7 +244,7 @@ fun FigmaMotionApp(
                                 modifier           = Modifier
                                     .align(Alignment.TopCenter)
                                     .offset(y = contentTop)
-                                    .size(280.dp, 240.dp)
+                                    .size((280 * scale).dp, (240 * scale).dp)
                                     .alpha(imageReveal.value)
                                     .scale(0.92f + 0.08f * imageReveal.value),
                             )
@@ -292,9 +298,10 @@ fun FigmaMotionApp(
                         // Language block — always slides with the parent Box
                         BottomLanguageBlockWithShadow(
                             titleReveal = riseContent.value,
+                            scale       = scale,
                             modifier    = Modifier
                                 .align(Alignment.BottomCenter)
-                                .offset(y = (140f * (1f - riseContent.value)).dp)
+                                .offset(y = (140f * scale * (1f - riseContent.value)).dp)
                                 .alpha(riseContent.value),
                             onContinue  = { onContinueClick() }   // ← just calls the callback now
 
@@ -308,58 +315,58 @@ fun FigmaMotionApp(
 
 // ─── Bubble wave ──────────────────────────────────────────────────────────────
 @Composable
-private fun WhiteBubbleFill(progress: Float) {
+private fun WhiteBubbleFill(progress: Float, scale: Float) {
     Box(Modifier.fillMaxSize()) {
 // First wave — corners and edges, appear earliest
-        TransitionBubble(x=-160f, y=-160f, size=360f, progress=progress, stagger=0.00f, blur=0f)
-        TransitionBubble(x= 420f, y=-140f, size=340f, progress=progress, stagger=0.02f, blur=0f)
-        TransitionBubble(x=  80f, y=-240f, size=420f, progress=progress, stagger=0.02f, blur=0f) // ← moved here
-        TransitionBubble(x= 480f, y=760f,  size=400f, progress=progress, stagger=0.04f, blur=0f)
-        TransitionBubble(x=-220f, y=750f,  size=320f, progress=progress, stagger=0.04f, blur=0f)
+        TransitionBubble(x=-160f, y=-160f, size=360f, progress=progress, stagger=0.00f, blur=0f, scale=scale)
+        TransitionBubble(x= 420f, y=-140f, size=340f, progress=progress, stagger=0.02f, blur=0f, scale=scale)
+        TransitionBubble(x=  80f, y=-240f, size=420f, progress=progress, stagger=0.02f, blur=0f, scale=scale) // ← moved here
+        TransitionBubble(x= 480f, y=760f,  size=400f, progress=progress, stagger=0.04f, blur=0f, scale=scale)
+        TransitionBubble(x=-220f, y=750f,  size=320f, progress=progress, stagger=0.04f, blur=0f, scale=scale)
 
 
         // Second wave — spread inward
-        TransitionBubble(x= 300f, y=  0f,  size=400f, progress=progress, stagger=0.08f, blur=0f)
-        TransitionBubble(x= 550f, y=100f,  size=250f, progress=progress, stagger=0.10f, blur=0f)
-        TransitionBubble(x=-160f, y=340f,  size=360f, progress=progress, stagger=0.12f, blur=6f)
-        TransitionBubble(x= 530f, y=880f,  size=260f, progress=progress, stagger=0.12f, blur=0f)
+        TransitionBubble(x= 300f, y=  0f,  size=400f, progress=progress, stagger=0.08f, blur=0f, scale=scale)
+        TransitionBubble(x= 550f, y=100f,  size=250f, progress=progress, stagger=0.10f, blur=0f, scale=scale)
+        TransitionBubble(x=-160f, y=340f,  size=360f, progress=progress, stagger=0.12f, blur=6f, scale=scale)
+        TransitionBubble(x= 530f, y=880f,  size=260f, progress=progress, stagger=0.12f, blur=0f, scale=scale)
 
         // Third wave — middle fill
-        TransitionBubble(x= 100f, y=400f,  size=350f, progress=progress, stagger=0.18f, blur=0f)
-        TransitionBubble(x=-100f, y=500f,  size=350f, progress=progress, stagger=0.20f, blur=0f)
-        TransitionBubble(x= 420f, y=300f,  size=360f, progress=progress, stagger=0.20f, blur=6f)
-        TransitionBubble(x= 480f, y=400f,  size=320f, progress=progress, stagger=0.22f, blur=0f)
-        TransitionBubble(x= 500f, y=200f,  size=300f, progress=progress, stagger=0.24f, blur=0f)
+        TransitionBubble(x= 100f, y=400f,  size=350f, progress=progress, stagger=0.18f, blur=0f, scale=scale)
+        TransitionBubble(x=-100f, y=500f,  size=350f, progress=progress, stagger=0.20f, blur=0f, scale=scale)
+        TransitionBubble(x= 420f, y=300f,  size=360f, progress=progress, stagger=0.20f, blur=6f, scale=scale)
+        TransitionBubble(x= 480f, y=400f,  size=320f, progress=progress, stagger=0.22f, blur=0f, scale=scale)
+        TransitionBubble(x= 500f, y=200f,  size=300f, progress=progress, stagger=0.24f, blur=0f, scale=scale)
 
         // Fourth wave — center closers
-        TransitionBubble(x= 520f, y=500f,  size=280f, progress=progress, stagger=0.30f, blur=0f)
-        TransitionBubble(x= 450f, y=350f,  size=240f, progress=progress, stagger=0.32f, blur=0f)
-        TransitionBubble(x= 550f, y=600f,  size=300f, progress=progress, stagger=0.34f, blur=0f)
-        TransitionBubble(x= 560f, y=720f,  size=240f, progress=progress, stagger=0.36f, blur=0f)
-        TransitionBubble(x= 510f, y=820f,  size=220f, progress=progress, stagger=0.38f, blur=0f)
-        TransitionBubble(x= 600f, y=900f,  size=280f, progress=progress, stagger=0.40f, blur=0f)
+        TransitionBubble(x= 520f, y=500f,  size=280f, progress=progress, stagger=0.30f, blur=0f, scale=scale)
+        TransitionBubble(x= 450f, y=350f,  size=240f, progress=progress, stagger=0.32f, blur=0f, scale=scale)
+        TransitionBubble(x= 550f, y=600f,  size=300f, progress=progress, stagger=0.34f, blur=0f, scale=scale)
+        TransitionBubble(x= 560f, y=720f,  size=240f, progress=progress, stagger=0.36f, blur=0f, scale=scale)
+        TransitionBubble(x= 510f, y=820f,  size=220f, progress=progress, stagger=0.38f, blur=0f, scale=scale)
+        TransitionBubble(x= 600f, y=900f,  size=280f, progress=progress, stagger=0.40f, blur=0f, scale=scale)
 
         // Final fill — last gaps
-        TransitionBubble(x= 500f, y=740f,  size=180f, progress=progress, stagger=0.46f, blur=0f)
-        TransitionBubble(x= 460f, y=660f,  size=260f, progress=progress, stagger=0.48f, blur=0f)
-        TransitionBubble(x= 120f, y=760f,  size=420f, progress=progress, stagger=0.56f, blur=0f)
+        TransitionBubble(x= 500f, y=740f,  size=180f, progress=progress, stagger=0.46f, blur=0f, scale=scale)
+        TransitionBubble(x= 460f, y=660f,  size=260f, progress=progress, stagger=0.48f, blur=0f, scale=scale)
+        TransitionBubble(x= 120f, y=760f,  size=420f, progress=progress, stagger=0.56f, blur=0f, scale=scale)
     }
 }
 
 @Composable
 private fun BoxScope.TransitionBubble(
     x: Float, y: Float, size: Float,
-    progress: Float, stagger: Float, blur: Float,
+    progress: Float, stagger: Float, blur: Float, scale: Float,
 ) {
     val rawP = ((progress - stagger) / (1f - stagger)).coerceIn(0f, 1f)
     if (rawP <= 0f) return
     val p           = FastOutSlowInEasing.transform(rawP)
     val growth      = 0.1f + p * 1.6f
-    val currentSize = (size * growth).dp
-    val currentBlur = (blur * (1f - p)).dp
+    val currentSize = (size * growth * scale).dp
+    val currentBlur = (blur * (1f - p) * scale).dp
     Box(
         Modifier
-            .offset(x.dp, y.dp)
+            .offset((x * scale).dp, (y * scale).dp)
             .size(currentSize)
             .background(Color.White.copy(alpha = 0.94f), CircleShape)
             .then(if (blur > 0f) Modifier.blur(currentBlur) else Modifier),
@@ -370,6 +377,7 @@ private fun BoxScope.TransitionBubble(
 @Composable
 private fun BottomLanguageBlockWithShadow(
     titleReveal : Float,
+    scale       : Float,
     modifier    : Modifier = Modifier,
     onContinue  : () -> Unit = {}
 ) {
@@ -390,12 +398,12 @@ private fun BottomLanguageBlockWithShadow(
                 modifier = Modifier
                     .fillMaxWidth()
                     .fillMaxHeight()
-                    .offset(y = (-16).dp)
+                    .offset(y = (-16 * scale).dp)
                     .graphicsLayer {
                         compositingStrategy = CompositingStrategy.Offscreen
                         renderEffect = BlurEffect(
-                            radiusX       = 10f,
-                            radiusY       = 50f,
+                            radiusX       = 10f * scale,
+                            radiusY       = 50f * scale,
                             edgeTreatment = TileMode.Decal
                         )
                         alpha = 0.65f
@@ -413,7 +421,7 @@ private fun BottomLanguageBlockWithShadow(
                 modifier = Modifier
                     .fillMaxWidth()
                     .fillMaxHeight()
-                    .offset(y = (-16).dp)
+                    .offset(y = (-16 * scale).dp)
                     .drawBehind {
                         val w = size.width
                         val h = size.height
@@ -428,13 +436,13 @@ private fun BottomLanguageBlockWithShadow(
                         }
 
                         val spreadLayers = listOf(
-                            Pair(-8f,  0.04f),  // closest to shape — highest alpha
-                            Pair(-14f, 0.020f),
-                            Pair(-20f, 0.015f),
-                            Pair(-28f, 0.010f),
-                            Pair(-36f, 0.007f),
-                            Pair(-44f, 0.004f),
-                            Pair(-52f, 0.002f),  // furthest from shape — lowest alpha
+                            Pair(-8f * scale,  0.04f),
+                            Pair(-14f * scale, 0.020f),
+                            Pair(-20f * scale, 0.015f),
+                            Pair(-28f * scale, 0.010f),
+                            Pair(-36f * scale, 0.007f),
+                            Pair(-44f * scale, 0.004f),
+                            Pair(-52f * scale, 0.002f),// furthest from shape — lowest alpha
                         )
 
                         spreadLayers.forEach { (yOff, alpha) ->
@@ -468,9 +476,9 @@ private fun BottomLanguageBlockWithShadow(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(
-                    top    = curveHeightDp - 10.dp,
-                    start  = 44.dp,
-                    end    = 24.dp,
+                    top    = curveHeightDp - (10 * scale).dp,
+                    start  = (44* scale).dp,
+                    end    = (24 * scale).dp,
                     bottom = (navBarPadding - 10.dp).coerceAtLeast(0.dp),
                 ),
             ) {
@@ -483,12 +491,12 @@ private fun BottomLanguageBlockWithShadow(
                         fontFamily = BaumansFont,
                         modifier = Modifier
                             .align(Alignment.TopStart)
-                            .offset(y = 6.dp)
+                            .offset(y = (6 * scale).dp)
                             .graphicsLayer {
                                 compositingStrategy = CompositingStrategy.Offscreen
                                 renderEffect = BlurEffect(
-                                    radiusX       = 15f,
-                                    radiusY       = 15f,
+                                    radiusX       = 15f * scale,
+                                    radiusY       = 15f * scale,
                                     edgeTreatment = TileMode.Decal
                                 )
                                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) { alpha = 0.4f}
@@ -509,34 +517,34 @@ private fun BottomLanguageBlockWithShadow(
                 val selectedLanguage =
                     LanguageController.languageState.value
                 val selectorOffset   = animateDpAsState(
-                    if (selectedLanguage == LanguageManager.ENGLISH) 0.dp else 160.dp,
+                    if (selectedLanguage == LanguageManager.ENGLISH) 0.dp else (160 * scale).dp,
                 )
 
                 Box(
                     modifier = Modifier
                         .align(Alignment.TopCenter)
-                        .offset(y = 100.dp)
-                        .width(320.dp)
-                        .height(58.dp)
+                        .offset(y = (100 * scale).dp)
+                        .width((320 * scale).dp)
+                        .height((58 * scale).dp)
                         .background(Color.White, RoundedCornerShape(50))
-                        .padding(4.dp),
+                        .padding((4 * scale).dp),
                 ) {
                     Box(
                         modifier = Modifier
                             .offset(x = selectorOffset.value)
-                            .size(width = 150.dp, height = 50.dp)
+                            .size(width = (150 * scale).dp, height = (50 * scale).dp)
                             .background(Color(0xFF3E634F), RoundedCornerShape(50)),
                     )
                     Row(
                         modifier = Modifier
                             .fillMaxSize()
-                            .padding(horizontal = 8.dp),
-                        horizontalArrangement = Arrangement.spacedBy(30.dp, Alignment.CenterHorizontally),
+                            .padding(horizontal = (8* scale).dp),
+                        horizontalArrangement = Arrangement.spacedBy((30 * scale).dp, Alignment.CenterHorizontally),
                         verticalAlignment     = Alignment.CenterVertically,
                     ) {
                         Box(
                             modifier = Modifier
-                                .size(width = 120.dp, height = 50.dp)
+                                .size(width = (120 * scale).dp, height = (50 * scale).dp)
                                 .clickable {
 
                                     LanguageController.updateLanguage(
@@ -555,7 +563,7 @@ private fun BottomLanguageBlockWithShadow(
                         }
                         Box(
                             modifier = Modifier
-                                .size(width = 120.dp, height = 50.dp)
+                                .size(width = (120 * scale).dp, height = (50 * scale).dp)
                                 .clickable {
 
                                     LanguageController.updateLanguage(
@@ -579,10 +587,10 @@ private fun BottomLanguageBlockWithShadow(
                 Row(
                     modifier = Modifier
                         .align(Alignment.BottomEnd)
-                        .padding(end = 12.dp, bottom = 8.dp)
+                        .padding(end = (12* scale).dp, bottom = (8* scale).dp)
                         .clickable { onContinue()},
                     verticalAlignment     = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    horizontalArrangement = Arrangement.spacedBy((8 * scale).dp),
                 ) {
                     Text(
                         "Continue...",
@@ -594,7 +602,7 @@ private fun BottomLanguageBlockWithShadow(
                         painter            = painterResource(id = R.drawable.forward_icon),
                         contentDescription = "forward icon",
                         tint               = Color.White,
-                        modifier           = Modifier.size(20.dp)
+                        modifier           = Modifier.size((20 * scale).dp)
                     )
                 }
             }

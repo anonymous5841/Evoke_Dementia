@@ -23,6 +23,7 @@ import com.example.myapplication.ui.theme.GreenTheme
 import com.example.myapplication.ui.theme.OutfitFont
 import androidx.compose.ui.res.stringResource
 import com.example.myapplication.R
+import com.example.myapplication.ui.components.rememberBottomContentPadding
 
 class LocationSearch : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -103,51 +104,51 @@ fun LocationSearchContent(
                         singleLine = false,
                         maxLines = 6,
                     )
-                }
-                Spacer(modifier = Modifier.height(10.dp))
 
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(15.dp),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(start = 24.dp)
-                ) {
-                    // ── Green Edit Button ─────────────────────────────────────
-                    ShadowButton(
-                        width = 171.dp,
-                        height = 56.dp,
-                        color = appColors.pagesText,
-                        cornerRadius = 30.dp,
-                        onClick = { onEdit()}
-                    ) {
-                        Text(
-                            text = stringResource(R.string.edit),
-                            color = appColors.popupText,
-                            fontSize = 24.sp,
-                            fontWeight = FontWeight.Medium,
-                            fontFamily = OutfitFont
-                        )
-                    }
+                    Spacer(modifier = Modifier.height(55.dp))
 
-                    // ── Yellow Delete Button ──────────────────────────────────
-                    ShadowButton(
-                        width = 171.dp,
-                        height = 56.dp,
-                        color = appColors.popupText,
-                        cornerRadius = 30.dp,
-                        onClick = { onDelete() }
+                    // ── Edit / Delete row — now inside the same offset column ──────
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(15.dp),
+                        modifier = Modifier.fillMaxWidth()
+                        // no extra horizontal padding here — already inside the
+                        // 24.dp-padded column, matching Add's single button
                     ) {
-                        Text(
-                            text = stringResource(R.string.delete),
+                        ShadowButton(
+                            modifier = Modifier.weight(1f),
+                            height = 56.dp,
                             color = appColors.pagesText,
-                            fontSize = 24.sp,
-                            fontWeight = FontWeight.Medium,
-                            fontFamily = OutfitFont
+                            cornerRadius = 30.dp,
+                            onClick = { onEdit() }
+                        ) {
+                            Text(
+                                text = stringResource(R.string.edit),
+                                color = appColors.popupText,
+                                fontSize = 24.sp,
+                                fontWeight = FontWeight.Medium,
+                                fontFamily = OutfitFont
+                            )
+                        }
 
-                        )
+                        ShadowButton(
+                            modifier = Modifier.weight(1f),
+                            height = 56.dp,
+                            color = appColors.popupText,
+                            cornerRadius = 30.dp,
+                            onClick = { onDelete() }
+                        ) {
+                            Text(
+                                text = stringResource(R.string.delete),
+                                color = appColors.pagesText,
+                                fontSize = 24.sp,
+                                fontWeight = FontWeight.Medium,
+                                fontFamily = OutfitFont
+                            )
+                        }
                     }
                 }
-                Spacer(modifier = Modifier.height(24.dp))
+
+                Spacer(modifier = Modifier.height(rememberBottomContentPadding()))
             }
 
             HeaderSection(
@@ -157,9 +158,7 @@ fun LocationSearchContent(
 
         }
     }
-
 }
-
 // ── Preview ───────────────────────────────────────────────────────────────────
 @Preview(showBackground = true, showSystemUi = true)
 @Composable

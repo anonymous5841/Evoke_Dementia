@@ -70,119 +70,157 @@ fun RecordScreen(
         containerColor = Color.White,
         contentWindowInsets = WindowInsets(0, 0, 0, 0)  // insets already handled at root
     ) { innerPadding ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding)
-        ) {
-            // ── Header ────────────────────────────────────
-            HeaderSection(
-                title = stringResource(R.string.record),
-                spacing = 68.dp,
-                bottomspace = 40.dp,
-                onBack = { onBack()}
-            )
-
-            // ── Recording Card ─────────────────────────────────
-            Box(
+            BoxWithConstraints(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 24.dp)        // [CARD MARGIN] matches Recorder.svg side margin (24dp)
-                    .height(496.dp)                       // [CARD HEIGHT] matches Recorder.svg (496dp)
-                    .shadow(
-                        elevation = 40.dp, // ✅ strong shadow
-                        shape = RoundedCornerShape(62.dp), // [CARD CORNER] matches Recorder.svg rx=62
-                        ambientColor = Color.DarkGray.copy(alpha = 0.8f),
-                        spotColor = Color.DarkGray.copy(alpha = 0.9f)
-                    )
-                    .background(
-                        appColors.pagesText,
-                        shape = RoundedCornerShape(62.dp)
-                    ), // ✅ background with shape
-                contentAlignment = Alignment.Center
+                    .fillMaxSize()
+                    .padding(innerPadding)
             ) {
 
-                // Column for animation + icon
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
+                val cardWidth = maxWidth * 0.88f
+                val cardHeight = minOf(
+                    cardWidth * 1.50f,
+                    (maxHeight - 260.dp - 56.dp) * 0.95f
+                )
+                val voiceAnimationSize = cardWidth * 1.20f
+                val blobAnimationSize = cardWidth * 1.00f
+
+
+                // Calculate spacing
+                val headerHeight = 260.dp
+                val bottomPadding = 28.dp
+                val availableHeight = maxHeight - headerHeight - bottomPadding
+                val topPadding = (availableHeight - cardHeight) / 2f
+
+                Box(
                     modifier = Modifier.fillMaxSize()
                 ) {
-                    // Animation + Icon
-                    Box(
-                        contentAlignment = Alignment.Center,
-                        modifier = Modifier.
-                        fillMaxWidth(1f).
-                        fillMaxHeight(0.7f)
+
+                    Column(
+                        modifier = Modifier.fillMaxSize()
                     ) {
-                        // API 31+ gets the blur/glow version (it's built to
-                        // rely on real Modifier.blur); everything below that
-                        // gets the no-blur liquid blob so it still looks
-                        // intentional instead of flat.
-                        if (supportsBlurAndGlow) {
-                            VoiceRecorderAnimation(
-                                modifier = Modifier.size(400.dp, 300.dp),
-                                isAnimating = isRecording
-                            )
-                        } else {
-                            LiquidBlobAnimation(
-                                modifier = Modifier.size(400.dp, 400.dp)
-                            )
+
+                        // Same idea as your LocationSearch screen
+                        // Header space
+                        Spacer(modifier = Modifier.height(headerHeight))
+
+                        // Top padding to center card
+                        Spacer(modifier = Modifier.height(topPadding.coerceAtLeast(12.dp)))
+
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .offset(y = (-20).dp), // tweak this if needed
+                            contentAlignment = Alignment.TopCenter
+                        ) {
+                            // ── Recording Card ─────────────────────────────────
+                            Box(
+                                modifier = Modifier
+                                    .width(cardWidth)
+                                    .height(cardHeight)
+                                    .shadow(
+                                        elevation = 40.dp,
+                                        shape = RoundedCornerShape(62.dp),
+                                        ambientColor = Color.DarkGray.copy(alpha = 0.8f),
+                                        spotColor = Color.DarkGray.copy(alpha = 0.9f)
+                                    )
+                                    .background(
+                                        appColors.pagesText,
+                                        RoundedCornerShape(62.dp)
+                                    ),
+                                contentAlignment = Alignment.Center
+                            ) {
+
+                                // Column for animation + icon
+                                Column(
+                                    horizontalAlignment = Alignment.CenterHorizontally,
+                                    modifier = Modifier.fillMaxSize()
+                                ) {
+                                    // Animation + Icon
+                                    Box(
+                                        contentAlignment = Alignment.Center,
+                                        modifier = Modifier.fillMaxWidth(1f).fillMaxHeight(0.7f)
+                                    ) {
+                                        // API 31+ gets the blur/glow version (it's built to
+                                        // rely on real Modifier.blur); everything below that
+                                        // gets the no-blur liquid blob so it still looks
+                                        // intentional instead of flat.
+                                        if (supportsBlurAndGlow) {
+                                            VoiceRecorderAnimation(
+                                                modifier = Modifier.size(voiceAnimationSize),
+                                                isAnimating = isRecording
+                                            )
+                                        } else {
+                                            LiquidBlobAnimation(
+                                                modifier = Modifier.size(blobAnimationSize)
+                                            )
+                                        }
+
+                                        Box(contentAlignment = Alignment.Center) {
+                                            // White shadow - same icon shape, blurred, drawn behind
+                                            Icon(
+                                                painter = painterResource(id = R.drawable.recording_icon),
+                                                contentDescription = null, // decorative
+                                                tint = Colory.copy(alpha = 0.4f),
+                                                modifier = Modifier
+                                                    .size(50.dp)
+                                                    .blurIfSupported(6.dp)
+                                            )
+
+                                            // Actual microphone icon
+                                            Icon(
+                                                painter = painterResource(id = R.drawable.recording_icon),
+                                                contentDescription = stringResource(R.string.recording),
+                                                tint = appColors.popupText,   // Use the themed color from main
+                                                modifier = Modifier
+                                                    .size(50.dp)
+                                            )
+                                        }
+
+                                    }
+                                }
+
+                                // Done button
+                                Box(
+                                    modifier = Modifier
+                                        .align(Alignment.BottomCenter)    // [BUTTON POSITION] bottom center
+                                        .padding(bottom = cardHeight * 0.10f)
+                                ) {
+
+                                    ShadowButton(
+                                        width = cardWidth * 0.70f,
+                                        height = 48.dp,              // [BUTTON HEIGHT] matches Recorder.svg (48dp)
+                                        color = appColors.popupText,  // [BUTTON COLOR] matches Recorder.svg (#FFC107)
+                                        cornerRadius = 24.dp,              // full pill — matches Recorder.svg rx=24
+                                        shadowColor = Color.White,
+                                        onClick = { onDoneClick() }
+                                    ) {
+                                        Text(
+                                            text = stringResource(R.string.done_button),
+                                            color = Color.White,
+                                            fontSize = 20.sp,
+                                            fontWeight = FontWeight.Bold,
+                                            fontFamily = OutfitFont
+                                        )
+                                    }
+                                }
+                            }
                         }
+                        // Bottom padding to center card
+                        Spacer(modifier = Modifier.height(topPadding.coerceAtLeast(12.dp)))
 
-                        Box(contentAlignment = Alignment.Center) {
-    // White shadow - same icon shape, blurred, drawn behind
-    Icon(
-        painter = painterResource(id = R.drawable.recording_icon),
-        contentDescription = null, // decorative
-        tint = Colory.copy(alpha = 0.4f),
-        modifier = Modifier
-            .size(50.dp)
-            .blurIfSupported(6.dp)
-    )
-
-
-    // Actual microphone icon
-    Icon(
-        painter = painterResource(id = R.drawable.recording_icon),
-        contentDescription = stringResource(R.string.recording),
-        tint = appColors.popupText,   // Use the themed color from main
-        modifier = Modifier
-            .size(50.dp)
-            .offset(y = (-45).dp)
-    )
-}
-
+                        // Minimum bottom padding
+                        Spacer(modifier = Modifier.height(bottomPadding))
                     }
+
+                    HeaderSection(
+                        title = stringResource(R.string.record),
+                        spacing = 68.dp,
+                        bottomspace = 40.dp,
+                        onBack = { onBack() }
+                    )
                 }
-
-                // Done button
-                Box(
-                    modifier = Modifier
-                        .align(Alignment.BottomCenter)    // [BUTTON POSITION] bottom center
-                        .padding(bottom = 52.dp)           // [BUTTON BOTTOM MARGIN] matches Recorder.svg spacing from card bottom
-                ) {
-
-                    ShadowButton(
-                        width = 252.dp,             // [BUTTON WIDTH] matches Recorder.svg (252dp)
-                        height = 48.dp,              // [BUTTON HEIGHT] matches Recorder.svg (48dp)
-                        color = appColors.popupText,  // [BUTTON COLOR] matches Recorder.svg (#FFC107)
-                        cornerRadius = 24.dp,              // full pill — matches Recorder.svg rx=24
-                        shadowColor  = Color.White,
-                        onClick = { onDoneClick() }
-                    ) {
-                        Text(
-                            text = stringResource(R.string.done_button),
-                            color = Color.White,
-                            fontSize = 20.sp,
-                            fontWeight = FontWeight.Bold,
-                            fontFamily = OutfitFont
-                        )
-                    }
-                }
-
             }
         }
-    }
 }
 
 @Preview(showBackground = true, showSystemUi = true)

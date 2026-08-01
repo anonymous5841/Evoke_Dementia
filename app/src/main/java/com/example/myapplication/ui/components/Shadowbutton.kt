@@ -24,6 +24,7 @@ import androidx.compose.ui.unit.dp
 
 @Composable
 fun ShadowButton(
+    modifier     : Modifier   = Modifier,   // ← new
     width        : Dp?        = null,
     height       : Dp,
     color        : Color,
@@ -39,7 +40,8 @@ fun ShadowButton(
         Modifier.fillMaxWidth().height(height)
 
     Box(
-        modifier = sizeModifier
+        modifier = modifier
+            .then(sizeModifier)
             .drawBehind {
                 drawIntoCanvas { canvas ->
                     val paint          = Paint()
