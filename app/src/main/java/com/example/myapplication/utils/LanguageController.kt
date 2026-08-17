@@ -1,6 +1,5 @@
 package com.example.myapplication.utils
 
-import android.app.Activity
 import android.content.Context
 import androidx.compose.runtime.MutableState
 
@@ -18,19 +17,18 @@ object LanguageController {
     ) {
 
         // Don't do anything if language didn't change
-        if (languageState.value == language)
+        if (languageState.value == language) {
             return
+        }
 
-        // Update Compose state
-        languageState.value = language
-
-        // Save preference
+        // Save language
         LanguageManager.saveLanguage(
-            context,
+            context.applicationContext,
             language
         )
 
-        // Recreate Activity so Android reloads resources
-        (context as? Activity)?.recreate()
+        // Update Compose state
+        // This will trigger recomposition.
+        languageState.value = language
     }
 }
