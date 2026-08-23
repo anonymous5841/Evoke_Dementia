@@ -54,13 +54,10 @@ class SelectLanguageScreen : ComponentActivity() {
 fun SelectLanguageContent(
     onBack: () -> Unit
 ) {
-
     val appColors = AppTheme.colors
-
     val context = LocalContext.current
 
     val selectedLanguage = LanguageController.currentLanguage()
-
     val isUrdu = selectedLanguage == LanguageManager.URDU
 
     val languages = listOf(
@@ -70,50 +67,66 @@ fun SelectLanguageContent(
 
     Scaffold(
         containerColor = appColors.background,
-        contentWindowInsets = WindowInsets(0, 0, 0, 0)  // insets already handled at root
+        contentWindowInsets = WindowInsets(0, 0, 0, 0)
     ) { innerPadding ->
 
-        Box(
+        BoxWithConstraints(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
         ) {
 
+            // Responsive dimensions
+            val horizontalPadding = (maxWidth * 0.06f)
+                .coerceIn(20.dp, 32.dp)
+
+            val topSpacing = (maxHeight * 0.28f)
+                .coerceIn(170.dp, 260.dp)
+
+            val cardHeight = (maxHeight * 0.065f)
+                .coerceIn(48.dp, 56.dp)
+
+            val cardSpacing = (maxHeight * 0.045f)
+                .coerceIn(28.dp, 40.dp)
+
             Column(
                 modifier = Modifier.fillMaxWidth()
             ) {
 
-                Spacer(modifier = Modifier.height(260.dp))
+                Spacer(
+                    modifier = Modifier.height(topSpacing)
+                )
 
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 24.dp)
-                        .offset(y = (-20).dp),
-                    verticalArrangement = Arrangement.spacedBy(37.dp)
+                        .padding(horizontal = horizontalPadding),
+                    verticalArrangement = Arrangement.spacedBy(cardSpacing)
                 ) {
 
                     languages.forEach { language ->
 
-                        val isSelected = language == selectedLanguage
+                        val isSelected =
+                            language == selectedLanguage
 
                         Card(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .height(52.dp)
+                                .height(cardHeight)
                                 .shadow(
                                     elevation = 10.dp,
                                     shape = RoundedCornerShape(15.dp),
                                     clip = false
                                 )
                                 .clickable {
-
                                     LanguageController.updateLanguage(
                                         context,
                                         language
                                     )
                                 },
+
                             shape = RoundedCornerShape(15.dp),
+
                             colors = CardDefaults.cardColors(
                                 containerColor =
                                     if (isSelected)
@@ -121,12 +134,18 @@ fun SelectLanguageContent(
                                     else
                                         appColors.textfield
                             ),
-                            elevation = CardDefaults.cardElevation(8.dp)
+
+                            elevation = CardDefaults.cardElevation(
+                                defaultElevation = 8.dp
+                            )
                         ) {
+
                             CompositionLocalProvider(
                                 LocalLayoutDirection provides
-                                        if (isUrdu) LayoutDirection.Rtl
-                                        else LayoutDirection.Ltr
+                                        if (isUrdu)
+                                            LayoutDirection.Rtl
+                                        else
+                                            LayoutDirection.Ltr
                             ) {
 
                                 Box(
@@ -134,20 +153,37 @@ fun SelectLanguageContent(
                                 ) {
 
                                     Text(
-                                        text = if (language == LanguageManager.ENGLISH)
-                                            stringResource(R.string.english)
-                                        else
-                                            stringResource(R.string.urdu),
+                                        text =
+                                            if (
+                                                language ==
+                                                LanguageManager.ENGLISH
+                                            ) {
+                                                stringResource(
+                                                    R.string.english
+                                                )
+                                            } else {
+                                                stringResource(
+                                                    R.string.urdu
+                                                )
+                                            },
+
                                         modifier = Modifier
-                                            .padding(start = 30.dp)
-                                            .align(Alignment.CenterStart),
+                                            .padding(
+                                                horizontal = 30.dp
+                                            )
+                                            .align(
+                                                Alignment.CenterStart
+                                            ),
+
                                         fontFamily = MartelFont,
                                         fontSize = 22.sp,
                                         fontWeight = FontWeight.Normal,
-                                        color = if (isSelected)
-                                            appColors.pagesText
-                                        else
-                                            Color.Black
+
+                                        color =
+                                            if (isSelected)
+                                                appColors.pagesText
+                                            else
+                                                Color.Black
                                     )
                                 }
                             }
@@ -156,12 +192,14 @@ fun SelectLanguageContent(
                 }
             }
 
+            // Header ignored for responsiveness as requested
             HeaderSection(
-                title = stringResource(R.string.select_language),
+                title = stringResource(
+                    R.string.select_language
+                ),
                 spacing = 52.dp,
                 onBack = onBack
             )
-
         }
     }
 }

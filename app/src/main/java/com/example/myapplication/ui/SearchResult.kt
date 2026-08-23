@@ -40,6 +40,8 @@ import com.example.myapplication.ui.theme.AppTheme
 import com.example.myapplication.ui.theme.BaumansFont
 import com.example.myapplication.ui.theme.GreenTheme
 import com.example.myapplication.ui.theme.OutfitFont
+import androidx.compose.ui.text.TextLayoutResult
+import androidx.compose.ui.unit.TextUnit
 
 class SearchResultsScreen : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -54,139 +56,332 @@ class SearchResultsScreen : ComponentActivity() {
 
 @Composable
 fun SearchResultsContent(
-    imageBitmap: ImageBitmap? = null,  // ← passed from previous screen or DB
-//    onSubmit: (name: String, relation: String, address: String) -> Unit = { _, _, _ -> },
+    imageBitmap: ImageBitmap? = null,
     onEdit: () -> Unit = {},
     onDelete: () -> Unit = {},
     onBack: () -> Unit = {},
     onViewmore: () -> Unit = {},
-
 ) {
+
     var nameText by remember { mutableStateOf("") }
     var relationText by remember { mutableStateOf("") }
     var selectedAddress by remember { mutableStateOf("") }
+
     var isPlaying by remember { mutableStateOf(false) }
     var speedMultiplier by remember { mutableStateOf(1f) }
+
     val appColors = AppTheme.colors
-    var textAlign by remember { mutableStateOf(TextAlign.Left) }
+
+    var textAlign by remember {
+        mutableStateOf(TextAlign.Left)
+    }
 
     Scaffold(
         containerColor = appColors.background,
-        contentWindowInsets = WindowInsets(0, 0, 0, 0)  // insets already handled at root
+        contentWindowInsets = WindowInsets(0, 0, 0, 0)
     ) { innerPadding ->
-        Box(
+
+        BoxWithConstraints(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
         ) {
 
+            // ============================================================
+            // RESPONSIVE DIMENSIONS
+            // ============================================================
+
+            /*
+             * Horizontal screen padding.
+             *
+             * 360dp → approximately 24dp
+             * 390dp → approximately 25dp
+             * 412dp → approximately 27dp
+             */
+            val horizontalPadding =
+                (maxWidth.value * 0.065f)
+                    .coerceIn(20f, 28f)
+                    .dp
+
+
+            /*
+             * Profile image
+             *
+             * Original: 206 x 182
+             */
+            val imageWidth =
+                (maxWidth.value * 0.54f)
+                    .coerceIn(190f, 220f)
+                    .dp
+
+            val imageHeight =
+                imageWidth * 0.883f
+
+
+            /*
+             * Responsive text sizes.
+             *
+             * IMPORTANT:
+             * maxWidth.value gives us a Float.
+             * We then convert the result to sp.
+             */
+            val sectionTitleSize: TextUnit =
+                (maxWidth.value * 0.082f)
+                    .coerceIn(29f, 34f)
+                    .sp
+
+            val fieldLabelSize: TextUnit =
+                (maxWidth.value * 0.047f)
+                    .coerceIn(17f, 19f)
+                    .sp
+
+
+            /*
+             * Date field width
+             */
+            val dateFieldWidth =
+                (maxWidth.value * 0.29f)
+                    .coerceIn(105f, 125f)
+                    .dp
+
+
+            /*
+             * Responsive vertical spacing
+             */
+            val imageTopSpacing =
+                (maxHeight.value * 0.025f)
+                    .coerceIn(20f, 30f)
+                    .dp
+
+            val imageBottomSpacing =
+                (maxHeight.value * 0.025f)
+                    .coerceIn(22f, 30f)
+                    .dp
+
+            val fieldSpacing =
+                (maxHeight.value * 0.026f)
+                    .coerceIn(24f, 32f)
+                    .dp
+
+            val sectionSpacing =
+                (maxHeight.value * 0.035f)
+                    .coerceIn(32f, 42f)
+                    .dp
+
+
+            // ============================================================
+            // SCROLLABLE CONTENT
+            // ============================================================
+
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .verticalScroll(rememberScrollState())
+                    .verticalScroll(
+                        rememberScrollState()
+                    )
             ) {
 
-                Spacer(modifier = Modifier.height(218.dp))  // ← match your headerHeight
+                /*
+                 * Header space.
+                 *
+                 * Header is intentionally untouched.
+                 */
+                Spacer(
+                    modifier = Modifier.height(218.dp)
+                )
+
 
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 24.dp)
+                        .padding(
+                            horizontal = horizontalPadding
+                        )
                         .offset(y = (-40).dp)
-
                 ) {
 
+                    Spacer(
+                        modifier = Modifier.height(
+                            imageTopSpacing
+                        )
+                    )
 
-                    Spacer(modifier = Modifier.height(28.dp))
 
-                    // ── Image holder ──────────────────────────────────────────────
+                    // ====================================================
+                    // PROFILE IMAGE
+                    // ====================================================
+
                     Box(
                         modifier = Modifier
-                            .width(206.dp)
-                            .height(182.dp)
+                            .width(imageWidth)
+                            .height(imageHeight)
                             .align(Alignment.CenterHorizontally)
                             .shadow(
                                 elevation = 6.dp,
                                 shape = RoundedCornerShape(15.dp),
                                 clip = false
                             )
-                            .clip(RoundedCornerShape(15.dp))
-                            .background(appColors.textfield),
+                            .clip(
+                                RoundedCornerShape(15.dp)
+                            )
+                            .background(
+                                appColors.textfield
+                            ),
                         contentAlignment = Alignment.Center
                     ) {
+
                         if (imageBitmap != null) {
+
                             Image(
                                 bitmap = imageBitmap,
-                                contentDescription = stringResource(R.string.profile_photo),
+                                contentDescription =
+                                    stringResource(
+                                        R.string.profile_photo
+                                    ),
                                 contentScale = ContentScale.Crop,
                                 modifier = Modifier.fillMaxSize()
                             )
+
                         } else {
+
                             Icon(
-                                painter = painterResource(id = R.drawable.profile_icon),
-                                contentDescription = "Profile photo",
+                                painter = painterResource(
+                                    id = R.drawable.profile_icon
+                                ),
+                                contentDescription =
+                                    stringResource(
+                                        R.string.profile_photo
+                                    ),
                                 tint = appColors.backButton,
                                 modifier = Modifier.size(64.dp)
                             )
                         }
                     }
 
-                    Spacer(modifier = Modifier.height(28.dp))
 
-                    // ── Name * ────────────────────────────────────────────────────
+                    Spacer(
+                        modifier = Modifier.height(
+                            imageBottomSpacing
+                        )
+                    )
+
+
+                    // ====================================================
+                    // NAME
+                    // ====================================================
+
                     FieldLabel(
                         stringResource(R.string.name),
-                        18.sp,
+                        fieldLabelSize,
                         OutfitFont,
                         FontWeight.Medium
                     )
-                    Spacer(modifier = Modifier.height(8.dp))
+
+                    Spacer(
+                        modifier = Modifier.height(8.dp)
+                    )
+
                     ShadowTextField(
                         value = nameText,
-                        onValueChange = { nameText = it },
-                        placeholder = stringResource(R.string.name_placeholder),
-                        leadingIconRes = R.drawable.profile_icon,
+                        onValueChange = {
+                            nameText = it
+                        },
+                        placeholder =
+                            stringResource(
+                                R.string.name_placeholder
+                            ),
+                        leadingIconRes =
+                            R.drawable.profile_icon,
                         height = 52.dp,
-                        cornerRadius = 15.dp,
+                        cornerRadius = 15.dp
                     )
 
-                    Spacer(modifier = Modifier.height(29.dp))
 
-                    // ── Relation * ────────────────────────────────────────────────
+                    Spacer(
+                        modifier = Modifier.height(
+                            fieldSpacing
+                        )
+                    )
+
+
+                    // ====================================================
+                    // RELATION
+                    // ====================================================
+
                     FieldLabel(
                         stringResource(R.string.relation),
-                        18.sp,
+                        fieldLabelSize,
                         OutfitFont,
                         FontWeight.Medium
                     )
-                    Spacer(modifier = Modifier.height(8.dp))
-                    ShadowTextField(
-                        value = relationText,
-                        onValueChange = { relationText = it },
-                        placeholder = stringResource(R.string.relation_placeholder),
-                        leadingIconRes = R.drawable.ic_call,
-                        height = 52.dp,
-                        cornerRadius = 15.dp,
+
+                    Spacer(
+                        modifier = Modifier.height(8.dp)
                     )
 
-                    Spacer(modifier = Modifier.height(40.dp))
+                    ShadowTextField(
+                        value = relationText,
+                        onValueChange = {
+                            relationText = it
+                        },
+                        placeholder =
+                            stringResource(
+                                R.string.relation_placeholder
+                            ),
+                        leadingIconRes =
+                            R.drawable.ic_call,
+                        height = 52.dp,
+                        cornerRadius = 15.dp
+                    )
+
+
+                    Spacer(
+                        modifier = Modifier.height(
+                            sectionSpacing
+                        )
+                    )
+
+
+                    // ====================================================
+                    // LAST MEETING INFORMATION
+                    // ====================================================
+
                     Column(
                         modifier = Modifier.fillMaxWidth()
                     ) {
+
                         Text(
-                            text = stringResource(R.string.last_meeting_information),
-                            fontSize = 32.sp,
+                            text =
+                                stringResource(
+                                    R.string.last_meeting_information
+                                ),
+
+                            fontSize = sectionTitleSize,
+
                             fontFamily = BaumansFont,
+
                             fontWeight = FontWeight.Normal,
+
                             color = appColors.pagesText,
+
                             textAlign = textAlign,
-                            modifier = Modifier.fillMaxWidth(),   // ← required — textAlign has no effect unless the Text is wider than its own content
-                            onTextLayout = { result ->
-                                textAlign = if (result.lineCount > 1) TextAlign.Center else TextAlign.Left
+
+                            modifier = Modifier.fillMaxWidth(),
+
+                            onTextLayout = { result: TextLayoutResult ->
+
+                                textAlign =
+                                    if (result.lineCount > 1) {
+                                        TextAlign.Center
+                                    } else {
+                                        TextAlign.Left
+                                    }
                             }
                         )
 
-                        Spacer(modifier = Modifier.height(4.dp))
+                        Spacer(
+                            modifier = Modifier.height(4.dp)
+                        )
 
                         HorizontalDivider(
                             modifier = Modifier.fillMaxWidth(),
@@ -194,102 +389,182 @@ fun SearchResultsContent(
                             color = appColors.pagesText
                         )
                     }
-                    Spacer(modifier = Modifier.height(28.dp))
-                    // ── Address * + Add Voice * side by side ──────────────────────
+
+
+                    Spacer(
+                        modifier = Modifier.height(28.dp)
+                    )
+
+
+                    // ====================================================
+                    // LOCATION + DATE
+                    // ====================================================
+
                     Row(
                         verticalAlignment = Alignment.Top,
-                        horizontalArrangement = Arrangement.spacedBy(12.dp),
+                        horizontalArrangement =
+                            Arrangement.spacedBy(12.dp),
                         modifier = Modifier.fillMaxWidth()
                     ) {
-                        // Left: label + address field
+
+                        // LOCATION
+
                         Column(
                             modifier = Modifier
                                 .weight(1f)
                                 .padding(top = 16.dp)
                         ) {
+
                             FieldLabel(
                                 stringResource(R.string.location),
-                                18.sp,
+                                fieldLabelSize,
                                 OutfitFont,
                                 FontWeight.Medium
                             )
-                            Spacer(modifier = Modifier.height(12.dp))
+
+                            Spacer(
+                                modifier = Modifier.height(12.dp)
+                            )
+
                             LocationPickerField(
                                 value = selectedAddress,
-                                placeholder = stringResource(R.string.get_current_location),
-                                onClick = { /* open map */ }
+                                placeholder =
+                                    stringResource(
+                                        R.string.get_current_location
+                                    ),
+                                onClick = {
+                                    // open map
+                                }
                             )
                         }
 
+
+                        // DATE
+
                         Column(
-                            modifier = Modifier.padding(top = 16.dp)
+                            modifier = Modifier
+                                .padding(top = 16.dp)
                         ) {
+
                             FieldLabel(
                                 stringResource(R.string.date),
-                                18.sp,
+                                fieldLabelSize,
                                 OutfitFont,
                                 FontWeight.Medium
                             )
 
-                            Spacer(modifier = Modifier.height(12.dp))
+                            Spacer(
+                                modifier = Modifier.height(12.dp)
+                            )
 
                             DateDisplayField(
                                 date = "26 Jun 2026",
-                                backgroundColor = appColors.textfield,   // or whichever field fits your design
-                                textColor = appColors.pagesText,
+                                backgroundColor =
+                                    appColors.textfield,
+                                textColor =
+                                    appColors.pagesText,
                                 fontSize = 18.sp,
+                                modifier =
+                                    Modifier.width(
+                                        dateFieldWidth
+                                    )
                             )
                         }
                     }
-                    Spacer(modifier = Modifier.height(36.dp))
+
+
+                    Spacer(
+                        modifier = Modifier.height(36.dp)
+                    )
+
+
+                    // ====================================================
+                    // DISCUSSION SUMMARY
+                    // ====================================================
 
                     FieldLabel(
-                        stringResource(R.string.discussion_summary),
-                        18.sp,
+                        stringResource(
+                            R.string.discussion_summary
+                        ),
+                        fieldLabelSize,
                         OutfitFont,
                         FontWeight.Medium
                     )
 
-                    Spacer(modifier = Modifier.height(12.dp))
+                    Spacer(
+                        modifier = Modifier.height(12.dp)
+                    )
 
                     DiscussionSummaryBox()
 
-                    Spacer(modifier = Modifier.height(28.dp))
+
+                    Spacer(
+                        modifier = Modifier.height(28.dp)
+                    )
+
+
+                    // ====================================================
+                    // VOICE SUMMARY
+                    // ====================================================
 
                     FieldLabel(
-                        stringResource(R.string.discussion_summary_voice),
-                        18.sp,
+                        stringResource(
+                            R.string.discussion_summary_voice
+                        ),
+                        fieldLabelSize,
                         OutfitFont,
                         FontWeight.Medium
                     )
 
-                    Spacer(modifier = Modifier.height(12.dp))
+                    Spacer(
+                        modifier = Modifier.height(12.dp)
+                    )
 
                     VoicePlayerBar(
                         isPlaying = isPlaying,
                         speedMultiplier = speedMultiplier,
                         backgroundColor = appColors.textfield,
+
                         onPlayPauseClick = {
                             isPlaying = !isPlaying
                         },
+
                         onSpeedClick = {
-                            speedMultiplier = when (speedMultiplier) {
-                                1f -> 1.5f
-                                1.5f -> 2f
-                                else -> 1f
-                            }
-                        },
+
+                            speedMultiplier =
+                                when (speedMultiplier) {
+                                    1f -> 1.5f
+                                    1.5f -> 2f
+                                    else -> 1f
+                                }
+                        }
                     )
-                    Spacer(modifier = Modifier.height(30.dp))
+
+
+                    Spacer(
+                        modifier = Modifier.height(30.dp)
+                    )
+
+
+                    // ====================================================
+                    // VIEW MORE
+                    // ====================================================
 
                     ShadowButton(
                         height = 56.dp,
                         color = appColors.popupText,
                         cornerRadius = 28.dp,
-                        onClick = { onViewmore()}
+                        onClick = {
+                            onViewmore()
+                        }
                     ) {
+
                         Text(
-                            text = stringResource(R.string.view_more),
+                            text =
+                                stringResource(
+                                    R.string.view_more
+                                ),
+
                             fontSize = 22.sp,
                             fontWeight = FontWeight.Medium,
                             fontFamily = OutfitFont,
@@ -298,14 +573,21 @@ fun SearchResultsContent(
                     }
 
 
-                    Spacer(modifier = Modifier.height(40.dp))
+                    Spacer(
+                        modifier = Modifier.height(40.dp)
+                    )
+
+
+                    // ====================================================
+                    // EDIT + DELETE
+                    // ====================================================
 
                     Row(
-                        horizontalArrangement = Arrangement.spacedBy(15.dp),
+                        horizontalArrangement =
+                            Arrangement.spacedBy(15.dp),
                         modifier = Modifier.fillMaxWidth()
                     ) {
 
-                        // Edit Button
                         Box(
                             modifier = Modifier.weight(1f)
                         ) {
@@ -314,11 +596,17 @@ fun SearchResultsContent(
                                 height = 56.dp,
                                 color = appColors.pagesText,
                                 cornerRadius = 30.dp,
-                                onClick = { onEdit()}
+                                onClick = {
+                                    onEdit()
+                                }
                             ) {
 
                                 Text(
-                                    text = stringResource(R.string.edit),
+                                    text =
+                                        stringResource(
+                                            R.string.edit
+                                        ),
+
                                     fontSize = 22.sp,
                                     fontFamily = OutfitFont,
                                     fontWeight = FontWeight.Medium,
@@ -327,7 +615,7 @@ fun SearchResultsContent(
                             }
                         }
 
-                        // Delete Button
+
                         Box(
                             modifier = Modifier.weight(1f)
                         ) {
@@ -336,36 +624,61 @@ fun SearchResultsContent(
                                 height = 56.dp,
                                 color = appColors.pagesText,
                                 cornerRadius = 30.dp,
-                                onClick = {onDelete() }
+                                onClick = {
+                                    onDelete()
+                                }
                             ) {
 
                                 Text(
-                                    text = stringResource(R.string.delete_entry),
+                                    text =
+                                        stringResource(
+                                            R.string.delete_entry
+                                        ),
+
                                     fontSize = 20.sp,
                                     fontFamily = OutfitFont,
                                     fontWeight = FontWeight.Medium,
-                                    color = appColors.popupText,
+                                    color = appColors.popupText
                                 )
                             }
                         }
                     }
 
-                    Spacer(modifier = Modifier.height(64.dp))
-                }
-            }
-                    // ── Header ────────────────────────────────────────────────────────
-                    HeaderSection(
-                        title = stringResource(R.string.search_result),
-                        headerHeight = 218.dp,
-                        textSize = 37.sp,
-                        spacing = 58.dp,
-                        bottomspace = 34.dp,
-                        leaves = appColors.headerDecorOffset2,
-                        onBack = { onBack()})
-                }
-            }
-        }
 
+                    Spacer(
+                        modifier = Modifier.height(64.dp)
+                    )
+                }
+            }
+
+
+            // ============================================================
+            // HEADER
+            // ============================================================
+
+            HeaderSection(
+                title = stringResource(
+                    R.string.search_result
+                ),
+
+                headerHeight = 218.dp,
+
+                textSize = 37.sp,
+
+                spacing = 58.dp,
+
+                bottomspace = 34.dp,
+
+                leaves =
+                    appColors.headerDecorOffset2,
+
+                onBack = {
+                    onBack()
+                }
+            )
+        }
+    }
+}
     @Preview(
         showBackground = true,
         showSystemUi = true

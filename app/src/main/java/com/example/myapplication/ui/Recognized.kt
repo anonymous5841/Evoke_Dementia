@@ -55,423 +55,1182 @@ class RecognisedScreen : ComponentActivity() {
 
 @Composable
 fun RecognisedContent(
-    imageBitmap: ImageBitmap? = null,  // ← passed from previous screen or DB
-//    onSubmit: (name: String, relation: String, address: String) -> Unit = { _, _, _ -> },
+    imageBitmap: ImageBitmap? = null,
     onBack: () -> Unit = {},
     onSave: () -> Unit = {},
     onVoiceSampleClick: () -> Unit = {},
     onViewmore: () -> Unit = {}
 ) {
+
     val appColors = AppTheme.colors
+
     var nameText by remember { mutableStateOf("") }
     var relationText by remember { mutableStateOf("") }
     var selectedAddress by remember { mutableStateOf("") }
+
     var isPlaying by remember { mutableStateOf(false) }
     var speedMultiplier by remember { mutableStateOf(1f) }
-    var textAlign by remember { mutableStateOf(TextAlign.Left) }
+
+    var textAlign by remember {
+        mutableStateOf(TextAlign.Left)
+    }
 
     Scaffold(
         containerColor = appColors.background,
-        contentWindowInsets = WindowInsets(0, 0, 0, 0)  // insets already handled at root
+        contentWindowInsets = WindowInsets(0, 0, 0, 0)
     ) { innerPadding ->
-        Box(
+
+        BoxWithConstraints(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
         ) {
 
+            /*
+             * ============================================================
+             * RESPONSIVE SCREEN DIMENSIONS
+             * ============================================================
+             */
+
+            val screenWidth = maxWidth
+            val screenHeight = maxHeight
+
+
+            /*
+             * ============================================================
+             * RESPONSIVE DIMENSIONS
+             * ============================================================
+             */
+
+            // Main horizontal padding
+            val horizontalPadding =
+                (screenWidth * 0.06f)
+                    .coerceIn(20.dp, 32.dp)
+
+            // Header → content spacing
+            val headerSpacing =
+                (screenHeight * 0.28f)
+                    .coerceIn(190.dp, 230.dp)
+
+            // Content upward offset
+            val contentOffset =
+                (screenHeight * 0.052f)
+                    .coerceIn(32.dp, 44.dp)
+
+            // First spacing before image
+            val imageTopSpacing =
+                (screenHeight * 0.035f)
+                    .coerceIn(22.dp, 32.dp)
+
+
+            /*
+             * FIELD DIMENSIONS
+             */
+
+            val fieldLabelSize =
+                (screenWidth.value * 0.045f)
+                    .coerceIn(16f, 19f)
+                    .sp
+
+            val fieldHeight =
+                (screenHeight * 0.060f)
+                    .coerceIn(50.dp, 55.dp)
+
+            val fieldCornerRadius =
+                (screenWidth * 0.040f)
+                    .coerceIn(13.dp, 16.dp)
+
+            val fieldLabelSpacing =
+                (screenHeight * 0.009f)
+                    .coerceIn(6.dp, 10.dp)
+
+            val fieldSectionSpacing =
+                (screenHeight * 0.033f)
+                    .coerceIn(25.dp, 34.dp)
+
+
+            /*
+             * ============================================================
+             * CONTENT
+             * ============================================================
+             */
+
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .verticalScroll(rememberScrollState())
+                    .verticalScroll(
+                        rememberScrollState()
+                    )
             ) {
 
-                Spacer(modifier = Modifier.height(218.dp))  // ← match your headerHeight
+                /*
+                 * HEADER → CONTENT
+                 */
+
+                Spacer(
+                    modifier = Modifier.height(
+                        headerSpacing
+                    )
+                )
+
 
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 24.dp)
-                        .offset(y = (-40).dp)
-
+                        .padding(
+                            horizontal = horizontalPadding
+                        )
+                        .offset(
+                            y = -contentOffset
+                        )
                 ) {
 
+                    Spacer(
+                        modifier = Modifier.height(
+                            imageTopSpacing
+                        )
+                    )
 
-                    Spacer(modifier = Modifier.height(28.dp))
 
-                    // ── Image holder ──────────────────────────────────────────────
+                    /*
+                     * ====================================================
+                     * PROFILE IMAGE
+                     * ====================================================
+                     */
+
+                    val profileImageWidth =
+                        (screenWidth * 0.57f)
+                            .coerceIn(180.dp, 220.dp)
+
+                    val profileImageHeight =
+                        (screenHeight * 0.215f)
+                            .coerceIn(165.dp, 190.dp)
+
+                    val profileIconSize =
+                        (screenWidth * 0.17f)
+                            .coerceIn(56.dp, 68.dp)
+
+                    val profileCornerRadius =
+                        (screenWidth * 0.040f)
+                            .coerceIn(13.dp, 17.dp)
+
+
                     Box(
                         modifier = Modifier
-                            .width(206.dp)
-                            .height(182.dp)
-                            .align(Alignment.CenterHorizontally)
+                            .width(profileImageWidth)
+                            .height(profileImageHeight)
+                            .align(
+                                Alignment.CenterHorizontally
+                            )
                             .shadow(
                                 elevation = 6.dp,
-                                shape = RoundedCornerShape(15.dp),
+                                shape = RoundedCornerShape(
+                                    profileCornerRadius
+                                ),
                                 clip = false
                             )
-                            .clip(RoundedCornerShape(15.dp))
-                            .background(appColors.textfield),
-                        contentAlignment = Alignment.Center
+                            .clip(
+                                RoundedCornerShape(
+                                    profileCornerRadius
+                                )
+                            )
+                            .background(
+                                appColors.textfield
+                            ),
+
+                        contentAlignment =
+                            Alignment.Center
                     ) {
+
                         if (imageBitmap != null) {
+
                             Image(
                                 bitmap = imageBitmap,
-                                contentDescription = "Profile photo",
-                                contentScale = ContentScale.Crop,
-                                modifier = Modifier.fillMaxSize()
+                                contentDescription =
+                                    "Profile photo",
+
+                                contentScale =
+                                    ContentScale.Crop,
+
+                                modifier =
+                                    Modifier.fillMaxSize()
                             )
+
                         } else {
+
                             Icon(
-                                painter = painterResource(id = R.drawable.profile_icon),
-                                contentDescription = stringResource(R.string.profile_photo),
-                                tint = appColors.backButton,
-                                modifier = Modifier.size(64.dp)
+                                painter = painterResource(
+                                    id = R.drawable.profile_icon
+                                ),
+
+                                contentDescription =
+                                    stringResource(
+                                        R.string.profile_photo
+                                    ),
+
+                                tint =
+                                    appColors.backButton,
+
+                                modifier =
+                                    Modifier.size(
+                                        profileIconSize
+                                    )
                             )
                         }
                     }
 
-                    Spacer(modifier = Modifier.height(28.dp))
 
-                    // ── Name * ────────────────────────────────────────────────────
+                    /*
+                     * IMAGE → NAME
+                     */
+
+                    Spacer(
+                        modifier = Modifier.height(
+                            (screenHeight * 0.032f)
+                                .coerceIn(22.dp, 32.dp)
+                        )
+                    )
+
+
+                    /*
+                     * ====================================================
+                     * NAME
+                     * ==================================================== */
+
                     FieldLabel(
-                        stringResource(R.string.name_label),
-                        18.sp,
+                        stringResource(
+                            R.string.name_label
+                        ),
+
+                        fieldLabelSize,
+
                         OutfitFont,
+
                         FontWeight.Medium
                     )
-                    Spacer(modifier = Modifier.height(8.dp))
+
+                    Spacer(
+                        modifier = Modifier.height(
+                            fieldLabelSpacing
+                        )
+                    )
+
                     ShadowTextField(
                         value = nameText,
-                        onValueChange = { nameText = it },
-                        placeholder = stringResource(R.string.enter_full_name),
-                        leadingIconRes = R.drawable.profile_icon,
-                        height = 52.dp,
-                        cornerRadius = 15.dp,
+
+                        onValueChange = {
+                            nameText = it
+                        },
+
+                        placeholder = stringResource(
+                            R.string.enter_full_name
+                        ),
+
+                        leadingIconRes =
+                            R.drawable.profile_icon,
+
+                        height = fieldHeight,
+
+                        cornerRadius =
+                            fieldCornerRadius
                     )
 
-                    Spacer(modifier = Modifier.height(29.dp))
 
-                    // ── Relation * ────────────────────────────────────────────────
+                    /*
+                     * NAME → RELATION
+                     */
+
+                    Spacer(
+                        modifier = Modifier.height(
+                            fieldSectionSpacing
+                        )
+                    )
+
+
+                    /*
+                     * ====================================================
+                     * RELATION
+                     * ==================================================== */
+
                     FieldLabel(
-                        stringResource(R.string.relation_label),
-                        18.sp,
+                        stringResource(
+                            R.string.relation_label
+                        ),
+
+                        fieldLabelSize,
+
                         OutfitFont,
+
                         FontWeight.Medium
                     )
-                    Spacer(modifier = Modifier.height(8.dp))
+
+                    Spacer(
+                        modifier = Modifier.height(
+                            fieldLabelSpacing
+                        )
+                    )
+
                     ShadowTextField(
                         value = relationText,
-                        onValueChange = { relationText = it },
-                        placeholder = stringResource(R.string.enter_relation),
-                        leadingIconRes = R.drawable.relation_icon,
-                        height = 52.dp,
-                        cornerRadius = 15.dp,
+
+                        onValueChange = {
+                            relationText = it
+                        },
+
+                        placeholder = stringResource(
+                            R.string.enter_relation
+                        ),
+
+                        leadingIconRes =
+                            R.drawable.relation_icon,
+
+                        height = fieldHeight,
+
+                        cornerRadius =
+                            fieldCornerRadius
                     )
 
-                    Spacer(modifier = Modifier.height(37.dp))
+
+                    /*
+                     * RELATION → LAST MEETING
+                     */
+
+                    Spacer(
+                        modifier = Modifier.height(
+                            (screenHeight * 0.040f)
+                                .coerceIn(30.dp, 40.dp)
+                        )
+                    )
+
+
+                    // =====================================================
+                    // PART 2 CONTINUES HERE
+                    // =====================================================
+                    /*
+ * ====================================================
+ * LAST MEETING INFORMATION
+ * ====================================================
+ */
+
+                    val sectionTitleSize =
+                        (screenWidth.value * 0.073f)
+                            .coerceIn(27f, 32f)
+                            .sp
+
+                    val dividerThickness =
+                        (screenWidth * 0.005f)
+                            .coerceIn(1.5.dp, 2.5.dp)
+
+                    val dividerSpacing =
+                        (screenHeight * 0.005f)
+                            .coerceIn(3.dp, 6.dp)
+
 
                     Column(
                         modifier = Modifier.fillMaxWidth()
                     ) {
 
                         Text(
-                            text = stringResource(R.string.last_meeting_information),
-                            fontSize = 30.sp,
-                            fontFamily = BaumansFont,
-                            fontWeight = FontWeight.Normal,
-                            color = appColors.pagesText,
-                            textAlign = textAlign,
-                            modifier = Modifier.fillMaxWidth(),   // ← required — textAlign has no effect unless the Text is wider than its own content
+                            text = stringResource(
+                                R.string.last_meeting_information
+                            ),
+
+                            fontSize =
+                                sectionTitleSize,
+
+                            fontFamily =
+                                BaumansFont,
+
+                            fontWeight =
+                                FontWeight.Normal,
+
+                            color =
+                                appColors.pagesText,
+
+                            textAlign =
+                                textAlign,
+
+                            modifier =
+                                Modifier.fillMaxWidth(),
+
                             onTextLayout = { result ->
-                                textAlign = if (result.lineCount > 1) TextAlign.Center else TextAlign.Left
+
+                                textAlign =
+                                    if (
+                                        result.lineCount > 1
+                                    ) {
+                                        TextAlign.Center
+                                    } else {
+                                        TextAlign.Left
+                                    }
                             }
                         )
 
-                        Spacer(modifier = Modifier.height(4.dp))
+
+                        Spacer(
+                            modifier = Modifier.height(
+                                dividerSpacing
+                            )
+                        )
+
 
                         HorizontalDivider(
-                            modifier = Modifier.fillMaxWidth(),
-                            thickness = 2.dp,
-                            color = appColors.pagesText
+                            modifier =
+                                Modifier.fillMaxWidth(),
+
+                            thickness =
+                                dividerThickness,
+
+                            color =
+                                appColors.pagesText
                         )
-
                     }
-                    Spacer(modifier = Modifier.height(28.dp))
-                    // ── Address * + Add Voice * side by side ──────────────────────
-                    Row(
-                        verticalAlignment = Alignment.Top,
-                        horizontalArrangement = Arrangement.spacedBy(12.dp),
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        // Left: label + address field
-                        Column(modifier = Modifier
-                            .weight(1f)
-                            .padding(top = 16.dp)) {
-                            FieldLabel(
-                                stringResource(R.string.location_label),
-                                18.sp,
-                                OutfitFont,
-                                FontWeight.Medium
-                            )
-                            Spacer(modifier = Modifier.height(12.dp))
-                            LocationPickerField(
-                                value = selectedAddress,
-                                placeholder = stringResource(R.string.get_current_location),
-                                onClick = { /* open map */ }
-                            )
-                        }
 
-                        Column(
-                            modifier = Modifier.padding(top = 16.dp)
-                        ) {
-                            FieldLabel(
-                                stringResource(R.string.date),
-                                18.sp,
-                                OutfitFont,
-                                FontWeight.Medium
-                            )
 
-                            Spacer(modifier = Modifier.height(12.dp))
-
-                            DateDisplayField(
-                                date = "26 Jun 2026",
-                                backgroundColor = appColors.textfield,   // or whichever field fits your design
-                                textColor = appColors.pagesText,
-                                fontSize = 18.sp,
-                            )
-                        }
-                    }
-                    Spacer(modifier = Modifier.height(36.dp))
-
-                    FieldLabel(
-                        stringResource(R.string.discussion_summary),
-                        18.sp,
-                        OutfitFont,
-                        FontWeight.Medium
+                    Spacer(
+                        modifier = Modifier.height(
+                            (screenHeight * 0.030f)
+                                .coerceIn(22.dp, 30.dp)
+                        )
                     )
 
-                    Spacer(modifier = Modifier.height(12.dp))
 
-                    DiscussionSummaryBox()
+                    /*
+                     * ====================================================
+                     * LOCATION + DATE
+                     * ====================================================
+                     */
 
-                    Spacer(modifier = Modifier.height(28.dp))
+                    val rowSpacing =
+                        (screenWidth * 0.030f)
+                            .coerceIn(10.dp, 16.dp)
 
-                    FieldLabel(
-                        stringResource(R.string.discussion_summary_in_voice),
-                        18.sp,
-                        OutfitFont,
-                        FontWeight.Medium
-                    )
+                    val rowTopPadding =
+                        (screenHeight * 0.017f)
+                            .coerceIn(12.dp, 18.dp)
 
-                    Spacer(modifier = Modifier.height(12.dp))
+                    val smallFieldTextSize =
+                        (screenWidth.value * 0.045f)
+                            .coerceIn(16f, 19f)
+                            .sp
 
-                    VoicePlayerBar(
-                        isPlaying = isPlaying,
-                        speedMultiplier = speedMultiplier,
-                        backgroundColor = appColors.textfield,
-                        onPlayPauseClick = {
-                            isPlaying = !isPlaying
-                        },
-                        onSpeedClick = {
-                            speedMultiplier = when (speedMultiplier) {
-                                1f -> 1.5f
-                                1.5f -> 2f
-                                else -> 1f
-                            }
-                        },
-                    )
-
-                    Spacer(modifier = Modifier.height(34.dp))
-
-                    ShadowButton(
-                        height = 56.dp,
-                        color = appColors.popupText,
-                        cornerRadius = 28.dp,
-                        onClick = { onViewmore()}
-                    ) {
-                        Text(
-                            text = stringResource(R.string.view_more),
-                            fontSize = 22.sp,
-                            fontWeight = FontWeight.Medium,
-                            fontFamily = OutfitFont,
-                            color = appColors.pagesText
-                        )
-                    }
-
-                    Spacer(modifier = Modifier.height(40.dp))
-                    Column(
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-
-                        Text(
-                            text = stringResource(R.string.add_new_information),
-                            fontSize = 30.sp,
-                            fontFamily = BaumansFont,
-                            fontWeight = FontWeight.Normal,
-                            color = appColors.pagesText,
-                            textAlign = TextAlign.Center,
-                            modifier = Modifier.fillMaxWidth()
-                        )
-
-                        Spacer(modifier = Modifier.height(4.dp))
-
-                        HorizontalDivider(
-                            modifier = Modifier.fillMaxWidth(),
-                            thickness = 2.dp,
-                            color = appColors.pagesText
-                        )
-
-                        Spacer(modifier = Modifier.height(6.dp))
-
-                        InfoNotePill(
-                            text = stringResource(R.string.select_location_record_both)
-                        )
-                    }
-                    Spacer(modifier = Modifier.height(25.dp))
 
                     Row(
-                        verticalAlignment = Alignment.Top,
-                        horizontalArrangement = Arrangement.spacedBy(12.dp),
-                        modifier = Modifier.fillMaxWidth()
+                        verticalAlignment =
+                            Alignment.Top,
+
+                        horizontalArrangement =
+                            Arrangement.spacedBy(
+                                rowSpacing
+                            ),
+
+                        modifier =
+                            Modifier.fillMaxWidth()
                     ) {
 
-                        // Location
+                        /*
+                         * LOCATION
+                         */
+
                         Column(
                             modifier = Modifier
                                 .weight(1f)
-                                .padding(top = 16.dp)
+                                .padding(
+                                    top = rowTopPadding
+                                )
                         ) {
 
                             FieldLabel(
-                                stringResource(R.string.location_label),
-                                18.sp,
+                                stringResource(
+                                    R.string.location_label
+                                ),
+
+                                smallFieldTextSize,
+
                                 OutfitFont,
+
                                 FontWeight.Medium
                             )
 
-                            Spacer(modifier = Modifier.height(12.dp))
+                            Spacer(
+                                modifier = Modifier.height(
+                                    fieldLabelSpacing
+                                )
+                            )
 
                             LocationPickerField(
-                                value = selectedAddress,
-                                placeholder = stringResource(R.string.open_location_in_map),
+                                value =
+                                    selectedAddress,
+
+                                placeholder =
+                                    stringResource(
+                                        R.string.get_current_location
+                                    ),
+
+                                onClick = {
+                                    // open map
+                                }
+                            )
+                        }
+
+
+                        /*
+                         * DATE
+                         */
+
+                        Column(
+                            modifier = Modifier.padding(
+                                top = rowTopPadding
+                            )
+                        ) {
+
+                            FieldLabel(
+                                stringResource(
+                                    R.string.date
+                                ),
+
+                                smallFieldTextSize,
+
+                                OutfitFont,
+
+                                FontWeight.Medium
+                            )
+
+                            Spacer(
+                                modifier = Modifier.height(
+                                    fieldLabelSpacing
+                                )
+                            )
+
+                            DateDisplayField(
+                                date =
+                                    "26 Jun 2026",
+
+                                backgroundColor =
+                                    appColors.textfield,
+
+                                textColor =
+                                    appColors.pagesText,
+
+                                fontSize =
+                                    smallFieldTextSize
+                            )
+                        }
+                    }
+
+
+                    Spacer(
+                        modifier = Modifier.height(
+                            (screenHeight * 0.040f)
+                                .coerceIn(30.dp, 40.dp)
+                        )
+                    )
+
+
+                    /*
+                     * ====================================================
+                     * DISCUSSION SUMMARY
+                     * ==================================================== */
+
+                    FieldLabel(
+                        stringResource(
+                            R.string.discussion_summary
+                        ),
+
+                        fieldLabelSize,
+
+                        OutfitFont,
+
+                        FontWeight.Medium
+                    )
+
+                    Spacer(
+                        modifier = Modifier.height(
+                            (screenHeight * 0.012f)
+                                .coerceIn(9.dp, 13.dp)
+                        )
+                    )
+
+                    DiscussionSummaryBox()
+
+
+                    Spacer(
+                        modifier = Modifier.height(
+                            (screenHeight * 0.030f)
+                                .coerceIn(24.dp, 30.dp)
+                        )
+                    )
+
+
+                    /*
+                     * ====================================================
+                     * VOICE SUMMARY
+                     * ==================================================== */
+
+                    FieldLabel(
+                        stringResource(
+                            R.string.discussion_summary_in_voice
+                        ),
+
+                        fieldLabelSize,
+
+                        OutfitFont,
+
+                        FontWeight.Medium
+                    )
+
+                    Spacer(
+                        modifier = Modifier.height(
+                            (screenHeight * 0.012f)
+                                .coerceIn(9.dp, 13.dp)
+                        )
+                    )
+
+
+                    VoicePlayerBar(
+                        isPlaying =
+                            isPlaying,
+
+                        speedMultiplier =
+                            speedMultiplier,
+
+                        backgroundColor =
+                            appColors.textfield,
+
+                        onPlayPauseClick = {
+                            isPlaying =
+                                !isPlaying
+                        },
+
+                        onSpeedClick = {
+
+                            speedMultiplier =
+                                when (
+                                    speedMultiplier
+                                ) {
+
+                                    1f -> 1.5f
+
+                                    1.5f -> 2f
+
+                                    else -> 1f
+                                }
+                        }
+                    )
+
+
+                    Spacer(
+                        modifier = Modifier.height(
+                            (screenHeight * 0.035f)
+                                .coerceIn(28.dp, 36.dp)
+                        )
+                    )
+
+
+                    /*
+                     * ====================================================
+                     * VIEW MORE BUTTON
+                     * ==================================================== */
+
+                    val actionButtonHeight =
+                        (screenHeight * 0.065f)
+                            .coerceIn(52.dp, 58.dp)
+
+                    val actionButtonTextSize =
+                        (screenWidth.value * 0.055f)
+                            .coerceIn(20f, 23f)
+                            .sp
+
+
+                    ShadowButton(
+                        height =
+                            actionButtonHeight,
+
+                        color =
+                            appColors.popupText,
+
+                        cornerRadius =
+                            (actionButtonHeight * 0.50f)
+                                .coerceIn(
+                                    26.dp,
+                                    30.dp
+                                ),
+
+                        onClick = {
+                            onViewmore()
+                        }
+                    ) {
+
+                        Text(
+                            text = stringResource(
+                                R.string.view_more
+                            ),
+
+                            fontSize =
+                                actionButtonTextSize,
+
+                            fontWeight =
+                                FontWeight.Medium,
+
+                            fontFamily =
+                                OutfitFont,
+
+                            color =
+                                appColors.pagesText
+                        )
+                    }
+
+
+                    Spacer(
+                        modifier = Modifier.height(
+                            (screenHeight * 0.042f)
+                                .coerceIn(34.dp, 44.dp)
+                        )
+                    )
+
+
+                    /*
+                     * ====================================================
+                     * ADD NEW INFORMATION
+                     * ==================================================== */
+
+                    Column(
+                        modifier =
+                            Modifier.fillMaxWidth()
+                    ) {
+
+                        Text(
+                            text = stringResource(
+                                R.string.add_new_information
+                            ),
+
+                            fontSize =
+                                sectionTitleSize,
+
+                            fontFamily =
+                                BaumansFont,
+
+                            fontWeight =
+                                FontWeight.Normal,
+
+                            color =
+                                appColors.pagesText,
+
+                            textAlign =
+                                TextAlign.Center,
+
+                            modifier =
+                                Modifier.fillMaxWidth()
+                        )
+
+
+                        Spacer(
+                            modifier = Modifier.height(
+                                dividerSpacing
+                            )
+                        )
+
+
+                        HorizontalDivider(
+                            modifier =
+                                Modifier.fillMaxWidth(),
+
+                            thickness =
+                                dividerThickness,
+
+                            color =
+                                appColors.pagesText
+                        )
+
+
+                        Spacer(
+                            modifier = Modifier.height(
+                                (screenHeight * 0.007f)
+                                    .coerceIn(5.dp, 8.dp)
+                            )
+                        )
+
+
+                        InfoNotePill(
+                            text = stringResource(
+                                R.string.select_location_record_both
+                            )
+                        )
+                    }
+
+
+                    Spacer(
+                        modifier = Modifier.height(
+                            (screenHeight * 0.027f)
+                                .coerceIn(22.dp, 28.dp)
+                        )
+                    )
+
+
+                    /*
+                     * ====================================================
+                     * NEW LOCATION + GET LOCATION
+                     * ==================================================== */
+
+                    Row(
+                        verticalAlignment =
+                            Alignment.Top,
+
+                        horizontalArrangement =
+                            Arrangement.spacedBy(
+                                rowSpacing
+                            ),
+
+                        modifier =
+                            Modifier.fillMaxWidth()
+                    ) {
+
+                        /*
+                         * LOCATION
+                         */
+
+                        Column(
+                            modifier = Modifier
+                                .weight(1f)
+                                .padding(
+                                    top = rowTopPadding
+                                )
+                        ) {
+
+                            FieldLabel(
+                                stringResource(
+                                    R.string.location_label
+                                ),
+
+                                fieldLabelSize,
+
+                                OutfitFont,
+
+                                FontWeight.Medium
+                            )
+
+                            Spacer(
+                                modifier = Modifier.height(
+                                    fieldLabelSpacing
+                                )
+                            )
+
+
+                            LocationPickerField(
+                                value =
+                                    selectedAddress,
+
+                                placeholder =
+                                    stringResource(
+                                        R.string.open_location_in_map
+                                    ),
+
                                 onClick = { }
                             )
                         }
 
-                        // Get Location
+
+                        /*
+                         * GET LOCATION
+                         */
+
                         Column(
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            modifier = Modifier.padding(top = 16.dp)
+                            horizontalAlignment =
+                                Alignment.CenterHorizontally,
+
+                            modifier = Modifier.padding(
+                                top = rowTopPadding
+                            )
                         ) {
 
                             FieldLabel(
-                                stringResource(R.string.get_location),
-                                17.sp,
+                                stringResource(
+                                    R.string.get_location
+                                ),
+
+                                (screenWidth.value * 0.042f)
+                                    .coerceIn(
+                                        15f,
+                                        18f
+                                    )
+                                    .sp,
+
                                 OutfitFont,
+
                                 FontWeight.Medium
                             )
 
-                            Spacer(modifier = Modifier.height(14.dp))
+
+                            Spacer(
+                                modifier = Modifier.height(
+                                    (screenHeight * 0.012f)
+                                        .coerceIn(
+                                            10.dp,
+                                            15.dp
+                                        )
+                                )
+                            )
+
 
                             ShadowButton(
-                                width = 72.dp,
-                                height = 51.dp,
-                                color = appColors.popupText,
-                                cornerRadius = 15.dp,
+                                width =
+                                    (screenWidth * 0.19f)
+                                        .coerceIn(
+                                            64.dp,
+                                            76.dp
+                                        ),
+
+                                height =
+                                    (screenHeight * 0.060f)
+                                        .coerceIn(
+                                            48.dp,
+                                            53.dp
+                                        ),
+
+                                color =
+                                    appColors.popupText,
+
+                                cornerRadius =
+                                    (screenWidth * 0.040f)
+                                        .coerceIn(
+                                            13.dp,
+                                            16.dp
+                                        ),
+
                                 onClick = { }
                             ) {
+
                                 Icon(
-                                    painter = painterResource(R.drawable.location_icon),
-                                    contentDescription = null,
-                                    tint = appColors.pagesText,
-                                    modifier = Modifier.size(32.dp)
+                                    painter =
+                                        painterResource(
+                                            R.drawable.location_icon
+                                        ),
+
+                                    contentDescription =
+                                        null,
+
+                                    tint =
+                                        appColors.pagesText,
+
+                                    modifier =
+                                        Modifier.size(
+                                            (screenWidth * 0.085f)
+                                                .coerceIn(
+                                                    28.dp,
+                                                    34.dp
+                                                )
+                                        )
                                 )
                             }
                         }
                     }
 
-                    Spacer(modifier = Modifier.height(48.dp))
 
-// ── "OR" divider — thin fading lines either side of centered text ──────────
+                    Spacer(
+                        modifier = Modifier.height(
+                            (screenHeight * 0.050f)
+                                .coerceIn(40.dp, 52.dp)
+                        )
+                    )
+
+
+                    // =====================================================
+                    // PART 3 CONTINUES HERE
+                    // =====================================================
+                    /*
+ * ====================================================
+ * OR DIVIDER
+ * ==================================================== */
+
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(1.dp)
+                            .height(
+                                (screenHeight * 0.0015f)
+                                    .coerceIn(1.dp, 2.dp)
+                            )
                             .background(
                                 Brush.horizontalGradient(
                                     colors = listOf(
                                         Color.Transparent,
-                                        appColors.pagesText.copy(alpha = 0.5f),
+
+                                        appColors.pagesText
+                                            .copy(alpha = 0.5f),
+
                                         Color.Transparent
                                     )
                                 )
                             )
                     )
-                    Spacer(modifier = Modifier.height(27.dp))
 
 
-                        // Recording
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth(0.70f)
-                        ) {
+                    Spacer(
+                        modifier = Modifier.height(
+                            (screenHeight * 0.028f)
+                                .coerceIn(22.dp, 30.dp)
+                        )
+                    )
 
-                            FieldLabel(
-                                stringResource(R.string.record_conversation),
-                                18.sp,
-                                OutfitFont,
-                                FontWeight.Medium
+
+                    /*
+                     * ====================================================
+                     * RECORD CONVERSATION
+                     * ==================================================== */
+
+                    Column(
+                        modifier =
+                            Modifier.fillMaxWidth(0.70f)
+                    ) {
+
+                        FieldLabel(
+                            stringResource(
+                                R.string.record_conversation
+                            ),
+
+                            fieldLabelSize,
+
+                            OutfitFont,
+
+                            FontWeight.Medium
+                        )
+
+
+                        Spacer(
+                            modifier = Modifier.height(
+                                fieldLabelSpacing
                             )
+                        )
 
-                            Spacer(modifier = Modifier.height(12.dp))
 
-                            RecordConversationField(
-                                value = selectedAddress,
-                                placeholder = stringResource(R.string.click_to_record),
-                                onClick = {  onVoiceSampleClick() }
-                            )
-                        }
+                        RecordConversationField(
+                            value =
+                                selectedAddress,
 
-                    Spacer(modifier = Modifier.height(28.dp))
+                            placeholder =
+                                stringResource(
+                                    R.string.click_to_record
+                                ),
 
-                        ShadowButton(
-                            height = 56.dp,
-                            color = appColors.popupText,
-                            cornerRadius = 28.dp,
                             onClick = {
-//                                onSubmit(nameText, relationText, selectedAddress)
-                                onSave()
+                                onVoiceSampleClick()
                             }
-                        ) {
-                            Text(
-                                text = stringResource(R.string.save),
-                                color = appColors.pagesText,
-                                fontSize = 22.sp,
-                                fontWeight = FontWeight.Medium,
-                                fontFamily = OutfitFont
-                            )
-                        }
+                        )
+                    }
 
-                    Spacer(modifier = Modifier.height(64.dp))
+
+                    Spacer(
+                        modifier = Modifier.height(
+                            (screenHeight * 0.030f)
+                                .coerceIn(24.dp, 32.dp)
+                        )
+                    )
+
+
+                    /*
+                     * ====================================================
+                     * SAVE BUTTON
+                     * ==================================================== */
+
+                    ShadowButton(
+                        height =
+                            actionButtonHeight,
+
+                        color =
+                            appColors.popupText,
+
+                        cornerRadius =
+                            (actionButtonHeight * 0.50f)
+                                .coerceIn(
+                                    26.dp,
+                                    30.dp
+                                ),
+
+                        onClick = {
+                            onSave()
+                        }
+                    ) {
+
+                        Text(
+                            text = stringResource(
+                                R.string.save
+                            ),
+
+                            color =
+                                appColors.pagesText,
+
+                            fontSize =
+                                actionButtonTextSize,
+
+                            fontWeight =
+                                FontWeight.Medium,
+
+                            fontFamily =
+                                OutfitFont
+                        )
+                    }
+
+
+                    /*
+                     * BOTTOM SPACING
+                     */
+
+                    Spacer(
+                        modifier = Modifier.height(
+                            (screenHeight * 0.075f)
+                                .coerceIn(
+                                    55.dp,
+                                    75.dp
+                                )
+                        )
+                    )
                 }
             }
 
-            // ── Header ────────────────────────────────────────────────────────
-            HeaderSection(
-                title = stringResource(R.string.result),
-                secondaryTitle = stringResource(R.string.recognised),
-                218.dp,
-                33.sp,
-                60.dp,
-                (28).dp,
-                leaves = appColors.headerDecorOffset2,
-                onBack = { onBack()})
 
+            /*
+             * ============================================================
+             * HEADER
+             *
+             * LEAVE THIS AS YOUR EXISTING HEADER.
+             * ============================================================
+             */
+
+            HeaderSection(
+                title =
+                    stringResource(
+                        R.string.result
+                    ),
+
+                secondaryTitle =
+                    stringResource(
+                        R.string.recognised
+                    ),
+
+                218.dp,
+
+                33.sp,
+
+                60.dp,
+
+                28.dp,
+
+                leaves =
+                    appColors.headerDecorOffset2,
+
+                onBack = {
+                    onBack()
+                }
+            )
         }
     }
 }
 
+
+/*
+ * ================================================================
+ * PREVIEW
+ * ================================================================
+ */
 
 @Preview(showBackground = true, showSystemUi = true)
 @Composable

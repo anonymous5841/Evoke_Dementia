@@ -29,6 +29,7 @@ import com.example.myapplication.R
 import com.example.myapplication.ui.components.*
 import com.example.myapplication.ui.theme.AppTheme
 import com.example.myapplication.ui.theme.GreenTheme
+import androidx.compose.ui.unit.Dp
 
 import androidx.compose.runtime.*
 import com.example.myapplication.ui.components.rememberBottomNavBarHeight
@@ -51,13 +52,11 @@ data class PersonItem(
 )
 
 @Composable
-
-
 fun SearchScreen(
     viewModel: SearchViewModel = viewModel(),
     onBack: () -> Unit = {},
     onPersonClick: () -> Unit = {},
-    onMoreInfoLocationClick: () -> Unit = {}, // was onEllipseClick in SearchLocationScreen
+    onMoreInfoLocationClick: () -> Unit = {},
 ) {
 
     val appColors = AppTheme.colors
@@ -68,104 +67,235 @@ fun SearchScreen(
         contentWindowInsets = WindowInsets(0, 0, 0, 0)
     ) { innerPadding ->
 
-        Column(
+        BoxWithConstraints(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .padding(horizontal = 16.dp)
         ) {
-            Spacer(modifier = Modifier.height(18.dp))
 
-            BackIconButton(onBack)
+            /*
+             * RESPONSIVE DIMENSIONS
+             */
 
-            Spacer(modifier = Modifier.height(24.dp))
+            // Overall horizontal screen padding
+            val horizontalPadding = (maxWidth * 0.045f)
+                .coerceIn(16.dp, 28.dp)
 
-            // ---- Shared header: search field + location toggle button ----
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
+            // Space from top to back button
+            val topSpacing = (maxHeight * 0.022f)
+                .coerceIn(14.dp, 24.dp)
+
+            // Back button → search bar
+            val backSearchSpacing = (maxHeight * 0.028f)
+                .coerceIn(20.dp, 32.dp)
+
+            // Search field → results
+            val searchResultsSpacing = (maxHeight * 0.035f)
+                .coerceIn(28.dp, 42.dp)
+
+            // Search field / location button gap
+            val searchButtonSpacing = (maxWidth * 0.03f)
+                .coerceIn(10.dp, 16.dp)
+
+            // Location button dimensions
+            val locationButtonWidth = (maxWidth * 0.17f)
+                .coerceIn(58.dp, 70.dp)
+
+            val locationButtonHeight = (maxHeight * 0.065f)
+                .coerceIn(48.dp, 54.dp)
+
+            /*
+             * RESPONSIVE CONTENT
+             */
+
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(horizontal = horizontalPadding)
             ) {
-                SearchFieldWithIcon(
-                    value = viewModel.searchQuery,
-                    onValueChange = { viewModel.onSearchQueryChange(it) }
+
+                /*
+                 * TOP → BACK BUTTON
+                 */
+
+                Spacer(
+                    modifier = Modifier.height(topSpacing)
                 )
 
-                Spacer(modifier = Modifier.width(12.dp))
+                BackIconButton(
+                    onBack = onBack
+                )
 
-                ShadowButton(
-                    width = 66.dp,
-                    height = 51.dp,
-                    color = appColors.popupText,
-                    cornerRadius = 16.dp,
-                    onClick = { viewModel.onLocationButtonClick() }
+                /*
+                 * BACK BUTTON → SEARCH BAR
+                 */
+
+                Spacer(
+                    modifier = Modifier.height(backSearchSpacing)
+                )
+
+                /*
+                 * SEARCH FIELD + LOCATION BUTTON
+                 */
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    Icon(
-                        painter = painterResource(R.drawable.location_icon),
-                        contentDescription = stringResource(R.string.search),
-                        tint = appColors.pagesText,
-                    )
-                }
-            }
 
-            Spacer(modifier = Modifier.height(37.dp))
-            // ---- The part that actually swaps ----
-            AnimatedContent(
-                targetState = viewModel.mode,
-                transitionSpec = { fadeIn() togetherWith fadeOut() },
-                modifier = Modifier.weight(1f),
-                label = "searchModeSwitch"
-            ) { currentMode ->
-                when (currentMode) {
-                    SearchDisplayMode.PEOPLE -> {
-                        val filtered = if (viewModel.searchQuery.isBlank()) {
-                            viewModel.people
-                        } else {
-                            viewModel.people.filter {
-                                it.name.startsWith(viewModel.searchQuery, ignoreCase = true)
-
-                            }
+                    SearchFieldWithIcon(
+                        value = viewModel.searchQuery,
+                        onValueChange = {
+                            viewModel.onSearchQueryChange(it)
                         }
-                        PeopleResultsGrid(
-                            people = filtered,
-                            bottomPadding = bottomNavHeight,
-                            onPersonClick = onPersonClick
+                    )
+
+                    Spacer(
+                        modifier = Modifier.width(searchButtonSpacing)
+                    )
+
+                    ShadowButton(
+                        width = locationButtonWidth,
+                        height = locationButtonHeight,
+                        color = appColors.popupText,
+                        cornerRadius = 16.dp,
+                        onClick = {
+                            viewModel.onLocationButtonClick()
+                        }
+                    ) {
+                        Icon(
+                            painter = painterResource(
+                                R.drawable.location_icon
+                            ),
+                            contentDescription = stringResource(
+                                R.string.search
+                            ),
+                            tint = appColors.pagesText
                         )
                     }
-                    SearchDisplayMode.LOCATION -> LocationResultsList(
-                        selectedLocation = viewModel.selectedLocation,
-                        bottomPadding = bottomNavHeight,
-                        onLocationChange = { viewModel.onSelectedLocationChange(it) },
-                        onAddLocationClick = onMoreInfoLocationClick
-                    )
+                }
+
+                /*
+                 * SEARCH BAR → RESULTS
+                 */
+
+                Spacer(
+                    modifier = Modifier.height(searchResultsSpacing)
+                )
+
+                /*
+                 * RESULTS
+                 */
+
+                AnimatedContent(
+                    targetState = viewModel.mode,
+                    transitionSpec = {
+                        fadeIn() togetherWith fadeOut()
+                    },
+                    modifier = Modifier.weight(1f),
+                    label = "searchModeSwitch"
+                ) { currentMode ->
+
+                    when (currentMode) {
+
+                        SearchDisplayMode.PEOPLE -> {
+
+                            val filtered =
+                                if (viewModel.searchQuery.isBlank()) {
+                                    viewModel.people
+                                } else {
+                                    viewModel.people.filter {
+                                        it.name.startsWith(
+                                            viewModel.searchQuery,
+                                            ignoreCase = true
+                                        )
+                                    }
+                                }
+
+                            PeopleResultsGrid(
+                                people = filtered,
+                                bottomPadding = bottomNavHeight,
+                                onPersonClick = onPersonClick
+                            )
+                        }
+
+                        SearchDisplayMode.LOCATION -> {
+
+                            LocationResultsList(
+                                selectedLocation =
+                                    viewModel.selectedLocation,
+
+                                bottomPadding =
+                                    bottomNavHeight,
+
+                                onLocationChange = {
+                                    viewModel.onSelectedLocationChange(it)
+                                },
+
+                                onAddLocationClick =
+                                    onMoreInfoLocationClick
+                            )
+                        }
+                    }
                 }
             }
         }
     }
 }
-
 @Composable
-
 private fun PeopleResultsGrid(
     people: List<PersonItem>,
-    bottomPadding: androidx.compose.ui.unit.Dp,
+    bottomPadding: Dp,
     onPersonClick: () -> Unit
 ) {
-    LazyVerticalGrid(
-        columns = GridCells.Fixed(2),
-        horizontalArrangement = Arrangement.spacedBy(10.dp),
-        verticalArrangement = Arrangement.spacedBy(22.dp),
-        contentPadding = PaddingValues(bottom = bottomPadding),
+
+    BoxWithConstraints(
         modifier = Modifier.fillMaxSize()
     ) {
-        items(people) { person ->
-            Box(modifier = Modifier.wrapContentSize(), contentAlignment = Alignment.Center) {
-                PersonCard(
-                    name = person.name,
-                    image = person.image,
-                    modifier = Modifier,
-                    onClick = onPersonClick
-                )
+
+        /*
+         * RESPONSIVE DIMENSIONS
+         */
+
+        // Gap between the two columns
+        val horizontalGridSpacing = (maxWidth * 0.025f)
+            .coerceIn(8.dp, 14.dp)
+
+        // Vertical gap between cards
+        val verticalGridSpacing = (maxHeight * 0.025f)
+            .coerceIn(18.dp, 28.dp)
+
+        LazyVerticalGrid(
+            columns = GridCells.Fixed(2),
+
+            horizontalArrangement =
+                Arrangement.spacedBy(horizontalGridSpacing),
+
+            verticalArrangement =
+                Arrangement.spacedBy(verticalGridSpacing),
+
+            contentPadding = PaddingValues(
+                bottom = bottomPadding
+            ),
+
+            modifier = Modifier.fillMaxSize()
+        ) {
+
+            items(people) { person ->
+
+                Box(
+                    modifier = Modifier.wrapContentSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+
+                    PersonCard(
+                        name = stringResource(R.string.name),
+                        image = person.image,
+                        modifier = Modifier,
+                        onClick = onPersonClick
+                    )
+                }
             }
         }
     }
@@ -174,75 +304,247 @@ private fun PeopleResultsGrid(
 @Composable
 private fun LocationResultsList(
     selectedLocation: String,
-    bottomPadding: androidx.compose.ui.unit.Dp,
+    bottomPadding: Dp,
     onLocationChange: (String) -> Unit,
     onAddLocationClick: () -> Unit
 ) {
+
     val appColors = AppTheme.colors
 
-    LazyColumn(
-        verticalArrangement = Arrangement.spacedBy(10.dp),
-        modifier = Modifier.fillMaxSize(),
-        contentPadding = PaddingValues(bottom = bottomPadding),
+    BoxWithConstraints(
+        modifier = Modifier.fillMaxSize()
+    ) {
 
+        // Capture BoxWithConstraints dimensions
+        // before entering LazyColumn's scope.
+        val screenWidth = maxWidth
+        val screenHeight = maxHeight
+
+        /*
+         * RESPONSIVE DIMENSIONS
+         */
+
+        // Distance text size
+        val distanceTextSize =
+            (screenWidth.value * 0.052f)
+                .coerceIn(17f, 21f)
+                .sp
+
+        // Location text size
+        val locationTextSize =
+            (screenWidth.value * 0.046f)
+                .coerceIn(15f, 19f)
+                .sp
+
+        // Distance text → location box
+        val distanceBottomSpacing =
+            (screenHeight * 0.007f)
+                .coerceIn(4.dp, 8.dp)
+
+        // Height of location result box
+        val locationBoxHeight =
+            (screenHeight * 0.075f)
+                .coerceIn(56.dp, 66.dp)
+
+        // Location picker width
+        val locationPickerWidth =
+            (screenWidth * 0.70f)
+                .coerceIn(220.dp, 320.dp)
+
+        // Location picker vertical offset
+        val locationPickerOffsetY =
+            (screenHeight * 0.027f)
+                .coerceIn(18.dp, 24.dp)
+
+        // Location picker horizontal offset
+        val locationPickerOffsetX =
+            (screenWidth * 0.04f)
+                .coerceIn(12.dp, 20.dp)
+
+        /*
+         * ADD BUTTON POSITION
+         */
+
+        val addButtonX =
+            (screenWidth * 0.84f)
+                .coerceIn(250.dp, 320.dp)
+
+        val addButtonPlusX =
+            (screenWidth * 0.83f)
+                .coerceIn(247.dp, 317.dp)
+
+        /*
+         * ADD BUTTON VERTICAL POSITIONS
+         */
+
+        val addButtonY =
+            (screenHeight * 0.052f)
+                .coerceIn(34.dp, 42.dp)
+
+        val addButtonPlusY =
+            (screenHeight * 0.035f)
+                .coerceIn(22.dp, 30.dp)
+
+
+        /*
+         * LOCATION RESULTS
+         */
+
+        LazyColumn(
+            verticalArrangement = Arrangement.spacedBy(10.dp),
+
+            modifier = Modifier.fillMaxSize(),
+
+            contentPadding = PaddingValues(
+                bottom = bottomPadding
+            )
         ) {
-        items(5) { index ->
-            Column {
-                Text(
-                    text = stringResource(R.string.distance_format, 104),
-                    color = Color.Black,
-                    fontSize = 19.sp,
-                    fontWeight = FontWeight.Bold,
-                    fontFamily = MartelFont,
-                    modifier = Modifier.padding(start = 4.dp, bottom = 6.dp)
-                )
 
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(60.dp)
-                ) {
+            items(5) {
+
+                Column {
+
+                    /*
+                     * DISTANCE
+                     */
+
+                    Text(
+                        text = stringResource(
+                            R.string.distance_format,
+                            104
+                        ),
+
+                        color = Color.Black,
+
+                        fontSize = distanceTextSize,
+
+                        fontWeight = FontWeight.Bold,
+
+                        fontFamily = MartelFont,
+
+                        modifier = Modifier.padding(
+                            start = (screenWidth * 0.01f)
+                                .coerceIn(3.dp, 5.dp),
+
+                            bottom = distanceBottomSpacing
+                        )
+                    )
+
+
+                    /*
+                     * LOCATION RESULT BOX
+                     */
+
                     Box(
                         modifier = Modifier
-                            .fillMaxSize()
-                            .shadow(
-                                elevation = 6.dp,
-                                shape = RoundedCornerShape(bottomStart = 16.dp),
-                                clip = false
-                            )
-                            .clip(RoundedCornerShape(bottomStart = 16.dp))
-                            .background(appColors.boxOuter)
+                            .fillMaxWidth()
+                            .height(locationBoxHeight)
                     ) {
-                        Text(
-                            text = stringResource(R.string.location),
-                            color = Color.Black,
-                            fontSize = 17.sp,
-                            fontFamily = OutfitFont,
-                            fontWeight = FontWeight.Normal,
+
+                        /*
+                         * MAIN LOCATION BOX
+                         */
+
+                        Box(
                             modifier = Modifier
-                                .align(Alignment.TopStart)
-                                .padding(start = 8.dp, top = 6.dp)
+                                .fillMaxSize()
+                                .shadow(
+                                    elevation = 6.dp,
+                                    shape = RoundedCornerShape(
+                                        bottomStart = 16.dp
+                                    ),
+                                    clip = false
+                                )
+                                .clip(
+                                    RoundedCornerShape(
+                                        bottomStart = 16.dp
+                                    )
+                                )
+                                .background(
+                                    appColors.boxOuter
+                                )
+                        ) {
+
+                            Text(
+                                text = stringResource(
+                                    R.string.location
+                                ),
+
+                                color = Color.Black,
+
+                                fontSize = locationTextSize,
+
+                                fontFamily = OutfitFont,
+
+                                fontWeight = FontWeight.Normal,
+
+                                modifier = Modifier
+                                    .align(Alignment.TopStart)
+                                    .padding(
+                                        start = (screenWidth * 0.02f)
+                                            .coerceIn(7.dp, 10.dp),
+
+                                        top = (screenHeight * 0.007f)
+                                            .coerceIn(5.dp, 8.dp)
+                                    )
+                            )
+                        }
+
+
+                        /*
+                         * ADD LOCATION BUTTON
+                         */
+
+                        AddShapeButton(
+                            onClick = onAddLocationClick,
+
+                            shapeColor =
+                                appColors.pagesText,
+
+                            plusColor =
+                                appColors.popupText,
+
+                            boxOffset = DpOffset(
+                                x = addButtonX,
+                                y = -addButtonY
+                            ),
+
+                            plusOffset = DpOffset(
+                                x = addButtonPlusX,
+                                y = -addButtonPlusY
+                            )
                         )
                     }
-                    AddShapeButton(
-                        onClick = onAddLocationClick,
-                        shapeColor = appColors.pagesText,
-                        plusColor = appColors.popupText,
-                        boxOffset = DpOffset(x = (299).dp, y = (-39).dp),
-                        plusOffset = DpOffset(x = (296).dp, y = (-26).dp),
+
+
+                    /*
+                     * LOCATION PICKER
+                     */
+
+                    LocationPickerField(
+                        value = selectedLocation,
+
+                        placeholder = stringResource(
+                            R.string.open_location_in_map
+                        ),
+
+                        onClick = {
+                            // open map or location picker here
+                        },
+
+                        modifier = Modifier
+                            .width(locationPickerWidth)
+                            .offset(
+                                x = locationPickerOffsetX,
+                                y = -locationPickerOffsetY
+                            ),
+
+                        backgroundColor =
+                            appColors.boxInner,
+
+                        showShadow = true
                     )
                 }
-
-                LocationPickerField(
-                    value = selectedLocation,
-                    placeholder = stringResource(R.string.open_location_in_map),
-                    onClick = { /* open map or location picker here */ },
-                    modifier = Modifier
-                        .fillMaxWidth(0.70f)
-                        .offset(x = 15.dp, y = (-22).dp),
-                    backgroundColor = appColors.boxInner,
-                    showShadow = true
-                )
             }
         }
     }

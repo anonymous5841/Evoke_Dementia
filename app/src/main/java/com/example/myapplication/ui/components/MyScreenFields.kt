@@ -52,14 +52,17 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.animation.core.CubicBezierEasing
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.TextUnit
 import com.example.myapplication.ui.theme.AppTheme
+
 
 val TextDark   = Color(0xFF1A2E18)
 val appColors = AppTheme
@@ -69,25 +72,33 @@ fun DateDisplayField(
     date: String,
     modifier: Modifier = Modifier,
     backgroundColor: Color = AppTheme.colors.textfield,
-    textColor: Color =  AppTheme.colors.pagesText,
-    fontSize: TextUnit = 16.sp
+    textColor: Color = AppTheme.colors.pagesText,
+    fontSize: TextUnit = 16.sp,
+    width: Dp = 110.dp,
+    height: Dp = 51.dp
 ) {
     Box(
         modifier = modifier
-            .width(110.dp)
-            .height(51.dp)
+            .width(width)
+            .height(height)
             .shadow(
                 elevation = 4.dp,
                 shape = RoundedCornerShape(15.dp),
                 clip = false
             )
-            .clip(RoundedCornerShape(15.dp))
+            .clip(
+                RoundedCornerShape(15.dp)
+            )
             .background(backgroundColor),
+
         contentAlignment = Alignment.CenterStart
     ) {
+
         Text(
             text = date,
-            modifier = Modifier.padding(horizontal = 16.dp),
+            modifier = Modifier.padding(
+                horizontal = 16.dp
+            ),
             fontSize = fontSize,
             fontFamily = OutfitFont,
             color = textColor
@@ -96,19 +107,26 @@ fun DateDisplayField(
 }
 @Composable
 fun DiscussionSummaryBox(
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    height: Dp = 200.dp
 ) {
+
     Box(
         modifier = modifier
             .fillMaxWidth()
-            .height(200.dp)
+            .height(height)
             .shadow(
                 elevation = 6.dp,
-                shape = RoundedCornerShape(15.dp),
+                shape =
+                    RoundedCornerShape(15.dp),
                 clip = false
             )
-            .clip(RoundedCornerShape(15.dp))
-            .background(appColors.colors.textfield)
+            .clip(
+                RoundedCornerShape(15.dp)
+            )
+            .background(
+                appColors.colors.textfield
+            )
     )
 }
 
@@ -192,35 +210,53 @@ fun BackIconButton(
     onBack: () -> Unit,
     iconRes: Int = R.drawable.back_icon
 ) {
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(15.dp),
-        modifier = Modifier
-            .padding(start = 6.dp, top = 4.dp)
-            .clickable { onBack() }
-    ) {
+    BoxWithConstraints {
+        val iconSize = (maxWidth * 0.06f)
+            .coerceIn(20.dp, 24.dp)
 
-        Icon(
-            painter = painterResource(id = iconRes),
-            contentDescription = stringResource(R.string.back),
-            tint = appColors.colors.backButton,
+        val spacing = (maxWidth * 0.04f)
+            .coerceIn(12.dp, 16.dp)
+
+        // 1. Convert Dp to Sp value
+        val density = LocalDensity.current
+        val calculatedSp = with(density) { (maxWidth * 0.078f).toSp() }
+
+        // 2. Coerce using raw floats (.value), then wrap back in .sp
+        val textSize = calculatedSp.value.coerceIn(28f, 30f).sp
+
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(spacing),
             modifier = Modifier
-                .size(22.dp)
+                .padding(
+                    start = 6.dp,
+                    top = 4.dp
+                )
+                .clickable {
+                    onBack()
+                }
+        ) {
+            Icon(
+                painter = painterResource(id = iconRes),
+                contentDescription = stringResource(R.string.back),
+                tint = appColors.colors.backButton,
+                modifier = Modifier.size(iconSize)
+            )
 
-        )
-
-        Text(
-            text = stringResource(R.string.back),
-            color = appColors.colors.backText,
-            fontSize = 30.sp,
-            fontWeight = FontWeight.Medium,
-            fontFamily = PompiereFont
-        )
+            Text(
+                text = stringResource(R.string.back),
+                color = appColors.colors.backText,
+                fontSize = textSize,
+                fontWeight = FontWeight.Medium,
+                fontFamily = PompiereFont
+            )
+        }
     }
 }
-
 @Composable
-fun CameraPreviewPlaceholder() {
+fun CameraPreviewPlaceholder(
+    height: Dp
+) {
 
     Box(
         modifier = Modifier.fillMaxWidth(),
@@ -230,73 +266,121 @@ fun CameraPreviewPlaceholder() {
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(520.dp)
+                .height(height)
                 .shadow(
                     elevation = 8.dp,
                     shape = RoundedCornerShape(18.dp),
                     clip = false
                 )
-                .clip(RoundedCornerShape(18.dp))
-                .background(appColors.colors.textfield)
-                .border(
-                    0.dp,
-                    MaterialTheme.colorScheme.outline.copy(alpha = 0.25f),
+                .clip(
                     RoundedCornerShape(18.dp)
+                )
+                .background(
+                    appColors.colors.textfield
+                )
+                .border(
+                    width = 0.dp,
+                    color = MaterialTheme
+                        .colorScheme
+                        .outline
+                        .copy(alpha = 0.25f),
+                    shape = RoundedCornerShape(18.dp)
                 )
         )
     }
 }
-
 @Composable
 fun GlowCaptureButton(
-    size    : Dp = 90.dp,
-    onClick : () -> Unit
+    size: Dp = 90.dp,
+    onClick: () -> Unit
 ) {
-    val infiniteTransition = rememberInfiniteTransition(label = "captureGlow")
+
+    val infiniteTransition =
+        rememberInfiniteTransition(
+            label = "captureGlow"
+        )
 
     val glowAlpha by infiniteTransition.animateFloat(
-        initialValue  = 1f,
-        targetValue   = 1f,
+        initialValue = 1f,
+        targetValue = 1f,
         animationSpec = infiniteRepeatable(
-            animation  = tween(900, easing = FastOutSlowInEasing),
+            animation = tween(
+                900,
+                easing = FastOutSlowInEasing
+            ),
             repeatMode = RepeatMode.Reverse
         ),
         label = "glowAlpha"
     )
 
     val glowRadius by infiniteTransition.animateFloat(
-        initialValue  = 0.9f,
-        targetValue   = 1.05f,
+        initialValue = 0.9f,
+        targetValue = 1.05f,
         animationSpec = infiniteRepeatable(
-            animation  = tween(900, easing = FastOutSlowInEasing),
+            animation = tween(
+                900,
+                easing = FastOutSlowInEasing
+            ),
             repeatMode = RepeatMode.Reverse
         ),
         label = "glowRadius"
     )
 
-    val animAlpha  = glowAlpha
+    val animAlpha = glowAlpha
     val animRadius = glowRadius
-    val backButtonColor = appColors.colors.backButton
 
-    // Just enough extra space for the subtle outer glow
-    val totalSizeDp = size + 40.dp
+    val backButtonColor =
+        appColors.colors.backButton
+
+    /*
+     * Responsive glow padding.
+     *
+     * Because the button itself changes size, the glow
+     * should remain proportional to it.
+     */
+    val glowPadding = (size * 0.22f)
+        .coerceIn(16.dp, 20.dp)
+
+    val totalSizeDp =
+        size + (glowPadding * 2)
+
 
     Box(
         contentAlignment = Alignment.Center,
         modifier = Modifier
             .size(totalSizeDp)
             .drawBehind {
-                // Tight glow — only slightly larger than the button itself
-                val baseRadius  = size.toPx() / 2f
-                val glowR       = baseRadius * animRadius * 1.3f
+
+                val baseRadius =
+                    size.toPx() / 2f
+
+                val glowR =
+                    baseRadius *
+                            animRadius *
+                            1.3f
 
                 drawCircle(
                     brush = Brush.radialGradient(
                         colorStops = arrayOf(
-                            0.00f to backButtonColor.copy(alpha = animAlpha),
-                            0.45f to backButtonColor.copy(alpha = animAlpha * 0.95f),
-                            0.75f to backButtonColor.copy(alpha = animAlpha * 0.6f),
-                            1.00f to Color.Transparent
+                            0.00f to
+                                    backButtonColor.copy(
+                                        alpha = animAlpha
+                                    ),
+
+                            0.45f to
+                                    backButtonColor.copy(
+                                        alpha =
+                                            animAlpha * 0.95f
+                                    ),
+
+                            0.75f to
+                                    backButtonColor.copy(
+                                        alpha =
+                                            animAlpha * 0.6f
+                                    ),
+
+                            1.00f to
+                                    Color.Transparent
                         ),
                         radius = glowR
                     ),
@@ -304,82 +388,215 @@ fun GlowCaptureButton(
                 )
             }
     ) {
-        // Dark green border ring
+
+        /*
+         * Outer border ring
+         */
         Box(
             contentAlignment = Alignment.Center,
             modifier = Modifier
                 .size(size + 10.dp)
                 .clip(CircleShape)
-                .border(5.dp, appColors.colors.cameraOuter, CircleShape)
+                .border(
+                    5.dp,
+                    appColors.colors.cameraOuter,
+                    CircleShape
+                )
         ) {
-            // Plain light green fill — no gradient
+
+            /*
+             * Inner capture button
+             */
             Box(
                 modifier = Modifier
                     .size(size)
                     .clip(CircleShape)
-                    .background(appColors.colors.cameraInner)          // ← solid flat color, matches Figma
-                    .clickable { onClick() }
+                    .background(
+                        appColors.colors.cameraInner
+                    )
+                    .clickable {
+                        onClick()
+                    }
             )
         }
     }
 }
-
 @Composable
 fun SettingsRow(
     label: String,
     iconRes: Int,
     iconSize: Dp = 24.dp,
     onClick: () -> Unit
-
 ) {
+
     val appColors = AppTheme.colors
-    Card(
-        onClick = onClick,
-        modifier = Modifier
-            .fillMaxWidth()
-            .shadow(
-                elevation = 6.dp,
-                shape = RoundedCornerShape(15.dp),
-                clip = false
-            ),
-        shape = RoundedCornerShape(15.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = appColors.textfield // white/light bg
-        ),
-        elevation = CardDefaults.cardElevation(
-            defaultElevation = 0.dp  // shadow comes from Modifier.shadow, not Card elevation
-        )
+
+    BoxWithConstraints(
+        modifier = Modifier.fillMaxWidth()
     ) {
-        Row(
+
+        /*
+         * ============================================================
+         * RESPONSIVE DIMENSIONS
+         * ============================================================
+         */
+
+        // Row horizontal padding
+        val horizontalPadding =
+            (maxWidth * 0.045f)
+                .coerceIn(16.dp, 22.dp)
+
+        // Row vertical padding
+        val verticalPadding =
+            (maxHeight * 0.012f)
+                .coerceIn(8.dp, 12.dp)
+
+        // Card corner radius
+        val cornerRadius =
+            (maxWidth * 0.038f)
+                .coerceIn(13.dp, 16.dp)
+
+        // Shadow
+        val shadowElevation =
+            (maxWidth * 0.015f)
+                .coerceIn(4.dp, 7.dp)
+
+        // Text → icon spacing
+        val textStartPadding =
+            (maxWidth * 0.015f)
+                .coerceIn(5.dp, 8.dp)
+
+        // Text size
+        val textSize =
+            (maxWidth.value * 0.052f)
+                .coerceIn(18f, 22f)
+                .sp
+
+        /*
+         * If the caller provides a custom iconSize,
+         * preserve it. Otherwise use a responsive default.
+         */
+        val responsiveIconSize =
+            if (iconSize == 24.dp) {
+                (maxWidth * 0.075f)
+                    .coerceIn(22.dp, 30.dp)
+            } else {
+                iconSize
+            }
+
+
+        /*
+         * ============================================================
+         * CARD
+         * ============================================================
+         */
+
+        Card(
+            onClick = onClick,
+
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 18.dp, vertical = 10.dp),
-            verticalAlignment = Alignment.CenterVertically
+                .shadow(
+                    elevation = shadowElevation,
+                    shape = RoundedCornerShape(
+                        cornerRadius
+                    ),
+                    clip = false
+                ),
+
+            shape = RoundedCornerShape(
+                cornerRadius
+            ),
+
+            colors = CardDefaults.cardColors(
+                containerColor =
+                    appColors.textfield
+            ),
+
+            elevation = CardDefaults.cardElevation(
+                defaultElevation = 0.dp
+            )
         ) {
-            Text(
-                text = label,
-                modifier = Modifier.weight(1f).padding(start = 6.dp),
-                fontFamily = MartelFont,
-                fontWeight = FontWeight.Normal,  // regular weight matches Figma
-                fontSize = 21.sp,
-                color = Color.Black,
 
-            )
+            /*
+             * ========================================================
+             * ROW
+             * ========================================================
+             */
 
-            Image(
-                painter = painterResource(id = iconRes),
-                contentDescription = label,
-                modifier = Modifier.size(iconSize),
-                contentScale = ContentScale.Fit,
-                colorFilter = ColorFilter.tint(
-                    appColors.backButton  // green icon tint
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(
+                        horizontal = horizontalPadding,
+                        vertical = verticalPadding
+                    ),
+
+                verticalAlignment =
+                    Alignment.CenterVertically
+            ) {
+
+                /*
+                 * ====================================================
+                 * LABEL
+                 * ====================================================
+                 */
+
+                Text(
+                    text = label,
+
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(
+                            start = textStartPadding
+                        ),
+
+                    fontFamily =
+                        MartelFont,
+
+                    fontWeight =
+                        FontWeight.Normal,
+
+                    fontSize =
+                        textSize,
+
+                    color =
+                        Color.Black
                 )
-            )
+
+
+                /*
+                 * ====================================================
+                 * ICON
+                 * ====================================================
+                 */
+
+                Image(
+                    painter =
+                        painterResource(
+                            id = iconRes
+                        ),
+
+                    contentDescription =
+                        label,
+
+                    modifier =
+                        Modifier.size(
+                            responsiveIconSize
+                        ),
+
+                    contentScale =
+                        ContentScale.Fit,
+
+                    colorFilter =
+                        ColorFilter.tint(
+                            appColors.backButton
+                        )
+                )
+            }
         }
     }
 }
-
-
 
 
 
@@ -387,13 +604,27 @@ fun SettingsRow(
 // alternating per column (checkerboard) exactly like the attached file did for
 // its top two rows. Row 2 (new, added row) starts compact/small on both sides.
 // index = row (0,1,2), value = that column's height at that row, collapsed.
-private val LEFT_HEIGHTS  = listOf(190f, 100f, 24f)
-private val RIGHT_HEIGHTS = listOf(100f, 190f, 24f)
-private const val SLOT_SPACING = 15f
-private const val BIG_HEIGHT   = 190f
-private const val SMALL_HEIGHT = 24f
+private const val BASE_WIDTH = 360f
 
-private fun lerp(a: Float, b: Float, t: Float) = a + (b - a) * t
+private val LEFT_HEIGHTS =
+    listOf(190f, 100f, 24f)
+
+private val RIGHT_HEIGHTS =
+    listOf(100f, 190f, 24f)
+
+private const val BASE_SLOT_SPACING = 15f
+
+private const val BASE_BIG_HEIGHT = 190f
+
+private const val BASE_SMALL_HEIGHT = 24f
+
+private fun lerp(
+    a: Float,
+    b: Float,
+    t: Float
+): Float {
+    return a + (b - a) * t
+}
 
 // ─── Cascading 3-row grid ──────────────────────────────────────────────────
 // Rows NEVER change stacking order — row 1 is always drawn first (top), row 2
@@ -411,203 +642,664 @@ private fun lerp(a: Float, b: Float, t: Float) = a + (b - a) * t
 
 @Composable
 fun RotatingRowGrid(
-    rowsData      : List<RowContent>,
-    modifier      : Modifier = Modifier,
-    startExpanded : Boolean = false
+    rowsData: List<RowContent>,
+    modifier: Modifier = Modifier,
+    startExpanded: Boolean = false
 ) {
-    var expanded by rememberSaveable { mutableStateOf(startExpanded) }
 
-    val progress by animateFloatAsState(
-        targetValue   = if (expanded) 1f else 0f,
-        animationSpec = tween(durationMillis = 650, easing = CubicBezierEasing(0.25f, 0.46f, 0.45f, 0.94f)),
-        label         = "cascadeProgress"
-    )
-
-    // Row 1 starts fully visible (big) and hides its text/icon as it shrinks to small.
-    // Row 3 starts hidden (small, no content) and reveals its text/icon as it grows.
-    // Row 2 is never in the "small" state, so it stays fully visible throughout.
-    val row1ContentAlpha = 1f - progress
-    val row3ContentAlpha = progress
-
-    fun expand()   { expanded = true }
-    fun collapse() { expanded = false }
-
-    // heightFor(column, rowIndex): rotates that column's 3 collapsed heights
-    // one step — row0 ends where row2 started, row1 ends where row0 started,
-    // row2 ends where row1 started — same rotation as before, just evaluated
-    // per column so left/right can keep their own big/small values.
-    fun heightFor(heights: List<Float>, rowIndex: Int): Float {
-        val targetIdx = ((rowIndex - 1) % 3 + 3) % 3
-        return lerp(heights[rowIndex], heights[targetIdx], progress)
+    var expanded by rememberSaveable {
+        mutableStateOf(startExpanded)
     }
 
-    fun cornerFor(height: Float): Float {
-        val t = ((height - SMALL_HEIGHT) / (BIG_HEIGHT - SMALL_HEIGHT)).coerceIn(0f, 1f)
-        return lerp(22f, 16f, t) // small -> rounder, big -> standard 16dp
-    }
 
-    // sizeTFor(height): 0 at the small collapsed height, 1 at the big collapsed
-    // height — used to lerp each item's own small/big icon & font sizes as its
-    // card grows or shrinks between slots.
-    fun sizeTFor(height: Float): Float =
-        ((height - SMALL_HEIGHT) / (BIG_HEIGHT - SMALL_HEIGHT)).coerceIn(0f, 1f)
+    /*
+     * -------------------------------------------------------------
+     * AVAILABLE WIDTH
+     * -------------------------------------------------------------
+     */
 
-    fun iconSizeFor(item: MenuItemData, t: Float): Dp =
-        item.iconSizeSmall + (item.iconSizeBig - item.iconSizeSmall) * t
-
-    fun fontSizeFor(item: MenuItemData, t: Float): TextUnit =
-        (item.fontSizeSmall.value + (item.fontSizeBig.value - item.fontSizeSmall.value) * t).sp
-
-    Row(
-        modifier              = modifier,
-        horizontalArrangement = Arrangement.spacedBy(20.dp)
+    BoxWithConstraints(
+        modifier = modifier
     ) {
-        // ── Left column (stacks independently, tight spacing) ──────────────
-        Column(
-            modifier            = Modifier.weight(1f),
-            verticalArrangement = Arrangement.spacedBy(SLOT_SPACING.dp)
-        ) {
-            val h0 = heightFor(LEFT_HEIGHTS, 0)
-            val h1 = heightFor(LEFT_HEIGHTS, 1)
-            val h2 = heightFor(LEFT_HEIGHTS, 2)
-            val t0 = sizeTFor(h0)
-            val t1 = sizeTFor(h1)
-            val t2 = sizeTFor(h2)
 
-            // Left column
-            CascadeCard(
-                item = rowsData[0].left, corner = cornerFor(h0), contentAlpha = row1ContentAlpha,
-                iconSize = iconSizeFor(rowsData[0].left, t0), fontSize = fontSizeFor(rowsData[0].left, t0),
-                onClick = { if (!expanded) rowsData[0].left.onClick() else collapse() },
-                modifier = Modifier.fillMaxWidth().height(h0.dp)
+        /*
+         * The original design was created around approximately
+         * a 360dp-wide phone.
+         *
+         * We scale relative to that.
+         */
+        val scale = (
+                maxWidth.value / BASE_WIDTH
+                ).coerceIn(
+                0.85f,
+                1.05f
             )
-            CascadeCard(
-                item = rowsData[1].left, corner = cornerFor(h1), contentAlpha = 1f,
-                iconSize = iconSizeFor(rowsData[1].left, t1), fontSize = fontSizeFor(rowsData[1].left, t1),
-                onClick = { rowsData[1].left.onClick() },
-                modifier = Modifier.fillMaxWidth().height(h1.dp)
-            )
-            CascadeCard(
-                item = rowsData[2].left, corner = cornerFor(h2), contentAlpha = row3ContentAlpha,
-                iconSize = iconSizeFor(rowsData[2].left, t2), fontSize = fontSizeFor(rowsData[2].left, t2),
-                onClick = { if (expanded) rowsData[2].left.onClick() else expand() },
-                modifier = Modifier.fillMaxWidth().height(h2.dp)
+
+
+        /*
+         * ---------------------------------------------------------
+         * RESPONSIVE GRID VALUES
+         * ---------------------------------------------------------
+         */
+
+        val bigHeight =
+            BASE_BIG_HEIGHT * scale
+
+        val smallHeight =
+            BASE_SMALL_HEIGHT * scale
+
+        val slotSpacing =
+            BASE_SLOT_SPACING * scale
+
+
+        /*
+         * Scale the original column heights.
+         */
+
+        val leftHeights = listOf(
+            190f * scale,
+            100f * scale,
+            24f * scale
+        )
+
+        val rightHeights = listOf(
+            100f * scale,
+            190f * scale,
+            24f * scale
+        )
+
+
+        /*
+         * ---------------------------------------------------------
+         * ANIMATION
+         * ---------------------------------------------------------
+         */
+
+        val progress by animateFloatAsState(
+            targetValue =
+                if (expanded) 1f else 0f,
+
+            animationSpec = tween(
+                durationMillis = 650,
+                easing = CubicBezierEasing(
+                    0.25f,
+                    0.46f,
+                    0.45f,
+                    0.94f
+                )
+            ),
+
+            label = "cascadeProgress"
+        )
+
+
+        /*
+         * Content visibility.
+         */
+
+        val row1ContentAlpha =
+            1f - progress
+
+        val row3ContentAlpha =
+            progress
+
+
+        fun expand() {
+            expanded = true
+        }
+
+        fun collapse() {
+            expanded = false
+        }
+
+
+        /*
+         * ---------------------------------------------------------
+         * HEIGHT CALCULATION
+         * ---------------------------------------------------------
+         */
+
+        fun heightFor(
+            heights: List<Float>,
+            rowIndex: Int
+        ): Float {
+
+            val targetIdx =
+                ((rowIndex - 1) % 3 + 3) % 3
+
+            return lerp(
+                heights[rowIndex],
+                heights[targetIdx],
+                progress
             )
         }
 
-        // ── Right column (stacks independently, tight spacing) ─────────────
-        Column(
-            modifier            = Modifier.weight(1f),
-            verticalArrangement = Arrangement.spacedBy(SLOT_SPACING.dp)
-        ) {
-            val h0 = heightFor(RIGHT_HEIGHTS, 0)
-            val h1 = heightFor(RIGHT_HEIGHTS, 1)
-            val h2 = heightFor(RIGHT_HEIGHTS, 2)
-            val t0 = sizeTFor(h0)
-            val t1 = sizeTFor(h1)
-            val t2 = sizeTFor(h2)
 
-            CascadeCard(
-                item = rowsData[0].right, corner = cornerFor(h0), contentAlpha = row1ContentAlpha,
-                iconSize = iconSizeFor(rowsData[0].right, t0), fontSize = fontSizeFor(rowsData[0].right, t0),
-                onClick = { if (!expanded) rowsData[0].right.onClick() else collapse() },
-                modifier = Modifier.fillMaxWidth().height(h0.dp)
+        /*
+         * ---------------------------------------------------------
+         * CORNER RADIUS
+         * ---------------------------------------------------------
+         */
+
+        fun cornerFor(
+            height: Float
+        ): Float {
+
+            val t =
+                (
+                        (height - smallHeight) /
+                                (bigHeight - smallHeight)
+                        ).coerceIn(0f, 1f)
+
+            return lerp(
+                22f * scale,
+                16f * scale,
+                t
             )
-            CascadeCard(
-                item = rowsData[1].right, corner = cornerFor(h1), contentAlpha = 1f,
-                iconSize = iconSizeFor(rowsData[1].right, t1), fontSize = fontSizeFor(rowsData[1].right, t1),
-                onClick = { rowsData[1].right.onClick() },
-                modifier = Modifier.fillMaxWidth().height(h1.dp)
-            )
-            CascadeCard(
-                item = rowsData[2].right, corner = cornerFor(h2), contentAlpha = row3ContentAlpha,
-                iconSize = iconSizeFor(rowsData[2].right, t2), fontSize = fontSizeFor(rowsData[2].right, t2),
-                onClick = { if (expanded) rowsData[2].right.onClick() else expand() },   // ← fixed
-                modifier = Modifier.fillMaxWidth().height(h2.dp)
-            )
+        }
+
+
+        /*
+         * ---------------------------------------------------------
+         * ICON / FONT SCALE
+         * ---------------------------------------------------------
+         */
+
+        fun sizeTFor(
+            height: Float
+        ): Float {
+
+            return (
+                    (height - smallHeight) /
+                            (bigHeight - smallHeight)
+                    ).coerceIn(0f, 1f)
+        }
+
+
+        fun iconSizeFor(
+            item: MenuItemData,
+            t: Float
+        ): Dp {
+
+            val baseSize =
+                item.iconSizeSmall +
+                        (
+                                item.iconSizeBig -
+                                        item.iconSizeSmall
+                                ) * t
+
+            return baseSize * scale
+        }
+
+
+        fun fontSizeFor(
+            item: MenuItemData,
+            t: Float
+        ): TextUnit {
+
+            val baseSize =
+                item.fontSizeSmall.value +
+                        (
+                                item.fontSizeBig.value -
+                                        item.fontSizeSmall.value
+                                ) * t
+
+            return (
+                    baseSize * scale
+                    ).sp
+        }
+
+
+        /*
+         * ---------------------------------------------------------
+         * TWO COLUMNS
+         * ---------------------------------------------------------
+         */
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+
+            horizontalArrangement =
+                Arrangement.spacedBy(
+                    20.dp * scale
+                )
+        ) {
+
+
+            /*
+             * =====================================================
+             * LEFT COLUMN
+             * =====================================================
+             */
+
+            Column(
+                modifier = Modifier.weight(1f),
+
+                verticalArrangement =
+                    Arrangement.spacedBy(
+                        slotSpacing.dp
+                    )
+            ) {
+
+                val h0 =
+                    heightFor(leftHeights, 0)
+
+                val h1 =
+                    heightFor(leftHeights, 1)
+
+                val h2 =
+                    heightFor(leftHeights, 2)
+
+
+                val t0 =
+                    sizeTFor(h0)
+
+                val t1 =
+                    sizeTFor(h1)
+
+                val t2 =
+                    sizeTFor(h2)
+
+
+                /*
+                 * Row 1
+                 */
+
+                CascadeCard(
+                    item = rowsData[0].left,
+
+                    corner = cornerFor(h0),
+
+                    contentAlpha =
+                        row1ContentAlpha,
+
+                    iconSize =
+                        iconSizeFor(
+                            rowsData[0].left,
+                            t0
+                        ),
+
+                    fontSize =
+                        fontSizeFor(
+                            rowsData[0].left,
+                            t0
+                        ),
+
+                    onClick = {
+                        if (!expanded) {
+                            rowsData[0]
+                                .left
+                                .onClick()
+                        } else {
+                            collapse()
+                        }
+                    },
+
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(h0.dp)
+                )
+
+
+                /*
+                 * Row 2
+                 */
+
+                CascadeCard(
+                    item = rowsData[1].left,
+
+                    corner = cornerFor(h1),
+
+                    contentAlpha = 1f,
+
+                    iconSize =
+                        iconSizeFor(
+                            rowsData[1].left,
+                            t1
+                        ),
+
+                    fontSize =
+                        fontSizeFor(
+                            rowsData[1].left,
+                            t1
+                        ),
+
+                    onClick = {
+                        rowsData[1]
+                            .left
+                            .onClick()
+                    },
+
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(h1.dp)
+                )
+
+
+                /*
+                 * Row 3
+                 */
+
+                CascadeCard(
+                    item = rowsData[2].left,
+
+                    corner = cornerFor(h2),
+
+                    contentAlpha =
+                        row3ContentAlpha,
+
+                    iconSize =
+                        iconSizeFor(
+                            rowsData[2].left,
+                            t2
+                        ),
+
+                    fontSize =
+                        fontSizeFor(
+                            rowsData[2].left,
+                            t2
+                        ),
+
+                    onClick = {
+                        if (expanded) {
+                            rowsData[2]
+                                .left
+                                .onClick()
+                        } else {
+                            expand()
+                        }
+                    },
+
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(h2.dp)
+                )
+            }
+
+
+            /*
+             * =====================================================
+             * RIGHT COLUMN
+             * ===================================================== */
+
+            Column(
+                modifier = Modifier.weight(1f),
+
+                verticalArrangement =
+                    Arrangement.spacedBy(
+                        slotSpacing.dp
+                    )
+            ) {
+
+                val h0 =
+                    heightFor(rightHeights, 0)
+
+                val h1 =
+                    heightFor(rightHeights, 1)
+
+                val h2 =
+                    heightFor(rightHeights, 2)
+
+
+                val t0 =
+                    sizeTFor(h0)
+
+                val t1 =
+                    sizeTFor(h1)
+
+                val t2 =
+                    sizeTFor(h2)
+
+
+                /*
+                 * Row 1
+                 */
+
+                CascadeCard(
+                    item = rowsData[0].right,
+
+                    corner = cornerFor(h0),
+
+                    contentAlpha =
+                        row1ContentAlpha,
+
+                    iconSize =
+                        iconSizeFor(
+                            rowsData[0].right,
+                            t0
+                        ),
+
+                    fontSize =
+                        fontSizeFor(
+                            rowsData[0].right,
+                            t0
+                        ),
+
+                    onClick = {
+                        if (!expanded) {
+                            rowsData[0]
+                                .right
+                                .onClick()
+                        } else {
+                            collapse()
+                        }
+                    },
+
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(h0.dp)
+                )
+
+
+                /*
+                 * Row 2
+                 */
+
+                CascadeCard(
+                    item = rowsData[1].right,
+
+                    corner = cornerFor(h1),
+
+                    contentAlpha = 1f,
+
+                    iconSize =
+                        iconSizeFor(
+                            rowsData[1].right,
+                            t1
+                        ),
+
+                    fontSize =
+                        fontSizeFor(
+                            rowsData[1].right,
+                            t1
+                        ),
+
+                    onClick = {
+                        rowsData[1]
+                            .right
+                            .onClick()
+                    },
+
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(h1.dp)
+                )
+
+
+                /*
+                 * Row 3
+                 */
+
+                CascadeCard(
+                    item = rowsData[2].right,
+
+                    corner = cornerFor(h2),
+
+                    contentAlpha =
+                        row3ContentAlpha,
+
+                    iconSize =
+                        iconSizeFor(
+                            rowsData[2].right,
+                            t2
+                        ),
+
+                    fontSize =
+                        fontSizeFor(
+                            rowsData[2].right,
+                            t2
+                        ),
+
+                    onClick = {
+                        if (expanded) {
+                            rowsData[2]
+                                .right
+                                .onClick()
+                        } else {
+                            expand()
+                        }
+                    },
+
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(h2.dp)
+                )
+            }
         }
     }
 }
-
 
 
 @Composable
 fun CascadeCard(
-    item         : MenuItemData,
-    corner       : Float,
-    contentAlpha : Float,
-    iconSize     : Dp,
-    fontSize     : TextUnit,
-    onClick      : () -> Unit,
-    modifier     : Modifier = Modifier
+    item: MenuItemData,
+    corner: Float,
+    contentAlpha: Float,
+    iconSize: Dp,
+    fontSize: TextUnit,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
 
     Card(
         onClick = onClick,
+
         modifier = modifier,
-        shape = RoundedCornerShape(corner.dp),
-        colors = CardDefaults.cardColors(containerColor = appColors.colors.mainButton),
-        elevation = CardDefaults.cardElevation(8.dp)
+
+        shape = RoundedCornerShape(
+            corner.dp
+        ),
+
+        colors = CardDefaults.cardColors(
+            containerColor =
+                appColors.colors.mainButton
+        ),
+
+        elevation = CardDefaults.cardElevation(
+            defaultElevation = 8.dp
+        )
     ) {
+
         Box(
             contentAlignment = Alignment.Center,
-            modifier         = Modifier.fillMaxSize().padding(8.dp)
+
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(8.dp)
         ) {
+
             CardContent(
-                item     = item,
+                item = item,
+
                 iconSize = iconSize,
+
                 fontSize = fontSize,
-                modifier = Modifier.graphicsLayer { alpha = contentAlpha }
+
+                modifier =
+                    Modifier.graphicsLayer {
+                        alpha = contentAlpha
+                    }
             )
         }
     }
 }
 
 
-
 @Composable
 fun CardContent(
-    item     : MenuItemData,
-    iconSize : Dp,
-    fontSize : TextUnit,
-    modifier : Modifier = Modifier
+    item: MenuItemData,
+    iconSize: Dp,
+    fontSize: TextUnit,
+    modifier: Modifier = Modifier
 ) {
+
     Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center,
-        modifier            = modifier
+        horizontalAlignment =
+            Alignment.CenterHorizontally,
+
+        verticalArrangement =
+            Arrangement.Center,
+
+        modifier = modifier
     ) {
+
         Image(
-            painter            = painterResource(id = item.iconRes),
-            contentDescription = item.label,
-            colorFilter        = if (item.tintIcon) ColorFilter.tint(appColors.colors.backButton) else null,
-            modifier           = Modifier.size(iconSize)
+            painter = painterResource(
+                id = item.iconRes
+            ),
+
+            contentDescription =
+                item.label,
+
+            colorFilter =
+                if (item.tintIcon)
+                    ColorFilter.tint(
+                        appColors.colors.backButton
+                    )
+                else
+                    null,
+
+            modifier = Modifier.size(
+                iconSize
+            )
         )
-        Spacer(Modifier.height(8.dp))
+
+        Spacer(
+            modifier = Modifier.height(8.dp)
+        )
+
         Text(
-            text       = item.label,
-            fontSize   = fontSize,
+            text = item.label,
+
+            fontSize = fontSize,
+
             fontFamily = MartelFont,
+
             fontWeight = FontWeight.Bold,
-            color      = TextDark,
+
+            color = TextDark,
+
             lineHeight = fontSize,
-            textAlign  = TextAlign.Center
+
+            textAlign = TextAlign.Center
         )
     }
 }
 
-
 data class MenuItemData(
-    val label        : String,
-    val iconRes      : Int,
-    val iconSizeSmall: Dp       = 32.dp,
-    val iconSizeBig  : Dp       = 44.dp,
-    val fontSizeSmall: TextUnit = 14.sp,
-    val fontSizeBig  : TextUnit = 17.sp,
-    val tintIcon     : Boolean  = true,
-    val onClick      : () -> Unit = {}
-)
+    val label: String,
+    val iconRes: Int,
 
+    val iconSizeSmall: Dp = 32.dp,
+    val iconSizeBig: Dp = 44.dp,
+
+    val fontSizeSmall: TextUnit = 14.sp,
+    val fontSizeBig: TextUnit = 17.sp,
+
+    val tintIcon: Boolean = true,
+
+    val onClick: () -> Unit = {}
+)
 // One horizontal row of the grid: a left button + a right button.
 // Identity never changes — only which vertical slot (and therefore
 // size/shape) it currently occupies changes.

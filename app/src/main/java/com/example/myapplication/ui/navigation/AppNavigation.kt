@@ -13,7 +13,6 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.example.myapplication.ui.theme.GreenTheme
 import com.example.myapplication.ui.AddLocationContent
 import com.example.myapplication.ui.CameraPreviewContent
 import com.example.myapplication.ui.DemoScreen
@@ -27,13 +26,11 @@ import com.example.myapplication.ui.PersonFormMode
 import com.example.myapplication.ui.NotRecognisedContent
 import com.example.myapplication.ui.RecognisedContent
 import com.example.myapplication.ui.RecordScreen
-import com.example.myapplication.ui.SearchLocationScreen
 import com.example.myapplication.ui.SearchResultsContent
 import com.example.myapplication.ui.SelectLanguageContent
 import com.example.myapplication.ui.SettingsContent
 import com.example.myapplication.ui.ViewMoreScreen
 import com.example.myapplication.ui.components.BottomNavBar
-import com.example.myapplication.ui.components.DiscussionSummaryBox
 import com.example.myapplication.ui.components.NavTab
 import androidx.navigation.compose.dialog
 import androidx.compose.ui.window.DialogProperties
@@ -41,9 +38,10 @@ import com.example.myapplication.ui.components.PopupCard
 import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.tween
+import androidx.compose.ui.res.stringResource
 import com.example.myapplication.ui.SearchScreen
 import androidx.lifecycle.viewmodel.compose.viewModel
-
+import com.example.myapplication.R
 //newly one
 @SuppressLint("SuspiciousIndentation")
 @Composable
@@ -66,6 +64,17 @@ fun AppNavigation(
             && currentDestination != "addperson"
             && currentDestination != "detailpopup"
 
+    val deleteRecord = stringResource(R.string.delete_record)
+    val editRecord = stringResource(R.string.edit_record)
+    val deleteSuccess = stringResource(R.string.record_deleted_successfully)
+    val editSuccess = stringResource(R.string.record_edited_successfully)
+    val locationSuccess = stringResource(R.string.location_added_successfully)
+    val recordSaved = stringResource(R.string.record_saved_successfully)
+    val saveRecording = stringResource(R.string.save_recording)
+
+    val deleteText = stringResource(R.string.delete_popup)
+    val editText = stringResource(R.string.edit_popup)
+    val saveText = stringResource(R.string.save_popup)
 
     Box(Modifier.fillMaxSize()) {
             NavHost(
@@ -124,8 +133,8 @@ fun AppNavigation(
                     dialogProperties = DialogProperties(usePlatformDefaultWidth = false)
                 ) {
                     PopupCard(
-                        messageText = "Delete Record?",
-                        buttonText = "Delete",
+                        messageText = deleteRecord,
+                        buttonText = deleteText,
                         showButton = true,
                         navController = navController,
                         onDismiss = { navController.popBackStack() },
@@ -142,8 +151,8 @@ fun AppNavigation(
                     dialogProperties = DialogProperties(usePlatformDefaultWidth = false)
                 ) {
                     PopupCard(
-                        messageText = "Delete Record?",
-                        buttonText = "Delete",
+                        messageText = deleteRecord,
+                        buttonText = deleteText,
                         showButton = true,
                         navController = navController,
                         onDismiss = { navController.popBackStack() },
@@ -160,7 +169,7 @@ fun AppNavigation(
                     dialogProperties = DialogProperties(usePlatformDefaultWidth = false)
                 ) {
                     PopupCard(
-                        messageText = "Record Saved Successfully!",
+                        messageText = recordSaved,
                         height = 0.25f,
                         upperPadding = 10.dp,
                         textOffset = DpOffset(x = (-36).dp, y = 312.dp),
@@ -178,8 +187,8 @@ fun AppNavigation(
                     dialogProperties = DialogProperties(usePlatformDefaultWidth = false)
                 ) {
                     PopupCard(
-                        messageText = "Edit Record?",
-                        buttonText = "Edit",
+                        messageText = editRecord,
+                        buttonText = editText,
                         showButton = true,
                         navController = navController,
                         onDismiss = { navController.popBackStack() },
@@ -196,7 +205,7 @@ fun AppNavigation(
                     dialogProperties = DialogProperties(usePlatformDefaultWidth = false)
                 ) {
                     PopupCard(
-                        messageText = "Record Deleted Successfully!",
+                        messageText = deleteSuccess,
                         height = 0.25f,
                         upperPadding = 10.dp,
                         textOffset = DpOffset(x = (-36).dp, y = 312.dp),
@@ -212,7 +221,7 @@ fun AppNavigation(
                     dialogProperties = DialogProperties(usePlatformDefaultWidth = false)
                 ) {
                     PopupCard(
-                        messageText = "Record Edited Successfully!",
+                        messageText = editSuccess,
                         height = 0.25f,
                         upperPadding = 10.dp,
                         textOffset = DpOffset(x = (-36).dp, y = 312.dp),
@@ -228,7 +237,7 @@ fun AppNavigation(
                     dialogProperties = DialogProperties(usePlatformDefaultWidth = false)
                 ) {
                     PopupCard(
-                        messageText = "Location Added Successfully!",
+                        messageText = locationSuccess,
                         height = 0.25f,
                         upperPadding = 10.dp,
                         textOffset = DpOffset(x = (-36).dp, y = 312.dp),
@@ -248,8 +257,8 @@ fun AppNavigation(
                     dialogProperties = DialogProperties(usePlatformDefaultWidth = false)
                 ) {
                     PopupCard(
-                        messageText = "Save recording?",
-                        buttonText = "Save",
+                        messageText = saveRecording,
+                        buttonText = saveText,
                         showButton = true,
                         navController = navController,
                         onDismiss = { navController.popBackStack() },
@@ -264,8 +273,8 @@ fun AppNavigation(
                     dialogProperties = DialogProperties(usePlatformDefaultWidth = false)
                 ) {
                     PopupCard(
-                        messageText = "Don't Save Recording?",
-                        buttonText = "Back",
+                        messageText = stringResource(R.string.dialog_record_back_title),
+                        buttonText = stringResource(R.string.back),
                         showButton = true,
                         navController = navController,
                         onDismiss = { navController.popBackStack() },
@@ -281,8 +290,8 @@ fun AppNavigation(
                     dialogProperties = DialogProperties(usePlatformDefaultWidth = false)
                 ) {
                     PopupCard(
-                        messageText = "Erase Data & Restart?",
-                        buttonText = "Erase Data",
+                        messageText = stringResource(R.string.dialog_delete_data_title),
+                        buttonText = stringResource(R.string.dialog_delete_data_button),
                         showButton = true,
                         navController = navController,
                         onDismiss = { navController.popBackStack() },

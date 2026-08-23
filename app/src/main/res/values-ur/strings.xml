@@ -49,9 +49,7 @@
     <string name="get_current_location">لوکیشن حاصل کرنے کے لیے کلک کری</string>
 
     <!-- Voice -->
-    <string name="add_person_voice_sample">اپنی آواز
-شامل کریں *</string>
-
+    <string name="add_person_voice_sample">اپنی آواز شامل کریں</string>
 
 
     <!-- Buttons -->
@@ -172,4 +170,27 @@
     <string name="relation_placeholder">رشتہ درج کریں مثلاً دوست</string>
     <string name="open_location_map">نقشے میں مقام کھولیں</string>
     <string name="recording_date">24/5/2026</string>
+
+    <!-- Popup Messages -->
+    <string name="delete_record">ریکارڈ حذف کریں؟</string>
+    <string name="edit_record">ریکارڈ میں ترمیم کریں؟</string>
+    <string name="record_deleted_successfully">ریکارڈ کامیابی سے حذف کر دیا گیا!</string>
+    <string name="record_edited_successfully">ریکارڈ میں کامیابی سے ترمیم کر دی گئی!</string>
+    <string name="location_added_successfully">مقام کامیابی سے شامل کر دیا گیا!</string>
+    <string name="record_saved_successfully">ریکارڈ کامیابی سے محفوظ کر لیا گیا!</string>
+    <string name="save_recording">ریکارڈنگ محفوظ کریں؟</string>
+
+    <!-- Popup Buttons -->
+    <string name="delete_popup">حذف کریں</string>
+    <string name="edit_popup">ترمیم کریں</string>
+    <string name="save_popup">محفوظ کریں</string>
+
+
+        <!-- Record Back Popup -->
+        <string name="dialog_record_back_title">کیا ریکارڈنگ محفوظ نہ کی جائے؟</string>
+
+        <!-- Delete Data Popup -->
+        <string name="dialog_delete_data_title">ڈیٹا مٹائیں اور دوبارہ شروع کریں؟</string>
+        <string name="dialog_delete_data_button">ڈیٹا مٹائیں</string>
+
 </resources>

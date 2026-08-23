@@ -51,7 +51,7 @@
     <string name="get_current_location">Get current location</string>
 
     <!-- Voice -->
-    <string name="add_person_voice_sample">Add Person voice sample *</string>
+    <string name="add_person_voice_sample">Add your\nvoice sample *</string>
 
 
     <!-- Buttons -->
@@ -168,4 +168,27 @@
     <string name="relation_placeholder">Enter relation e.g. Friend</string>
     <string name="open_location_map">Open location in map</string>
     <string name="recording_date">24/5/2026</string>
+
+    <!-- Popup Messages -->
+    <string name="delete_record">Delete Record?</string>
+    <string name="edit_record">Edit Record?</string>
+    <string name="record_deleted_successfully">Record Deleted Successfully!</string>
+    <string name="record_edited_successfully">Record Edited Successfully!</string>
+    <string name="location_added_successfully">Location Added Successfully!</string>
+    <string name="record_saved_successfully">Record Saved Successfully!</string>
+    <string name="save_recording">Save recording?</string>
+
+    <!-- Popup Buttons -->
+    <string name="delete_popup">Delete</string>
+    <string name="edit_popup">Edit</string>
+    <string name="save_popup">Save</string>
+
+
+        <!-- Record Back Popup -->
+        <string name="dialog_record_back_title">Don\'t Save Recording?</string>
+
+        <!-- Delete Data Popup -->
+        <string name="dialog_delete_data_title">Erase Data &amp; Restart?</string>
+        <string name="dialog_delete_data_button">Erase Data</string>
+
 </resources>

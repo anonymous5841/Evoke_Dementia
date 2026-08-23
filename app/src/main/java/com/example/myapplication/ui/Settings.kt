@@ -1,10 +1,4 @@
 package com.example.myapplication.ui
-
-import android.os.Build
-import android.os.Bundle
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
@@ -12,21 +6,13 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.BlurEffect
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.graphics.CompositingStrategy
 import androidx.compose.ui.graphics.Shadow
-import androidx.compose.ui.graphics.TileMode
-import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.graphics.painter.Painter
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.myapplication.R
@@ -39,6 +25,8 @@ import com.example.myapplication.ui.theme.BlueAppColors
 import com.example.myapplication.ui.theme.GreenAppColors
 import com.example.myapplication.ui.theme.GreenTheme
 import com.example.myapplication.ui.theme.MartelFont
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 
 //class SettingsScreen : ComponentActivity() {
 //
@@ -69,38 +57,87 @@ fun SettingsContent(
 
     Scaffold(
         containerColor = appColors.background,
-        contentWindowInsets = WindowInsets(0, 0, 0, 0)  // insets already handled at root
-
+        contentWindowInsets = WindowInsets(0, 0, 0, 0)
     ) { innerPadding ->
 
-        Box(
+        BoxWithConstraints(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
         ) {
 
+            /*
+             * RESPONSIVE DIMENSIONS
+             */
+
+            // Horizontal screen padding
+            val horizontalPadding = (maxWidth * 0.06f)
+                .coerceIn(20.dp, 32.dp)
+
+            // Space from top before settings content
+            val topSpacing = (maxHeight * 0.28f)
+                .coerceIn(180.dp, 270.dp)
+
+            // Gap between Cloud Backup and Select Language
+            val backupLanguageSpacing = (maxHeight * 0.025f)
+                .coerceIn(16.dp, 24.dp)
+
+            // Gap before Select Theme
+            val languageThemeSpacing = (maxHeight * 0.035f)
+                .coerceIn(24.dp, 32.dp)
+
+            // Gap before Erase Data
+            val themeEraseSpacing = (maxHeight * 0.012f)
+                .coerceIn(8.dp, 12.dp)
+
+
             Column(
-                modifier = Modifier.fillMaxSize()
+                modifier = Modifier
+                    .fillMaxSize()
+
             ) {
 
-                Spacer(modifier = Modifier.height(270.dp))
+                /*
+                 * RESPONSIVE TOP POSITION
+                 */
+                Spacer(
+                    modifier = Modifier.height(topSpacing)
+                )
 
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 24.dp)
-                        .offset(y = (-40).dp),
-                    verticalArrangement = Arrangement.spacedBy(10.dp) // remove auto spacing, control manually
+                        .padding(horizontal = horizontalPadding),
+
+                    verticalArrangement = Arrangement.Top
                 ) {
+
+                    /*
+                     * CLOUD BACKUP
+                     */
 
                     SettingsRow(
                         label = stringResource(R.string.cloud_backup),
                         iconRes = R.drawable.ic_backup,
                         iconSize = 38.dp,
-                        onClick = { }
+                        onClick = {}
                     )
 
-                    Spacer(modifier = Modifier.height(20.dp)) // gap between Cloud Backup and Select Language
+
+                    /*
+                     * CLOUD BACKUP → SELECT LANGUAGE
+                     */
+
+                    Spacer(
+                        modifier = Modifier.height(
+                            backupLanguageSpacing
+                        )
+                    )
+
+
+                    /*
+                     * SELECT LANGUAGE
+                     */
 
                     SettingsRow(
                         label = stringResource(R.string.select_language),
@@ -108,17 +145,39 @@ fun SettingsContent(
                         onClick = onSelectLanguage
                     )
 
-                    Spacer(modifier = Modifier.height(28.dp)) // larger gap before Select Theme (no card)
-                    //select theme
+
+                    /*
+                     * SELECT LANGUAGE → SELECT THEME
+                     */
+
+                    Spacer(
+                        modifier = Modifier.height(
+                            languageThemeSpacing
+                        )
+                    )
+
+
+                    /*
+                     * SELECT THEME
+                     */
+
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(start = 20.dp, end = 10.dp),
+                            .padding(
+                                start = 20.dp,
+                                end = 10.dp
+                            ),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
+
                         Text(
-                            text = stringResource(R.string.select_theme),
+                            text = stringResource(
+                                R.string.select_theme
+                            ),
+
                             modifier = Modifier.weight(1f),
+
                             fontFamily = MartelFont,
                             fontSize = 22.sp,
                             color = Color.Black
@@ -127,46 +186,93 @@ fun SettingsContent(
                         ThemeToggleSwitch(
                             checked = isBlueTheme,
                             onCheckedChange = onThemeToggle,
-                            checkedThumbColor = BlueAppColors.toggleColor,
-                            uncheckedThumbColor = GreenAppColors.toggleColor
+                            checkedThumbColor =
+                                BlueAppColors.toggleColor,
+                            uncheckedThumbColor =
+                                GreenAppColors.toggleColor
                         )
                     }
 
-                    Spacer(modifier = Modifier.height(8.dp)) // larger gap before Select Theme (no card)
+
+                    /*
+                     * SELECT THEME → ERASE DATA
+                     */
+
+                    Spacer(
+                        modifier = Modifier.height(
+                            themeEraseSpacing
+                        )
+                    )
+
+
+                    /*
+                     * ERASE DATA
+                     */
 
                     Row(
                         modifier = Modifier
-                            .clickable { onEraseClick() }
+                            .fillMaxWidth()
+                            .clickable {
+                                onEraseClick()
+                            }
                             .padding(start = 20.dp),
-                        verticalAlignment = Alignment.CenterVertically
+
+                        verticalAlignment =
+                            Alignment.CenterVertically
                     ) {
+
                         IconWithShadow(
-                            painter = painterResource(R.drawable.ic_delete),
+                            painter = painterResource(
+                                R.drawable.ic_delete
+                            ),
+
                             contentDescription = null,
+
                             tint = Color.Red,
+
                             modifier = Modifier.size(35.dp)
                         )
 
-                        Spacer(modifier = Modifier.width(12.dp))
+                        Spacer(
+                            modifier = Modifier.width(12.dp)
+                        )
 
                         Text(
-                            text = stringResource(R.string.erase_data),
+                            text = stringResource(
+                                R.string.erase_data
+                            ),
+
                             fontSize = 22.sp,
                             fontWeight = FontWeight.Medium,
                             color = Color.Red,
                             fontFamily = MartelFont,
+
                             style = TextStyle(
                                 shadow = Shadow(
-                                    color = Color.Black.copy(alpha = 0.4f), // [SHADOW OPACITY]
-                                    offset = Offset(x = 5f, y = 4f),          // [SHADOW OFFSET]
-                                    blurRadius = 5f                            // [SHADOW BLUR]
+                                    color = Color.Black.copy(
+                                        alpha = 0.4f
+                                    ),
+                                    offset = Offset(
+                                        x = 5f,
+                                        y = 4f
+                                    ),
+                                    blurRadius = 5f
                                 )
                             ),
-                            modifier = Modifier.padding(top = 15.dp)
+
+                            modifier = Modifier.padding(
+                                top = 15.dp
+                            )
                         )
                     }
                 }
             }
+
+
+            /*
+             * HEADER
+             * We're leaving this unchanged as requested.
+             */
 
             HeaderSection(
                 title = stringResource(R.string.settings),
@@ -176,7 +282,6 @@ fun SettingsContent(
         }
     }
 }
-
 
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
