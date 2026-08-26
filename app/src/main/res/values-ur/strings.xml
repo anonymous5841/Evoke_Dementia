@@ -27,7 +27,7 @@
     <string name="map_pin">نقشے کا نشان</string>
     <string name="open_location_in_map">نقشے پر جگہ کھولیں</string>
     <string name="location_required">جگہ*</string>
-    //Profile
+
     <string name="let_us_know_you">اپنے بارے میں بتائیں</string>
     <string name="profile">پروفائل</string>
     <!-- Name -->
@@ -174,7 +174,7 @@
     <!-- Popup Messages -->
     <string name="delete_record">ریکارڈ حذف کریں؟</string>
     <string name="edit_record">ریکارڈ میں ترمیم کریں؟</string>
-    <string name="record_deleted_successfully">ریکارڈ کامیابی سے حذف کر دیا گیا!</string>
+    <string name="record_deleted_successfully">ریکارڈ کامیابی سے حذف کر دیا گیا&#x200F;!</string>
     <string name="record_edited_successfully">ریکارڈ میں کامیابی سے ترمیم کر دی گئی!</string>
     <string name="location_added_successfully">مقام کامیابی سے شامل کر دیا گیا!</string>
     <string name="record_saved_successfully">ریکارڈ کامیابی سے محفوظ کر لیا گیا!</string>

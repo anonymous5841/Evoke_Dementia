@@ -3,7 +3,6 @@ package com.example.myapplication.ui
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -25,16 +24,11 @@ import com.example.myapplication.ui.theme.GreenTheme
 import com.example.myapplication.ui.theme.MartelFont
 import androidx.compose.ui.res.stringResource
 
+
 // ══════════════════════════════════════════════════════
-// CLICKABLE SELECTION CARD — inline in this file
-// Same as your friend's component but defined here
-// so no separate import needed
-// [CARD HEIGHT] change height(48.dp)
-// [CARD CORNER] change RoundedCornerShape(15.dp)
-// [SHADOW ELEVATION] change elevation(10.dp)
-// [TEXT SIZE] change fontSize(18.sp)
-// [TEXT FONT] change fontFamily
+// CLICKABLE SELECTION CARD
 // ══════════════════════════════════════════════════════
+
 @Composable
 fun ClickableSelectionCard(
     text: String,
@@ -45,59 +39,89 @@ fun ClickableSelectionCard(
     selectedColor: Color,
     defaultColor: Color,
     iconTint: Color = Color.Unspecified,
-    textColor: Color
+    textColor: Color,
+
+    // Responsive dimensions
+    cardHeight: androidx.compose.ui.unit.Dp = 60.dp,
+    textSize: androidx.compose.ui.unit.TextUnit = 18.sp,
+    horizontalPadding: androidx.compose.ui.unit.Dp = 20.dp,
+    iconPadding: androidx.compose.ui.unit.Dp = 20.dp
 ) {
+
     Card(
         modifier = modifier
             .fillMaxWidth()
-            .height(60.dp)                         // [CARD HEIGHT] change dp
+            .height(cardHeight)
             .shadow(
-                elevation = 10.dp,                 // [SHADOW ELEVATION] change dp
-                shape = RoundedCornerShape(15.dp), // [SHADOW SHAPE] matches card corner
-                clip = false,                      // shadow renders outside boundary
-                ambientColor = Color.LightGray.copy(alpha = 0.3f), // [SHADOW COLOR]
-                spotColor = Color.LightGray.copy(alpha = 0.3f)     // [SHADOW SPOT COLOR]
+                elevation = 10.dp,
+                shape = RoundedCornerShape(15.dp),
+                clip = false,
+                ambientColor = Color.LightGray.copy(alpha = 0.3f),
+                spotColor = Color.LightGray.copy(alpha = 0.3f)
             )
             .clickable(onClick = onClick),
-        shape = RoundedCornerShape(15.dp),         // [CARD CORNER] change dp
+
+        shape = RoundedCornerShape(15.dp),
+
         colors = CardDefaults.cardColors(
-            containerColor = if (isSelected) selectedColor else defaultColor
+            containerColor =
+                if (isSelected) selectedColor
+                else defaultColor
         ),
-        elevation = CardDefaults.cardElevation(8.dp) // [CARD ELEVATION] change dp
+
+        elevation = CardDefaults.cardElevation(8.dp)
     ) {
-        Box(modifier = Modifier.fillMaxSize()) {
-            // [CARD TEXT] title shown on left
-            // [TEXT COLOR] change color
-            // [TEXT SIZE] change fontSize
-            // [TEXT FONT] change fontFamily
+
+        Box(
+            modifier = Modifier.fillMaxSize()
+        ) {
+
+            // ─────────────────────────────────────────────
+            // TEXT
+            // ─────────────────────────────────────────────
+
             Text(
                 text = text,
+
                 modifier = Modifier
                     .align(Alignment.CenterStart)
-                    .padding(start = 20.dp),       // [TEXT LEFT PADDING] change dp
-                fontFamily = MartelFont,           // [TEXT FONT]
-                fontSize = 18.sp,                  // [TEXT SIZE]
-                fontWeight = FontWeight.Normal,    // [TEXT WEIGHT]
-                color = textColor // [TEXT COLOR]
+                    .padding(
+                        start = horizontalPadding,
+                        end = 50.dp
+                    ),
+
+                fontFamily = MartelFont,
+                fontSize = textSize,
+                fontWeight = FontWeight.Normal,
+                color = textColor,
+                maxLines = 1
             )
-            // [CARD ICON] shown on right end
-            // [ICON SIZE] no size set — uses icon's natural size
-            // [ICON TINT] passed from caller
+
+
+            // ─────────────────────────────────────────────
+            // FORWARD ICON
+            // ─────────────────────────────────────────────
+
             Icon(
-                painter = painterResource(id = icon), // [ICON FILE]
+                painter = painterResource(id = icon),
+
                 contentDescription = null,
+
                 modifier = Modifier
                     .align(Alignment.CenterEnd)
-                    .padding(end = 20.dp),         // [ICON RIGHT PADDING] change dp
-                tint = iconTint                    // [ICON TINT]
+                    .padding(end = iconPadding),
+
+                tint = iconTint
             )
         }
     }
 }
 
+
 // ══════════════════════════════════════════════════════
 // DEMO SCREEN
 // ══════════════════════════════════════════════════════
+
 @Composable
 fun DemoScreen(
     onBack: () -> Unit = {},
@@ -115,97 +139,355 @@ fun DemoScreen(
     onRecoveryData: () -> Unit = {},
     onCompleteDelete: () -> Unit = {},
 ) {
-    val headerHeight = 247.dp // matches profile.kt's headerHeight
 
-    Scaffold(containerColor = AppTheme.colors.background,
-            contentWindowInsets = WindowInsets(0, 0, 0, 0)  // insets already handled at root
+    val appColors = AppTheme.colors
+
+
+    Scaffold(
+        containerColor = appColors.background,
+
+        contentWindowInsets = WindowInsets(
+            0, 0, 0, 0
+        )
+
     ) { innerPadding ->
-        Box(
+
+
+        // ════════════════════════════════════════════════
+        // BOX WITH CONSTRAINTS
+        // ════════════════════════════════════════════════
+
+        BoxWithConstraints(
+
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
+
         ) {
+
+
+            // ════════════════════════════════════════════
+            // RESPONSIVE WIDTH VALUES
+            // ════════════════════════════════════════════
+
+            /*
+             * Original design:
+             *
+             * fillMaxWidth(0.96f)
+             * padding(horizontal = 16.dp)
+             *
+             * We keep the same visual proportion but
+             * calculate it from the available width.
+             */
+
+
+            // Main content width
+            val contentWidth =
+                (maxWidth * 0.96f)
+                    .coerceAtMost(maxWidth)
+
+
+            // Horizontal padding
+            val horizontalPadding =
+                (maxWidth * 0.05f)
+                    .coerceIn(
+                        16.dp,
+                        24.dp
+                    )
+
+
+            // Card height
+            //
+            // Original = 60.dp
+            //
+            // We don't let it become too small because
+            // the text/icon must remain readable.
+
+            val cardHeight =
+                (maxWidth * 0.1875f)
+                    .coerceIn(
+                        60.dp,
+                        72.dp
+                    )
+
+
+            // Space between cards
+            //
+            // Original = 28.dp
+
+            val cardSpacing =
+                (maxWidth * 0.0875f)
+                    .coerceIn(
+                        28.dp,
+                        42.dp
+                    )
+
+
+            // Text size
+            //
+            // Original = 18.sp
+            //
+            // Keep it readable on narrow screens.
+
+            val cardTextSize =
+                (maxWidth.value * 0.05625f)
+                    .coerceIn(
+                        18f,
+                        21f
+                    ).sp
+
+
+            // Text left padding
+            val textPadding =
+                (maxWidth * 0.0625f)
+                    .coerceIn(
+                        20.dp,
+                        28.dp
+                    )
+
+
+            // Icon right padding
+            val iconPadding =
+                (maxWidth * 0.0625f)
+                    .coerceIn(
+                        20.dp,
+                        28.dp
+                    )
+
+
+            // Space reserved on the right of the text
+            //
+            // This prevents long titles from touching
+            // the forward arrow.
+
+            val textEndPadding =
+                (maxWidth * 0.15f)
+                    .coerceIn(
+                        48.dp,
+                        72.dp
+                    )
+
+
+            // ════════════════════════════════════════════
+            // SCROLLABLE CONTENT
+            // ════════════════════════════════════════════
+
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .verticalScroll(rememberScrollState())
+                    .verticalScroll(
+                        rememberScrollState()
+                    )
             ) {
-                Spacer(modifier = Modifier.height(headerHeight))
+
+
+                // Same header space as original design
+                Spacer(
+                    modifier = Modifier.height(
+                        247.dp
+                    )
+                )
+
+
+                // ════════════════════════════════════════
+                // DEMO ITEMS CONTAINER
+                // ════════════════════════════════════════
 
                 Column(
-                    modifier = Modifier
-                        .fillMaxWidth(0.96f)                       // ← reduce this fraction to make cards narrower
-                        .align(Alignment.CenterHorizontally)
-                        .padding(horizontal = 16.dp)
-                        .padding(bottom = 70.dp)
-                        .offset(y = (-30).dp),
-                    verticalArrangement = Arrangement.spacedBy(28.dp)
-                ) {
-                    val demoItems = listOf(
-                        stringResource(R.string.person_registration) to onPersonRegistration,
-                        stringResource(R.string.person_recognition) to onPersonRecognition,
-                        stringResource(R.string.add_location) to onAddLocation,
-                        stringResource(R.string.search_location) to onSearchLocation,
-                        stringResource(R.string.search_person_by_name) to onSearchPersonByName,
-                        stringResource(R.string.navigation_to_home) to onNavigationToHome,
-                        stringResource(R.string.send_help_message) to onSendHelpMessage,
-                        stringResource(R.string.emergency_call_for_help) to onEmergencyCall,
-                        stringResource(R.string.change_app_language) to onChangeAppLanguage,
-                        stringResource(R.string.change_app_theme) to onChangeAppTheme,
-                        stringResource(R.string.backup_data_on_cloud) to onBackup,
-                        stringResource(R.string.recover_data_from_cloud) to onRecoveryData,
-                        stringResource(R.string.delete_app_data_completely) to onCompleteDelete
 
+                    modifier = Modifier
+                        .width(contentWidth)
+                        .align(
+                            Alignment.CenterHorizontally
+                        )
+                        .padding(
+                            horizontal = horizontalPadding
+                        )
+                        .padding(
+                            bottom = 70.dp
+                        )
+                        .offset(
+                            y = (-30).dp
+                        ),
+
+                    verticalArrangement =
+                        Arrangement.spacedBy(
+                            cardSpacing
+                        )
+
+                ) {
+
+
+                    val demoItems = listOf(
+
+                        stringResource(
+                            R.string.person_registration
+                        ) to onPersonRegistration,
+
+                        stringResource(
+                            R.string.person_recognition
+                        ) to onPersonRecognition,
+
+                        stringResource(
+                            R.string.add_location
+                        ) to onAddLocation,
+
+                        stringResource(
+                            R.string.search_location
+                        ) to onSearchLocation,
+
+                        stringResource(
+                            R.string.search_person_by_name
+                        ) to onSearchPersonByName,
+
+                        stringResource(
+                            R.string.navigation_to_home
+                        ) to onNavigationToHome,
+
+                        stringResource(
+                            R.string.send_help_message
+                        ) to onSendHelpMessage,
+
+                        stringResource(
+                            R.string.emergency_call_for_help
+                        ) to onEmergencyCall,
+
+                        stringResource(
+                            R.string.change_app_language
+                        ) to onChangeAppLanguage,
+
+                        stringResource(
+                            R.string.change_app_theme
+                        ) to onChangeAppTheme,
+
+                        stringResource(
+                            R.string.backup_data_on_cloud
+                        ) to onBackup,
+
+                        stringResource(
+                            R.string.recover_data_from_cloud
+                        ) to onRecoveryData,
+
+                        stringResource(
+                            R.string.delete_app_data_completely
+                        ) to onCompleteDelete
                     )
 
+
+                    // ════════════════════════════════════
+                    // CREATE CARDS
+                    // ════════════════════════════════════
+
                     demoItems.forEach { (title, action) ->
+
                         if (title.isNotEmpty()) {
-                            DemoItem(title = title, onClick = action)
+
+                            DemoItem(
+                                title = title,
+                                onClick = action,
+
+                                cardHeight = cardHeight,
+                                textSize = cardTextSize,
+                                textPadding = textPadding,
+                                iconPadding = iconPadding,
+                                textEndPadding = textEndPadding
+                            )
                         }
                     }
                 }
             }
 
+
+            // ════════════════════════════════════════════
+            // HEADER
+            // ════════════════════════════════════════════
+
             HeaderSection(
                 stringResource(R.string.demo),
+
                 spacing = 73.dp,
+
                 bottomspace = 44.dp,
+
                 onBack = onBack
             )
         }
     }
 }
 
+
 // ══════════════════════════════════════════════════════
-// DEMO ITEM — wrapper that calls ClickableSelectionCard
-// [CARD COLOR] change defaultColor and selectedColor
-// [ICON FILE] change R.drawable.forward_icon
-// [ICON TINT] change iconTint color
+// DEMO ITEM
 // ══════════════════════════════════════════════════════
+
 @Composable
 fun DemoItem(
     title: String,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+
+    // Responsive values supplied by DemoScreen
+    cardHeight: androidx.compose.ui.unit.Dp = 60.dp,
+    textSize: androidx.compose.ui.unit.TextUnit = 18.sp,
+    textPadding: androidx.compose.ui.unit.Dp = 20.dp,
+    iconPadding: androidx.compose.ui.unit.Dp = 20.dp,
+    textEndPadding: androidx.compose.ui.unit.Dp = 50.dp
 ) {
+
     val appColors = AppTheme.colors
 
-    ClickableSelectionCard(
-        text = title,
-        isSelected = false,                        // [SELECTED] always false for demo list
-        icon = R.drawable.forward_icon,            // [ICON FILE] change to your arrow xml name
-        onClick = onClick,
-        selectedColor = appColors.textfield,         // [SELECTED COLOR]
-        defaultColor =  appColors.textfield,          // [DEFAULT COLOR] light grey background
-        iconTint = appColors.backButton,              // [ICON TINT] green arrow
-        textColor = appColors.pagesText,
-    )
 
+    ClickableSelectionCard(
+
+        text = title,
+
+        isSelected = false,
+
+        icon = R.drawable.forward_icon,
+
+        onClick = onClick,
+
+        selectedColor =
+            appColors.textfield,
+
+        defaultColor =
+            appColors.textfield,
+
+        iconTint =
+            appColors.backButton,
+
+        textColor =
+            appColors.pagesText,
+
+        cardHeight =
+            cardHeight,
+
+        textSize =
+            textSize,
+
+        horizontalPadding =
+            textPadding,
+
+        iconPadding =
+            iconPadding,
+
+        modifier = Modifier
+    )
 }
 
-@Preview(showBackground = true, showSystemUi = true)
+
+// ══════════════════════════════════════════════════════
+// PREVIEW
+// ══════════════════════════════════════════════════════
+
+@Preview(
+    showBackground = true,
+    showSystemUi = true
+)
 @Composable
 fun DemoPreview() {
+
     GreenTheme {
+
         DemoScreen()
     }
 }

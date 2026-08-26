@@ -172,8 +172,6 @@ fun AppNavigation(
                         messageText = recordSaved,
                         height = 0.25f,
                         upperPadding = 10.dp,
-                        textOffset = DpOffset(x = (-36).dp, y = 312.dp),
-                        shapeOffset = DpOffset(x = (-8).dp, y = 304.dp),
                         showButton = false,
                         navController = navController,
                         onDismiss = {
@@ -208,8 +206,6 @@ fun AppNavigation(
                         messageText = deleteSuccess,
                         height = 0.25f,
                         upperPadding = 10.dp,
-                        textOffset = DpOffset(x = (-36).dp, y = 312.dp),
-                        shapeOffset = DpOffset(x = (-8).dp, y = 304.dp),
                         showButton = false,
                         navController = navController,
                         onDismiss = { navController.popBackStack() }
@@ -224,8 +220,6 @@ fun AppNavigation(
                         messageText = editSuccess,
                         height = 0.25f,
                         upperPadding = 10.dp,
-                        textOffset = DpOffset(x = (-36).dp, y = 312.dp),
-                        shapeOffset = DpOffset(x = (-8).dp, y = 304.dp),
                         showButton = false,
                         navController = navController,
                         onDismiss = { navController.popBackStack() }
@@ -240,8 +234,6 @@ fun AppNavigation(
                         messageText = locationSuccess,
                         height = 0.25f,
                         upperPadding = 10.dp,
-                        textOffset = DpOffset(x = (-36).dp, y = 312.dp),
-                        shapeOffset = DpOffset(x = (-8).dp, y = 304.dp),
                         showButton = false,
                         navController = navController,
                         onDismiss = {

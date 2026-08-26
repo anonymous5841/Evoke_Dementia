@@ -151,7 +151,7 @@ fun LocationSearchContent(
                 Spacer(modifier = Modifier.height(rememberBottomContentPadding()))
             }
 
-            HeaderSection(
+            HeaderSection(stringResource(R.string.location),
                 spacing = 68.dp,
                 onBack = { onBack()}
             )
