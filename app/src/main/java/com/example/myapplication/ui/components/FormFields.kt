@@ -35,12 +35,20 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
-
+import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.style.LineHeightStyle
 /**
  * Shared text-input field: shadow + clipped OutlinedTextField.
  * Does NOT render a label — call FieldLabel separately above it, same as before.
  * Works for single-line fields (Name, Phone, Title...) and multiline fields
  * (Description) by passing singleLine = false and a maxLines value.
+ *
+ * In Urdu the icon moves to the right and the text is right-aligned.
+ * Pass followAppLanguage = false to keep it LTR (e.g. SearchFieldWithIcon,
+ * whose search icon is drawn over the right side of the field).
  */
 @Composable
 fun ShadowTextField(
@@ -56,15 +64,70 @@ fun ShadowTextField(
     fontSize: TextUnit = 18.sp,
     onClick: (() -> Unit)? = null,
     placeholderColor: Color = Color(0xFFA7AEC1),
+    followAppLanguage: Boolean = true,
+    // null = normal OutlinedTextField padding (16.dp all round).
+    // Pass a value for short fixed-height fields, e.g. the search bar.
+    contentPadding: PaddingValues? = null,
 ) {
     val appColors = AppTheme.colors
     val interactionSource = remember { MutableInteractionSource() }
+
+    val fieldColors = OutlinedTextFieldDefaults.colors(
+        unfocusedContainerColor   = appColors.textfield,
+        focusedContainerColor     = appColors.textfield,
+        unfocusedBorderColor      = Color.Transparent,
+        focusedBorderColor        = appColors.selectedFieldOutline,
+        unfocusedTextColor        = appColors.pagesText,
+        focusedTextColor          = appColors.pagesText,
+        unfocusedPlaceholderColor = appColors.textFieldHint,
+        focusedPlaceholderColor   = appColors.textFieldHint,
+    )
+
+    // Urdu letters are much taller than English ones. In short fixed-height
+    // fields (custom padding) give Urdu text a taller, centred line so the
+    // top/bottom of the letters are not cut.
+    val urduLineStyle =
+        if (contentPadding != null && isUrduSelected()) {
+            TextStyle(
+                lineHeight = fontSize * 1.8f,
+                lineHeightStyle = LineHeightStyle(
+                    alignment = LineHeightStyle.Alignment.Center,
+                    trim = LineHeightStyle.Trim.None
+                )
+            )
+        } else {
+            TextStyle.Default
+        }
+
+    val placeholderSlot: @Composable () -> Unit = {
+        Text(
+            placeholder,
+            style = LocalTextStyle.current.merge(urduLineStyle),
+            color = placeholderColor,
+            fontSize = fontSize,
+            fontFamily = OutfitFont,
+            // Short fixed-height fields (custom padding) must stay on one line
+            maxLines = if (singleLine && contentPadding != null) 1 else Int.MAX_VALUE,
+            overflow = TextOverflow.Ellipsis
+        )
+    }
+
+    val leadingIconSlot: (@Composable () -> Unit)? = leadingIconRes?.let {
+        {
+            Icon(
+                painter = painterResource(id = it),
+                contentDescription = null,
+                tint = appColors.backButton,
+                modifier = Modifier.size(24.dp)
+            )
+        }
+    }
     Box(
         modifier = modifier
             .fillMaxWidth()
             .shadow(elevation = 6.dp, shape = RoundedCornerShape(cornerRadius), clip = false)
             .clip(RoundedCornerShape(cornerRadius))
-            .then(                                     // ← add this block
+            .then(
                 if (onClick != null)
                     Modifier
                         .background(appColors.textfield)
@@ -76,66 +139,90 @@ fun ShadowTextField(
                 else Modifier
             )
     ) {
-        if (onClick != null) {
-            Text(
-                text = value.ifEmpty { placeholder },
-                color = if (value.isEmpty())
-                    placeholderColor
-                else
-                    Color(0xFF000000),
-                fontSize = fontSize,
-                fontFamily = OutfitFont,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .heightIn(min = height)
-                    .padding(horizontal = 16.dp, vertical = 14.dp),
-                overflow = TextOverflow.Ellipsis,
-            )
-        } else {
-            OutlinedTextField(
-                value = value,
-                onValueChange = onValueChange,
-                interactionSource = interactionSource,
-                textStyle = LocalTextStyle.current.copy(fontSize = fontSize, fontFamily = OutfitFont),
-                placeholder = {
-                    Text(
-                        placeholder,
-                        color = placeholderColor,
+        AppLanguageDirection(enabled = followAppLanguage) {
+            if (onClick != null) {
+                Text(
+                    text = value.ifEmpty { placeholder },
+                    color = if (value.isEmpty())
+                        placeholderColor
+                    else
+                        Color(0xFF000000),
+                    fontSize = fontSize,
+                    fontFamily = OutfitFont,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .heightIn(min = height)
+                        .padding(horizontal = 16.dp, vertical = 14.dp),
+                    overflow = TextOverflow.Ellipsis,
+                )
+            } else if (contentPadding == null) {
+                OutlinedTextField(
+                    value = value,
+                    onValueChange = onValueChange,
+                    interactionSource = interactionSource,
+                    textStyle = LocalTextStyle.current.copy(fontSize = fontSize, fontFamily = OutfitFont),
+                    placeholder = placeholderSlot,
+                    leadingIcon = leadingIconSlot,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .heightIn(min = height)
+                        .indication(
+                            interactionSource = interactionSource,
+                            indication = ripple(bounded = true)
+                        ),
+                    shape = RoundedCornerShape(cornerRadius),
+                    colors = fieldColors,
+                    singleLine = singleLine,
+                    maxLines = if (singleLine) 1 else maxLines
+                )
+            } else {
+                // Same look as OutlinedTextField, but with custom inner padding.
+                // OutlinedTextField always uses 16.dp top/bottom, which clips
+                // tall text (Urdu) inside short fixed-height boxes.
+                BasicTextField(
+                    value = value,
+                    onValueChange = onValueChange,
+                    interactionSource = interactionSource,
+                    textStyle = LocalTextStyle.current.copy(
                         fontSize = fontSize,
-                        fontFamily = OutfitFont
-                    )
-                },
-                leadingIcon = leadingIconRes?.let {
-                    {
-                        Icon(
-                            painter = painterResource(id = it),
-                            contentDescription = null,
-                            tint = appColors.backButton,
-                            modifier = Modifier.size(24.dp)
+                        fontFamily = OutfitFont,
+                        color = appColors.pagesText
+                    ).merge(urduLineStyle),
+                    cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
+                    singleLine = singleLine,
+                    maxLines = if (singleLine) 1 else maxLines,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .heightIn(min = height)
+                        .indication(
+                            interactionSource = interactionSource,
+                            indication = ripple(bounded = true)
+                        ),
+                    decorationBox = { innerTextField ->
+                        OutlinedTextFieldDefaults.DecorationBox(
+                            value = value,
+                            innerTextField = innerTextField,
+                            enabled = true,
+                            singleLine = singleLine,
+                            visualTransformation = VisualTransformation.None,
+                            interactionSource = interactionSource,
+                            placeholder = placeholderSlot,
+                            leadingIcon = leadingIconSlot,
+                            colors = fieldColors,
+                            contentPadding = contentPadding,
+                            container = {
+                                OutlinedTextFieldDefaults.Container(
+                                    enabled = true,
+                                    isError = false,
+                                    interactionSource = interactionSource,
+                                    colors = fieldColors,
+                                    shape = RoundedCornerShape(cornerRadius)
+                                )
+                            }
                         )
                     }
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .heightIn(min = height)
-                    .indication(
-                        interactionSource = interactionSource,
-                        indication = ripple(bounded = true)
-                    ),
-                shape = RoundedCornerShape(cornerRadius),
-                colors = OutlinedTextFieldDefaults.colors(
-                    unfocusedContainerColor   = appColors.textfield,
-                    focusedContainerColor     = appColors.textfield,
-                    unfocusedBorderColor      = Color.Transparent,
-                    focusedBorderColor        = appColors.selectedFieldOutline,
-                    unfocusedTextColor        = appColors.pagesText,
-                    focusedTextColor          = appColors.pagesText,
-                    unfocusedPlaceholderColor = appColors.textFieldHint,
-                    focusedPlaceholderColor   = appColors.textFieldHint,
-                ),
-                singleLine = singleLine,
-                maxLines = if (singleLine) 1 else maxLines
-            )
+                )
+            }
         }
     }
 }
@@ -175,36 +262,38 @@ fun LocationPickerField(
             ),
         contentAlignment = Alignment.CenterStart
     ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 14.dp)
-        ) {
-            Text(
-                text = value.ifEmpty { placeholder },
-                fontSize = 18.sp,
-                fontFamily = OutfitFont,
-                color = Color(0xFFA7AEC1),
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier.weight(1f)
-            )
-            Icon(
-                painter = painterResource(id = R.drawable.line_icon),
-                contentDescription = null,
-                tint = Color.Unspecified,
+        AppLanguageDirection {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier
-                    .width(25.dp)
-                    .height(40.dp)
-                    .padding(end = 4.dp)
-            )
-            Icon(
-                painter = painterResource(id = R.drawable.light_location_icon),
-                contentDescription = "Map pin",
-                tint = appColors.backButton,
-                modifier = Modifier.size(30.dp)
-            )
+                    .fillMaxWidth()
+                    .padding(horizontal = 14.dp)
+            ) {
+                Text(
+                    text = value.ifEmpty { placeholder },
+                    fontSize = 18.sp,
+                    fontFamily = OutfitFont,
+                    color = Color(0xFFA7AEC1),
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.weight(1f)
+                )
+                Icon(
+                    painter = painterResource(id = R.drawable.line_icon),
+                    contentDescription = null,
+                    tint = Color.Unspecified,
+                    modifier = Modifier
+                        .width(25.dp)
+                        .height(40.dp)
+                        .padding(end = 4.dp)
+                )
+                Icon(
+                    painter = painterResource(id = R.drawable.light_location_icon),
+                    contentDescription = "Map pin",
+                    tint = appColors.backButton,
+                    modifier = Modifier.size(30.dp)
+                )
+            }
         }
     }
 }
@@ -240,36 +329,38 @@ fun RecordConversationField(
             ),
         contentAlignment = Alignment.CenterStart
     ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 14.dp)
-        ) {
-            Text(
-                text = value.ifEmpty { placeholder },
-                fontSize = 18.sp,
-                fontFamily = OutfitFont,
-                color = Color(0xFFA7AEC1),
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier.weight(1f)
-            )
-            Icon(
-                painter = painterResource(id = R.drawable.line_icon),
-                contentDescription = null,
-                tint = Color.Unspecified,
+        AppLanguageDirection {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier
-                    .width(25.dp)
-                    .height(40.dp)
-                    .padding(end = 4.dp)
-            )
-            Icon(
-                painter = painterResource(id = R.drawable.recording_icon),
-                contentDescription = "Map pin",
-                tint = appColors.backButton,
-                modifier = Modifier.size(30.dp)
-            )
+                    .fillMaxWidth()
+                    .padding(horizontal = 14.dp)
+            ) {
+                Text(
+                    text = value.ifEmpty { placeholder },
+                    fontSize = 18.sp,
+                    fontFamily = OutfitFont,
+                    color = Color(0xFFA7AEC1),
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.weight(1f)
+                )
+                Icon(
+                    painter = painterResource(id = R.drawable.line_icon),
+                    contentDescription = null,
+                    tint = Color.Unspecified,
+                    modifier = Modifier
+                        .width(25.dp)
+                        .height(40.dp)
+                        .padding(end = 4.dp)
+                )
+                Icon(
+                    painter = painterResource(id = R.drawable.recording_icon),
+                    contentDescription = "Map pin",
+                    tint = appColors.backButton,
+                    modifier = Modifier.size(30.dp)
+                )
+            }
         }
     }
 }

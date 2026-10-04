@@ -31,6 +31,7 @@ import com.example.myapplication.R
 import com.example.myapplication.ui.components.DateDisplayField
 import com.example.myapplication.ui.components.DiscussionSummaryBox
 import com.example.myapplication.ui.components.FieldLabel
+import com.example.myapplication.ui.components.languageStartAlignment
 import com.example.myapplication.ui.components.HeaderSection
 import com.example.myapplication.ui.components.LocationPickerField
 import com.example.myapplication.ui.components.ShadowButton
@@ -441,7 +442,11 @@ fun SearchResultsContent(
 
                         // DATE
 
+                        // No weight / fixed width here → label wraps its text
+                        // (fillMaxWidth = false) and the column aligns it
+                        // left (English) / right (Urdu) over the date field.
                         Column(
+                            horizontalAlignment = languageStartAlignment(),
                             modifier = Modifier
                                 .padding(top = 16.dp)
                         ) {
@@ -450,7 +455,8 @@ fun SearchResultsContent(
                                 stringResource(R.string.date),
                                 fieldLabelSize,
                                 OutfitFont,
-                                FontWeight.Medium
+                                FontWeight.Medium,
+                                fillMaxWidth = false
                             )
 
                             Spacer(
@@ -679,24 +685,24 @@ fun SearchResultsContent(
         }
     }
 }
-    @Preview(
-        showBackground = true,
-        showSystemUi = true
-    )
-    @Composable
-    fun SearchResultsPreview() {
+@Preview(
+    showBackground = true,
+    showSystemUi = true
+)
+@Composable
+fun SearchResultsPreview() {
 
-        GreenTheme {
+    GreenTheme {
 
-            val context = LocalContext.current
+        val context = LocalContext.current
 
-            val bitmap = BitmapFactory.decodeResource(
-                context.resources,
-                R.drawable.loading_4
-            )
+        val bitmap = BitmapFactory.decodeResource(
+            context.resources,
+            R.drawable.loading_4
+        )
 
-            SearchResultsContent(
-                imageBitmap = bitmap.asImageBitmap()
-            )
-        }
+        SearchResultsContent(
+            imageBitmap = bitmap.asImageBitmap()
+        )
     }
+}

@@ -62,7 +62,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.TextUnit
 import com.example.myapplication.ui.theme.AppTheme
-
+import androidx.compose.ui.unit.isSpecified
 
 val TextDark   = Color(0xFF1A2E18)
 val appColors = AppTheme
@@ -639,13 +639,20 @@ private fun lerp(
 // Because it's a normal Column, when row1 shrinks the rows below it
 // automatically shift upward to fill the freed space — no manual offsets
 // or z-index needed for the "moves above" effect.
+// Full grid height at scale 1: tallest column (190 + 100 + 24) + 2 gaps of 15.
+// Stays the same collapsed and expanded, because the heights only rotate.
+private const val BASE_GRID_HEIGHT = 190f + 100f + 24f + 2 * BASE_SLOT_SPACING
 
+// Smallest the grid may shrink to on short screens. Below this the text gets
+// too small, so the screen scrolls instead.
+private const val MIN_GRID_SCALE = 0.8f
 @Composable
 fun RotatingRowGrid(
     rowsData: List<RowContent>,
     modifier: Modifier = Modifier,
-    startExpanded: Boolean = false
-) {
+    startExpanded: Boolean = false,
+    availableHeight: Dp = Dp.Unspecified
+)  {
 
     var expanded by rememberSaveable {
         mutableStateOf(startExpanded)
@@ -661,19 +668,26 @@ fun RotatingRowGrid(
     BoxWithConstraints(
         modifier = modifier
     ) {
-
-        /*
-         * The original design was created around approximately
-         * a 360dp-wide phone.
-         *
-         * We scale relative to that.
-         */
-        val scale = (
+        val widthScale = (
                 maxWidth.value / BASE_WIDTH
                 ).coerceIn(
                 0.85f,
                 1.05f
             )
+
+        /*
+         * On short screens, also shrink so the whole grid fits
+         * in the height that is left (never below MIN_GRID_SCALE).
+         */
+        val scale =
+            if (availableHeight.isSpecified) {
+                minOf(
+                    widthScale,
+                    availableHeight.value / BASE_GRID_HEIGHT
+                ).coerceIn(MIN_GRID_SCALE, 1.05f)
+            } else {
+                widthScale
+            }
 
 
         /*

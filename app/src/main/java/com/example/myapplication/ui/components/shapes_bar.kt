@@ -86,6 +86,9 @@ fun SearchFieldWithIcon(
     }
 
     val appColors = AppTheme.colors
+    // Space the green blob covers, measured from the field's end edge.
+    val searchTextEndPadding =
+        (greenIconSize.width * 0.89f - greenIconOffset.x).coerceAtLeast(16.dp) + 6.dp
 
     fun icGreenShadowShape(
         scaleX: Float = 1f,
@@ -135,7 +138,16 @@ fun SearchFieldWithIcon(
             height = boxHeight,
             cornerRadius = cornerRadius,
             fontSize = fontSize,
-            placeholderColor = placeholderColor
+            placeholderColor = placeholderColor,
+            followAppLanguage = false, // search icon is drawn over the right side, keep LTR
+            // No top/bottom padding so tall Urdu text is not clipped, and the
+            // end is kept clear of the green blob / search icon.
+            contentPadding = PaddingValues(
+                start = 16.dp,
+                end = searchTextEndPadding,
+                top = 0.dp,
+                bottom = 0.dp
+            )
         )
 
         // Bottom drawable — green blob + its traced shadow

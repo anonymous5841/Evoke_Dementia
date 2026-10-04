@@ -45,7 +45,7 @@
     <string name="enter_emergency_contact_format">اپنا ایمرجنسی فون نمبر درج کریں %1$d</string>
 
     <!-- Location -->
-    <string name="location_label">لوکیشن *</string>
+    <string name="location_label">* لوکیشن</string>
     <string name="get_current_location">لوکیشن حاصل کرنے کے لیے کلک کری</string>
 
     <!-- Voice -->

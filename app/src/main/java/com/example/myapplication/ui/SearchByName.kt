@@ -144,11 +144,16 @@ fun SearchScreen(
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
 
+                    // Takes whatever width is left after the location button,
+                    // so the button keeps its size on small screens.
+                    // (Was a fixed 300.dp, which squeezed the button.)
                     SearchFieldWithIcon(
                         value = viewModel.searchQuery,
                         onValueChange = {
                             viewModel.onSearchQueryChange(it)
-                        }
+                        },
+                        boxWidth = null,
+                        modifier = Modifier.weight(1f)
                     )
 
                     Spacer(

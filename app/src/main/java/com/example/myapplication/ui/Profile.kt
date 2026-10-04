@@ -1,6 +1,5 @@
 package com.example.myapplication.ui
 
-import android.R.attr.maxWidth
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -27,12 +26,6 @@ import com.example.myapplication.ui.theme.AppTheme
 import com.example.myapplication.ui.theme.GreenTheme
 import com.example.myapplication.ui.theme.OutfitFont
 import androidx.compose.ui.res.stringResource
-import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.ui.platform.LocalLayoutDirection
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.LayoutDirection
-import com.example.myapplication.utils.LanguageManager
-import com.example.myapplication.utils.LocalAppLanguage
 // ── Mode enum ─────────────────────────────────────────────────────────────────
 enum class PersonFormMode { ADD, EDIT }
 
@@ -84,8 +77,6 @@ fun PersonFormContent(
     onVoiceSampleClick: () -> Unit = {},
 ) {
     val appColors = AppTheme.colors
-    val language = LocalAppLanguage.current
-    val isUrdu = language == LanguageManager.URDU
     var nameText by remember { mutableStateOf(initialName) }
     var phoneText by remember { mutableStateOf(initialPhone) }
     val emergencyContacts = remember {
@@ -119,22 +110,77 @@ fun PersonFormContent(
 
                     // ============================================================
                     // NAME, PHONE & EMERGENCY CONTACTS
-                    // RTL ONLY FOR THESE FIELDS
+                    // FieldLabel + ShadowTextField switch to the right in Urdu
+                    // by themselves — no CompositionLocalProvider needed here.
                     // ============================================================
 
-                    CompositionLocalProvider(
-                        LocalLayoutDirection provides if (isUrdu) {
-                            LayoutDirection.Rtl
+                    // ---------------- NAME ----------------
+
+                    FieldLabel(
+                        text = stringResource(R.string.name_label),
+                        textsize = 18.sp,
+                        fontFamily = OutfitFont,
+                        fontWeight = FontWeight.Medium
+                    )
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    ShadowTextField(
+                        value = nameText,
+                        onValueChange = { nameText = it },
+                        placeholder = stringResource(R.string.enter_full_name),
+                        leadingIconRes = R.drawable.profile_icon,
+                    )
+
+                    Spacer(modifier = Modifier.height(39.dp))
+
+
+                    // ---------------- PHONE ----------------
+
+                    FieldLabel(
+                        text = stringResource(R.string.phone_number_label),
+                        textsize = 18.sp,
+                        fontFamily = OutfitFont,
+                        fontWeight = FontWeight.Medium
+                    )
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    ShadowTextField(
+                        value = phoneText,
+                        onValueChange = { phoneText = it },
+                        placeholder = stringResource(R.string.enter_phone_number),
+                        leadingIconRes = R.drawable.phone_icon,
+                    )
+
+                    Spacer(modifier = Modifier.height(39.dp))
+
+
+                    // ---------------- EMERGENCY CONTACTS ----------------
+
+                    emergencyContacts.forEachIndexed { index, contact ->
+
+                        val label = if (index == 0) {
+                            stringResource(R.string.emergency_contact_label)
                         } else {
-                            LayoutDirection.Ltr
+                            stringResource(
+                                R.string.emergency_contact_label_format,
+                                index + 1
+                            )
                         }
-                    ) {
 
-                        // ---------------- NAME ----------------
+                        val placeholder = if (index == 0) {
+                            stringResource(R.string.enter_emergency_contact)
+                        } else {
+                            stringResource(
+                                R.string.enter_emergency_contact_format,
+                                index + 1
+                            )
+                        }
 
-                        PersonFormLabel(
-                            text = stringResource(R.string.name_label),
-                            textSize = 18.sp,
+                        FieldLabel(
+                            text = label,
+                            textsize = 18.sp,
                             fontFamily = OutfitFont,
                             fontWeight = FontWeight.Medium
                         )
@@ -142,84 +188,22 @@ fun PersonFormContent(
                         Spacer(modifier = Modifier.height(8.dp))
 
                         ShadowTextField(
-                            value = nameText,
-                            onValueChange = { nameText = it },
-                            placeholder = stringResource(R.string.enter_full_name),
-                            leadingIconRes = R.drawable.profile_icon,
-                        )
-
-                        Spacer(modifier = Modifier.height(39.dp))
-
-
-                        // ---------------- PHONE ----------------
-
-                        PersonFormLabel(
-                            text = stringResource(R.string.phone_number_label),
-                            textSize = 18.sp,
-                            fontFamily = OutfitFont,
-                            fontWeight = FontWeight.Medium
-                        )
-
-                        Spacer(modifier = Modifier.height(8.dp))
-
-                        ShadowTextField(
-                            value = phoneText,
-                            onValueChange = { phoneText = it },
-                            placeholder = stringResource(R.string.enter_phone_number),
+                            value = contact,
+                            onValueChange = {
+                                emergencyContacts[index] = it
+                            },
+                            placeholder = placeholder,
                             leadingIconRes = R.drawable.phone_icon,
                         )
 
                         Spacer(modifier = Modifier.height(39.dp))
-
-
-                        // ---------------- EMERGENCY CONTACTS ----------------
-
-                        emergencyContacts.forEachIndexed { index, contact ->
-
-                            val label = if (index == 0) {
-                                stringResource(R.string.emergency_contact_label)
-                            } else {
-                                stringResource(
-                                    R.string.emergency_contact_label_format,
-                                    index + 1
-                                )
-                            }
-
-                            val placeholder = if (index == 0) {
-                                stringResource(R.string.enter_emergency_contact)
-                            } else {
-                                stringResource(
-                                    R.string.enter_emergency_contact_format,
-                                    index + 1
-                                )
-                            }
-
-                            PersonFormLabel(
-                                text = label,
-                                textSize = 18.sp,
-                                fontFamily = OutfitFont,
-                                fontWeight = FontWeight.Medium
-                            )
-
-                            Spacer(modifier = Modifier.height(8.dp))
-
-                            ShadowTextField(
-                                value = contact,
-                                onValueChange = {
-                                    emergencyContacts[index] = it
-                                },
-                                placeholder = placeholder,
-                                leadingIconRes = R.drawable.phone_icon,
-                            )
-
-                            Spacer(modifier = Modifier.height(39.dp))
-                        }
                     }
 
 
                     // ============================================================
                     // LOCATION + VOICE SAMPLE
-                    // LTR / NORMAL — NOT INSIDE RTL PROVIDER
+                    // Row order stays the same in both languages; only the
+                    // labels and the location field content follow the language.
                     // ============================================================
 
                     Row(
@@ -237,7 +221,7 @@ fun PersonFormContent(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .height(45.dp),
-                                contentAlignment = Alignment.BottomStart // always start-aligned, no Urdu override
+                                contentAlignment = Alignment.BottomStart
                             ) {
                                 FieldLabel(
                                     text = stringResource(R.string.location_label),
@@ -258,6 +242,7 @@ fun PersonFormContent(
 
 
                         // VOICE SAMPLE
+                        // Fixed width column, so a full-width FieldLabel is safe here.
                         Column(
                             modifier = Modifier.width(120.dp),
                             horizontalAlignment = Alignment.CenterHorizontally
@@ -273,9 +258,7 @@ fun PersonFormContent(
                                     text = stringResource(R.string.add_person_voice_sample),
                                     textsize = 17.sp,
                                     fontFamily = OutfitFont,
-                                    fontWeight = FontWeight.Medium,
-                                    textAlign = TextAlign.Center,
-                                    modifier = Modifier.fillMaxWidth() // needed so multi-line text centers as a block
+                                    fontWeight = FontWeight.Medium
                                 )
                             }
 
@@ -300,7 +283,6 @@ fun PersonFormContent(
 
                     // ============================================================
                     // SUBMIT BUTTON
-                    // NORMAL — NOT RTL
                     // ============================================================
 
                     Spacer(modifier = Modifier.height(60.dp))
@@ -359,7 +341,7 @@ fun PersonFormContent(
                     )
                 )
             }
-        }
+
             HeaderSection(
                 title = if (mode == PersonFormMode.ADD)
                     stringResource(R.string.let_us_know_you)
@@ -370,29 +352,12 @@ fun PersonFormContent(
                 bottomspace = if (mode == PersonFormMode.ADD) 37.dp else 28.dp,
                 leaves = appColors.headerDecorOffset2,
                 headerHeight = 218.dp,
-                onBack = {onBack()}
+                onBack = { onBack() }
             )
         }
     }
-@Composable
-private fun PersonFormLabel(
-    text: String,
-    textSize: androidx.compose.ui.unit.TextUnit,
-    fontFamily: androidx.compose.ui.text.font.FontFamily,
-    fontWeight: FontWeight
-) {
-    Box(
-        modifier = Modifier.fillMaxWidth(),
-        contentAlignment = Alignment.CenterStart   // let LocalLayoutDirection handle RTL/LTR
-    ) {
-        FieldLabel(
-            text = text,
-            textsize = textSize,
-            fontFamily = fontFamily,
-            fontWeight = fontWeight
-        )
-    }
 }
+
 // ── Previews ──────────────────────────────────────────────────────────────────
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
