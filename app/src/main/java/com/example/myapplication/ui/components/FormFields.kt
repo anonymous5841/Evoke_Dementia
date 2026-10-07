@@ -16,6 +16,7 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
@@ -442,7 +443,10 @@ fun InfoNotePill(
             color = Color(0xFFA13B3B),
             fontSize = 16.sp,
             fontWeight = FontWeight.Normal,
-            fontFamily = OutfitFont // swap for whatever font matches your app
+            fontFamily = OutfitFont, // swap for whatever font matches your app
+            // When the note wraps onto 2+ lines (Urdu, small screens),
+            // every line is centred instead of hanging to one side.
+            textAlign = TextAlign.Center
         )
     }
 }

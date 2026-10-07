@@ -74,6 +74,12 @@ fun FieldLabel(
     modifier: Modifier = Modifier,
     fillMaxWidth: Boolean = true,
     textAlign: TextAlign = TextAlign.Start, // Start = left in English, right in Urdu
+    /**
+     * true = always ONE line: if the label is too wide for its space (long
+     * Urdu labels in narrow columns), it shrinks from [textsize] to fit
+     * instead of wrapping. Off by default, so existing labels don't change.
+     */
+    singleLine: Boolean = false,
 ) {
     AppLanguageDirection {
         Text(
@@ -83,7 +89,12 @@ fun FieldLabel(
             fontWeight = fontWeight,
             fontFamily = fontFamily,
             textAlign = textAlign,
+            maxLines = if (singleLine) 1 else Int.MAX_VALUE,
+            autoSize = if (singleLine) fitAutoSize(SINGLE_LINE_MIN_SIZE, textsize) else null,
             modifier = if (fillMaxWidth) modifier.fillMaxWidth() else modifier
         )
     }
 }
+
+/** A single-line label never shrinks below this. */
+private val SINGLE_LINE_MIN_SIZE = 11.sp

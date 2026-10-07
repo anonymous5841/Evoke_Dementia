@@ -42,6 +42,8 @@ import androidx.compose.ui.res.stringResource
 import com.example.myapplication.ui.SearchScreen
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.myapplication.R
+import androidx.navigation.NavGraphBuilder
+import com.example.myapplication.utils.ProvideAppLocale
 //newly one
 @SuppressLint("SuspiciousIndentation")
 @Composable
@@ -77,407 +79,396 @@ fun AppNavigation(
     val saveText = stringResource(R.string.save_popup)
 
     Box(Modifier.fillMaxSize()) {
-            NavHost(
-                navController    = navController,
-                startDestination = "splash",
-                modifier         = Modifier.fillMaxSize()
+        NavHost(
+            navController    = navController,
+            startDestination = "splash",
+            modifier         = Modifier.fillMaxSize()
+        ) {
+            composable(
+                "splash",
+                exitTransition = {
+                    slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.Up, tween(900, easing = FastOutSlowInEasing))
+                },
+                popEnterTransition = {
+                    slideIntoContainer(AnimatedContentTransitionScope.SlideDirection.Down, tween(900, easing = FastOutSlowInEasing))
+                }
             ) {
-                composable(
-                    "splash",
-                    exitTransition = {
-                        slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.Up, tween(900, easing = FastOutSlowInEasing))
-                    },
-                    popEnterTransition = {
-                        slideIntoContainer(AnimatedContentTransitionScope.SlideDirection.Down, tween(900, easing = FastOutSlowInEasing))
+                FigmaMotionApp(
+                    onContinueClick = {
+                        navController.navigate("addperson")
                     }
-                ) {
-                    FigmaMotionApp(
-                        onContinueClick = {
-                            navController.navigate("addperson")
-                        }
-                    )
-                }
-                composable("addlocation") {
-                    AddLocationContent(
-                        onBack = { navController.popBackStack() },
-                        onAddClick = { navController.navigate("add_success_popup") }
-                    )
-                }
-
-                composable("notrecognised") { NotRecognisedContent(
-                    onBack = { navController.popBackStack() },
-                    onVoiceSampleClick = { navController.navigate("recorder") },
-                    onSave = {navController.navigate("save_success_popup") }
                 )
-                }
+            }
+            composable("addlocation") {
+                AddLocationContent(
+                    onBack = { navController.popBackStack() },
+                    onAddClick = { navController.navigate("add_success_popup") }
+                )
+            }
 
-                composable("profile") {
-                    PersonFormContent(
-                        mode = PersonFormMode.EDIT,
-                        onVoiceSampleClick = { navController.navigate("recorder") },
-                        onBack = { navController.popBackStack() },
-                    )
-                }
+            composable("notrecognised") { NotRecognisedContent(
+                onBack = { navController.popBackStack() },
+                onVoiceSampleClick = { navController.navigate("recorder") },
+                onSave = {navController.navigate("save_success_popup") }
+            )
+            }
 
-                dialog(
-                    "detailpopup",
-                    dialogProperties = DialogProperties(usePlatformDefaultWidth = false)
-                ) {
-                    DetailedSummaryScreen(
-                        onCloseClick = { navController.popBackStack() },
-                    )
-                }
+            composable("profile") {
+                PersonFormContent(
+                    mode = PersonFormMode.EDIT,
+                    onVoiceSampleClick = { navController.navigate("recorder") },
+                    onBack = { navController.popBackStack() },
+                )
+            }
 
-                dialog(
-                    "deletepopup",
-                    dialogProperties = DialogProperties(usePlatformDefaultWidth = false)
-                ) {
-                    PopupCard(
-                        messageText = deleteRecord,
-                        buttonText = deleteText,
-                        showButton = true,
-                        navController = navController,
-                        onDismiss = { navController.popBackStack() },
-                        onButtonClick = {
-                            navController.popBackStack()
-                            navController.popBackStack()
-                            navController.navigate("delete_success_popup")
+            localizedDialog("detailpopup") {
+                DetailedSummaryScreen(
+                    onCloseClick = { navController.popBackStack() },
+                )
+            }
 
-                        }
-                    )
-                }
-                dialog(
-                    "delete_viewmore_popup",
-                    dialogProperties = DialogProperties(usePlatformDefaultWidth = false)
-                ) {
-                    PopupCard(
-                        messageText = deleteRecord,
-                        buttonText = deleteText,
-                        showButton = true,
-                        navController = navController,
-                        onDismiss = { navController.popBackStack() },
-                        onButtonClick = {
-                            navController.popBackStack()
-                            navController.navigate("delete_success_popup")
+            localizedDialog("deletepopup") {
+                PopupCard(
+                    messageText = deleteRecord,
+                    buttonText = deleteText,
+                    showButton = true,
+                    navController = navController,
+                    onDismiss = { navController.popBackStack() },
+                    onButtonClick = {
+                        navController.popBackStack()
+                        navController.popBackStack()
+                        navController.navigate("delete_success_popup")
 
-                        }
-                    )
-                }
-
-                dialog(
-                    "save_success_popup",
-                    dialogProperties = DialogProperties(usePlatformDefaultWidth = false)
-                ) {
-                    PopupCard(
-                        messageText = recordSaved,
-                        height = 0.25f,
-                        upperPadding = 10.dp,
-                        showButton = false,
-                        navController = navController,
-                        onDismiss = {
-                            navController.popBackStack()
-                            navController.popBackStack()                        }
-                    )
-                }
-
-                dialog(
-                    "editpopup",
-                    dialogProperties = DialogProperties(usePlatformDefaultWidth = false)
-                ) {
-                    PopupCard(
-                        messageText = editRecord,
-                        buttonText = editText,
-                        showButton = true,
-                        navController = navController,
-                        onDismiss = { navController.popBackStack() },
-                        onButtonClick = {
-                            navController.popBackStack()
-                            navController.navigate("edit_success_popup")
-
-                        }
-                    )
-                }
-
-                dialog(
-                    "delete_success_popup",
-                    dialogProperties = DialogProperties(usePlatformDefaultWidth = false)
-                ) {
-                    PopupCard(
-                        messageText = deleteSuccess,
-                        height = 0.25f,
-                        upperPadding = 10.dp,
-                        showButton = false,
-                        navController = navController,
-                        onDismiss = { navController.popBackStack() }
-                    )
-                }
-
-                dialog(
-                    "edit_success_popup",
-                    dialogProperties = DialogProperties(usePlatformDefaultWidth = false)
-                ) {
-                    PopupCard(
-                        messageText = editSuccess,
-                        height = 0.25f,
-                        upperPadding = 10.dp,
-                        showButton = false,
-                        navController = navController,
-                        onDismiss = { navController.popBackStack() }
-                    )
-                }
-
-                dialog(
-                    "add_success_popup",
-                    dialogProperties = DialogProperties(usePlatformDefaultWidth = false)
-                ) {
-                    PopupCard(
-                        messageText = locationSuccess,
-                        height = 0.25f,
-                        upperPadding = 10.dp,
-                        showButton = false,
-                        navController = navController,
-                        onDismiss = {
-                            navController.popBackStack()
-                            navController.popBackStack()
-                        }
-                    )
-                }
-
-
-                dialog(
-                    "confirmationpopup",
-                    dialogProperties = DialogProperties(usePlatformDefaultWidth = false)
-                ) {
-                    PopupCard(
-                        messageText = saveRecording,
-                        buttonText = saveText,
-                        showButton = true,
-                        navController = navController,
-                        onDismiss = { navController.popBackStack() },
-                        onButtonClick = {
-                            navController.popBackStack()
-                            navController.popBackStack()
-                        }
-                    )
-                }
-                dialog(
-                    "record_back_popup",
-                    dialogProperties = DialogProperties(usePlatformDefaultWidth = false)
-                ) {
-                    PopupCard(
-                        messageText = stringResource(R.string.dialog_record_back_title),
-                        buttonText = stringResource(R.string.back),
-                        showButton = true,
-                        navController = navController,
-                        onDismiss = { navController.popBackStack() },
-                        onButtonClick = {
-                            navController.popBackStack()
-                            navController.popBackStack()
-                        }
-                    )
-                }
-
-                dialog(
-                    "delete_data_popup",
-                    dialogProperties = DialogProperties(usePlatformDefaultWidth = false)
-                ) {
-                    PopupCard(
-                        messageText = stringResource(R.string.dialog_delete_data_title),
-                        buttonText = stringResource(R.string.dialog_delete_data_button),
-                        showButton = true,
-                        navController = navController,
-                        onDismiss = { navController.popBackStack() },
-                        onButtonClick = {}
-                    )
-                }
-
-                composable("home") {
-                    HomeScreen(
-                        onSettingsClick = {
-                            navController.navigate("settings") { launchSingleTop = true }
-                                          },
-
-                        onSearchClick = {
-                            navController.navigate("search")
-                        },
-
-                        onRecognizeClick = {
-                            navController.navigate("camera")
-                        },
-
-                        onHelpClick = {
-                            navController.navigate("help")
-                        },
-
-                        onDemoClick = {
-                            navController.navigate("demo")
-                        },
-
-                        onAddLocationClick = {
-                            navController.navigate("addlocation")
-                        }
-                    )
-                }
-
-                composable(
-                    "addperson",
-                    enterTransition = {
-                        slideIntoContainer(AnimatedContentTransitionScope.SlideDirection.Up, tween(900, easing = FastOutSlowInEasing))
-                    },
-                    popExitTransition = {
-                        slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.Down, tween(900, easing = FastOutSlowInEasing))
                     }
-                ) {
-                    PersonFormContent(
-                        mode = PersonFormMode.ADD,
-                        onAdd = { _, _, _, _ ->
-                            navController.navigate("home") {
-                                launchSingleTop = true
-                                popUpTo("splash") { inclusive = true }   // clears both splash + addperson
-                            }
-                        },
-                        onBack = { navController.popBackStack() },        // ← pops back to splash, triggers slide-down
-                        onVoiceSampleClick = { navController.navigate("recorder") }
-                    )
-                }
-                composable("recognised") {
-                    RecognisedContent(
-                        onBack = {
-                            navController.popBackStack()
-                        },
-                        onViewmore = {
-                            navController.navigate("viewmore")
-                        },
-                        onVoiceSampleClick = { navController.navigate("recorder")
-                        },
-                        onSave = {navController.navigate("save_success_popup") }
+                )
+            }
+            localizedDialog("delete_viewmore_popup") {
+                PopupCard(
+                    messageText = deleteRecord,
+                    buttonText = deleteText,
+                    showButton = true,
+                    navController = navController,
+                    onDismiss = { navController.popBackStack() },
+                    onButtonClick = {
+                        navController.popBackStack()
+                        navController.navigate("delete_success_popup")
 
-                    )
+                    }
+                )
+            }
 
-                }
-                composable("camera") {
-                    CameraPreviewContent(
-                        onBack = {
-                            navController.popBackStack()
-                        },
-                        onCapture = {
-                            navController.navigate("recognised")
-                        },
-                        onGallery = {
-                            navController.navigate("notrecognised")
-                        }
-                    )
-                }
+            localizedDialog("save_success_popup") {
+                PopupCard(
+                    messageText = recordSaved,
+                    height = 0.25f,
+                    upperPadding = 10.dp,
+                    showButton = false,
+                    navController = navController,
+                    onDismiss = {
+                        navController.popBackStack()
+                        navController.popBackStack()                        }
+                )
+            }
 
-                composable("search") { backStackEntry ->
-                    val searchViewModel: SearchViewModel = viewModel(backStackEntry)
-                    SearchScreen(
-                        viewModel = searchViewModel,
-                        onBack = { navController.popBackStack() },
-                        onPersonClick = { navController.navigate("searchresult") },
-                        onMoreInfoLocationClick = { navController.navigate("locationSearch") }
-                    )
-                }
+            localizedDialog("editpopup") {
+                PopupCard(
+                    messageText = editRecord,
+                    buttonText = editText,
+                    showButton = true,
+                    navController = navController,
+                    onDismiss = { navController.popBackStack() },
+                    onButtonClick = {
+                        navController.popBackStack()
+                        navController.navigate("edit_success_popup")
 
-                composable("searchresult") {
-                    SearchResultsContent(
-                        onBack = {
-                            navController.popBackStack()
-                        },
-                        onViewmore = {
-                            navController.navigate("viewmore")
-                        },
-                        onEdit = {
-                            navController.navigate("editpopup")
-                        },
-                        onDelete = {
-                            navController.navigate("deletepopup")
-                        }
-                    )
-                }
+                    }
+                )
+            }
 
-                composable("viewmore") {
-                    ViewMoreScreen(
-                        onBackClick = {
-                            navController.popBackStack()
-                        },
-                        onEllipseClick = {
-                            navController.navigate("detailpopup")
-                        },
-                        onDeleteClick = {
-                            navController.navigate("delete_viewmore_popup")
-                        }
-                    )
-                }
-                composable("locationSearch") {
-                    LocationSearchContent(
-                        onBack = {
-                            navController.popBackStack()
-                        },
-                        onEdit = {
-                            navController.navigate("editpopup")
-                        },
-                        onDelete = {
-                            navController.navigate("deletepopup")
-                        }
-                    )
-                }
-                composable("help") {
-                    HelpScreen(
-                        onBack = {
-                            navController.popBackStack()
-                        }
-                    )
-                }
-                composable("settings") {
-                    SettingsContent(
-                        onBack = {
-                            navController.popBackStack()
-                        },
-                        onSelectLanguage = {
-                            navController.navigate("language")
-                        },
-                        onEraseClick = {
-                            navController.navigate("delete_data_popup")
-                        },
-                        isBlueTheme = isBlueTheme,
-                        onThemeToggle = onThemeToggle
-                    )
-                }
-                composable("language") {
-                    SelectLanguageContent(
-                        onBack = {
-                            navController.popBackStack()
-                        }
-                    )
-                }
-                composable("demo") {
-                    DemoScreen(
-                        onBack = { navController.popBackStack() }
-                    )
-                }
+            localizedDialog("delete_success_popup") {
+                PopupCard(
+                    messageText = deleteSuccess,
+                    height = 0.25f,
+                    upperPadding = 10.dp,
+                    showButton = false,
+                    navController = navController,
+                    onDismiss = { navController.popBackStack() }
+                )
+            }
 
-                composable("recorder") {
-                    RecordScreen(
-                        onBack      = {
-                            navController.navigate("record_back_popup")
-                             },
-                        onDoneClick = {
-                            navController.navigate("confirmationpopup")
-                        }
-                    )
-                }
+            localizedDialog("edit_success_popup") {
+                PopupCard(
+                    messageText = editSuccess,
+                    height = 0.25f,
+                    upperPadding = 10.dp,
+                    showButton = false,
+                    navController = navController,
+                    onDismiss = { navController.popBackStack() }
+                )
+            }
+
+            localizedDialog("add_success_popup") {
+                PopupCard(
+                    messageText = locationSuccess,
+                    height = 0.25f,
+                    upperPadding = 10.dp,
+                    showButton = false,
+                    navController = navController,
+                    onDismiss = {
+                        navController.popBackStack()
+                        navController.popBackStack()
+                    }
+                )
             }
 
 
-            if (showNavBar) {
-                BottomNavBar(
-                    selectedTab    = selectedTab,
-                    onHomeClick    = { navController.navigate("home") { launchSingleTop = true } },
-                    onProfileClick = { navController.navigate("profile") { launchSingleTop = true } },
-                    modifier       = Modifier.align(Alignment.BottomCenter)
+            localizedDialog("confirmationpopup") {
+                PopupCard(
+                    messageText = saveRecording,
+                    buttonText = saveText,
+                    showButton = true,
+                    navController = navController,
+                    onDismiss = { navController.popBackStack() },
+                    onButtonClick = {
+                        navController.popBackStack()
+                        navController.popBackStack()
+                    }
+                )
+            }
+            localizedDialog("record_back_popup") {
+                PopupCard(
+                    messageText = stringResource(R.string.dialog_record_back_title),
+                    buttonText = stringResource(R.string.back),
+                    showButton = true,
+                    navController = navController,
+                    onDismiss = { navController.popBackStack() },
+                    onButtonClick = {
+                        navController.popBackStack()
+                        navController.popBackStack()
+                    }
+                )
+            }
+
+            localizedDialog("delete_data_popup") {
+                PopupCard(
+                    messageText = stringResource(R.string.dialog_delete_data_title),
+                    buttonText = stringResource(R.string.dialog_delete_data_button),
+                    showButton = true,
+                    navController = navController,
+                    onDismiss = { navController.popBackStack() },
+                    onButtonClick = {}
+                )
+            }
+
+            composable("home") {
+                HomeScreen(
+                    onSettingsClick = {
+                        navController.navigate("settings") { launchSingleTop = true }
+                    },
+
+                    onSearchClick = {
+                        navController.navigate("search")
+                    },
+
+                    onRecognizeClick = {
+                        navController.navigate("camera")
+                    },
+
+                    onHelpClick = {
+                        navController.navigate("help")
+                    },
+
+                    onDemoClick = {
+                        navController.navigate("demo")
+                    },
+
+                    onAddLocationClick = {
+                        navController.navigate("addlocation")
+                    }
+                )
+            }
+
+            composable(
+                "addperson",
+                enterTransition = {
+                    slideIntoContainer(AnimatedContentTransitionScope.SlideDirection.Up, tween(900, easing = FastOutSlowInEasing))
+                },
+                popExitTransition = {
+                    slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.Down, tween(900, easing = FastOutSlowInEasing))
+                }
+            ) {
+                PersonFormContent(
+                    mode = PersonFormMode.ADD,
+                    onAdd = { _, _, _, _ ->
+                        navController.navigate("home") {
+                            launchSingleTop = true
+                            popUpTo("splash") { inclusive = true }   // clears both splash + addperson
+                        }
+                    },
+                    onBack = { navController.popBackStack() },        // ← pops back to splash, triggers slide-down
+                    onVoiceSampleClick = { navController.navigate("recorder") }
+                )
+            }
+            composable("recognised") {
+                RecognisedContent(
+                    onBack = {
+                        navController.popBackStack()
+                    },
+                    onViewmore = {
+                        navController.navigate("viewmore")
+                    },
+                    onVoiceSampleClick = { navController.navigate("recorder")
+                    },
+                    onSave = {navController.navigate("save_success_popup") }
+
+                )
+
+            }
+            composable("camera") {
+                CameraPreviewContent(
+                    onBack = {
+                        navController.popBackStack()
+                    },
+                    onCapture = {
+                        navController.navigate("recognised")
+                    },
+                    onGallery = {
+                        navController.navigate("notrecognised")
+                    }
+                )
+            }
+
+            composable("search") { backStackEntry ->
+                val searchViewModel: SearchViewModel = viewModel(backStackEntry)
+                SearchScreen(
+                    viewModel = searchViewModel,
+                    onBack = { navController.popBackStack() },
+                    onPersonClick = { navController.navigate("searchresult") },
+                    onMoreInfoLocationClick = { navController.navigate("locationSearch") }
+                )
+            }
+
+            composable("searchresult") {
+                SearchResultsContent(
+                    onBack = {
+                        navController.popBackStack()
+                    },
+                    onViewmore = {
+                        navController.navigate("viewmore")
+                    },
+                    onEdit = {
+                        navController.navigate("editpopup")
+                    },
+                    onDelete = {
+                        navController.navigate("deletepopup")
+                    }
+                )
+            }
+
+            composable("viewmore") {
+                ViewMoreScreen(
+                    onBackClick = {
+                        navController.popBackStack()
+                    },
+                    onEllipseClick = {
+                        navController.navigate("detailpopup")
+                    },
+                    onDeleteClick = {
+                        navController.navigate("delete_viewmore_popup")
+                    }
+                )
+            }
+            composable("locationSearch") {
+                LocationSearchContent(
+                    onBack = {
+                        navController.popBackStack()
+                    },
+                    onEdit = {
+                        navController.navigate("editpopup")
+                    },
+                    onDelete = {
+                        navController.navigate("deletepopup")
+                    }
+                )
+            }
+            composable("help") {
+                HelpScreen(
+                    onBack = {
+                        navController.popBackStack()
+                    }
+                )
+            }
+            composable("settings") {
+                SettingsContent(
+                    onBack = {
+                        navController.popBackStack()
+                    },
+                    onSelectLanguage = {
+                        navController.navigate("language")
+                    },
+                    onEraseClick = {
+                        navController.navigate("delete_data_popup")
+                    },
+                    isBlueTheme = isBlueTheme,
+                    onThemeToggle = onThemeToggle
+                )
+            }
+            composable("language") {
+                SelectLanguageContent(
+                    onBack = {
+                        navController.popBackStack()
+                    }
+                )
+            }
+            composable("demo") {
+                DemoScreen(
+                    onBack = { navController.popBackStack() }
+                )
+            }
+
+            composable("recorder") {
+                RecordScreen(
+                    onBack      = {
+                        navController.navigate("record_back_popup")
+                    },
+                    onDoneClick = {
+                        navController.navigate("confirmationpopup")
+                    }
                 )
             }
         }
 
+
+        if (showNavBar) {
+            BottomNavBar(
+                selectedTab    = selectedTab,
+                onHomeClick    = { navController.navigate("home") { launchSingleTop = true } },
+                onProfileClick = { navController.navigate("profile") { launchSingleTop = true } },
+                modifier       = Modifier.align(Alignment.BottomCenter)
+            )
+        }
+    }
+
+}
+
+/**
+ * A popup route (same as `dialog(route, DialogProperties(usePlatformDefaultWidth = false))`)
+ * whose content always uses the app's CURRENT language.
+ *
+ * Without ProvideAppLocale, text read inside a popup stayed in the language the
+ * app was started with, because dialogs open in their own window with the
+ * Activity's original context (see utils/ProvideAppLocale.kt).
+ */
+private fun NavGraphBuilder.localizedDialog(
+    route: String,
+    content: @Composable () -> Unit
+) {
+    dialog(
+        route,
+        dialogProperties = DialogProperties(usePlatformDefaultWidth = false)
+    ) {
+        ProvideAppLocale {
+            content()
+        }
+    }
 }

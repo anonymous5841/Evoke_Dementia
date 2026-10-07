@@ -104,7 +104,12 @@ fun AddLocationContent(
                             modifier = Modifier.width(getLocationColumnWidth),
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
-                            FieldLabel(stringResource(R.string.get_location))
+                            // One line: shrinks to fit the narrow column
+                            // (the Urdu label used to wrap onto 2 lines).
+                            FieldLabel(
+                                stringResource(R.string.get_location),
+                                singleLine = true
+                            )
                             Spacer(modifier = Modifier.height(8.dp))
                             ShadowButton(
                                 width = getLocationButtonWidth,
