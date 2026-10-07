@@ -41,6 +41,7 @@ import com.example.myapplication.ui.components.InfoNotePill
 import com.example.myapplication.ui.components.RecordConversationField
 import com.example.myapplication.ui.components.VoicePlayerBar
 import androidx.compose.ui.res.stringResource
+import com.example.myapplication.ui.components.languageStartAlignment
 
 class RecognisedScreen : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -70,10 +71,6 @@ fun RecognisedContent(
 
     var isPlaying by remember { mutableStateOf(false) }
     var speedMultiplier by remember { mutableStateOf(1f) }
-
-    var textAlign by remember {
-        mutableStateOf(TextAlign.Left)
-    }
 
     Scaffold(
         containerColor = appColors.background,
@@ -447,23 +444,12 @@ fun RecognisedContent(
                             color =
                                 appColors.pagesText,
 
+                            // Always centred (same as "Add new information" below)
                             textAlign =
-                                textAlign,
+                                TextAlign.Center,
 
                             modifier =
-                                Modifier.fillMaxWidth(),
-
-                            onTextLayout = { result ->
-
-                                textAlign =
-                                    if (
-                                        result.lineCount > 1
-                                    ) {
-                                        TextAlign.Center
-                                    } else {
-                                        TextAlign.Left
-                                    }
-                            }
+                                Modifier.fillMaxWidth()
                         )
 
 
@@ -578,7 +564,13 @@ fun RecognisedContent(
                          * DATE
                          */
 
+                        // No weight / fixed width here → label wraps its text
+                        // (fillMaxWidth = false) and the column aligns it
+                        // left (English) / right (Urdu) over the date field.
                         Column(
+                            horizontalAlignment =
+                                languageStartAlignment(),
+
                             modifier = Modifier.padding(
                                 top = rowTopPadding
                             )
@@ -593,7 +585,9 @@ fun RecognisedContent(
 
                                 OutfitFont,
 
-                                FontWeight.Medium
+                                FontWeight.Medium,
+
+                                fillMaxWidth = false
                             )
 
                             Spacer(
@@ -957,7 +951,10 @@ fun RecognisedContent(
 
                                 OutfitFont,
 
-                                FontWeight.Medium
+                                FontWeight.Medium,
+
+                                // No weight / fixed width on this column
+                                fillMaxWidth = false
                             )
 
 

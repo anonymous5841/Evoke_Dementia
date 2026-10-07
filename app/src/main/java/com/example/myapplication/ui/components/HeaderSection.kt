@@ -15,6 +15,10 @@ import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.withStyle
 import android.os.Build
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -219,16 +223,18 @@ fun HeaderSection(
             var cachedPath by remember { mutableStateOf<Path?>(null) }
             var cachedSize by remember { mutableStateOf(Pair(0f, 0f)) }
 
-            val shadowHeight = headerHeight * (307f / 260f)  // ← restore this
-
+            // The shadow is DRAWN 307/260 taller than the header, but the box
+            // itself keeps the header height. (It used to be 307.dp tall, which
+            // made the whole header take 47.dp more space on Android < 12 and
+            // pushed the Home screen content down.)
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(shadowHeight)              // ← restore inflated height
+                    .height(headerHeight)                 // layout size = header size
                     .offset(y = (-16).dp)                 // ← match API 31+ offset
                     .drawBehind {
                         val w = size.width
-                        val h = size.height
+                        val h = size.height * (307f / 260f)  // drawing may go past the box
 
                         if (cachedSize != Pair(w, h)) {
                             cachedPath = buildHeaderCombinedPath(w, h)  // original function unchanged
@@ -373,55 +379,66 @@ fun HeaderSection(
                         fontSize = 30.sp,          // changed from 30.sp
                         fontFamily = PompiereFont,
                         fontWeight = FontWeight.Bold,
-                        )
-                }
-
-                val titleModifier = Modifier
-                    .align(Alignment.CenterStart)
-                    .padding(start = spacing, bottom = bottomspace)
-
-                if (secondaryTitle != null) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier          = titleModifier
-                    ) {
-                        ShadowedText(
-                            text     = title,
-                            color    = appColors.headerText,
-                            fontSize = textSize
-                        )
-                        ShadowedText(
-                            text     = secondaryTitle,
-                            color    = appColors.headerSecondaryText,
-                            fontSize = textSize,
-                            modifier = Modifier.padding(start = 12.dp)
-                        )
-                    }
-                } else {
-                    ShadowedText(
-                        text     = title,
-                        color    = appColors.headerText,
-                        fontSize = textSize,
-                        modifier = titleModifier
                     )
                 }
+
+                // `end` padding gives the title a right edge, so it shrinks
+                // instead of running out of the header on small screens.
+                val titleModifier = Modifier
+                    .align(Alignment.CenterStart)
+                    .padding(start = spacing, end = 16.dp, bottom = bottomspace)
+
+                // Title + optional second part in another colour, as ONE text.
+                // Being one text, the reading order follows the language:
+                // English "Result: Recognised" (left → right),
+                // Urdu "نتیجہ : پہچانا گیا" (right → left, title first).
+                val headerTitle = buildAnnotatedString {
+                    withStyle(SpanStyle(color = appColors.headerText)) {
+                        append(title)
+                    }
+                    if (secondaryTitle != null) {
+                        append("  ")
+                        withStyle(SpanStyle(color = appColors.headerSecondaryText)) {
+                            append(secondaryTitle)
+                        }
+                    }
+                }
+
+                ShadowedText(
+                    text     = headerTitle,
+                    color    = appColors.headerText,
+                    fontSize = textSize,
+                    modifier = titleModifier
+                )
             }
         }
     }
 }
 
+/** Header titles never go below this size when shrinking to fit. */
+private val MIN_HEADER_TITLE_SIZE = 20.sp
+
+/**
+ * Header title with a soft shadow copy behind it.
+ * Always ONE line: if the title is too wide (long Urdu titles on small
+ * phones), it shrinks from [fontSize] down to MIN_HEADER_TITLE_SIZE.
+ */
 @Composable
 private fun ShadowedText(
-    text     : String,
+    text     : AnnotatedString,
     color    : Color,
     fontSize : TextUnit,
     modifier : Modifier = Modifier
 ) {
+    // Same settings for both copies → both pick the same size.
+    val autoSize = remember(fontSize) { fitAutoSize(MIN_HEADER_TITLE_SIZE, fontSize) }
+
     Box(modifier = modifier) {
         Text(
             text       = text,
             color      = color,
-            fontSize   = fontSize,
+            autoSize   = autoSize,
+            maxLines   = 1,
             fontWeight = FontWeight.Bold,
             fontFamily = BaumansFont,
             modifier   = Modifier
@@ -439,7 +456,8 @@ private fun ShadowedText(
         Text(
             text       = text,
             color      = color,
-            fontSize   = fontSize,
+            autoSize   = autoSize,
+            maxLines   = 1,
             fontWeight = FontWeight.Bold,
             fontFamily = BaumansFont
         )

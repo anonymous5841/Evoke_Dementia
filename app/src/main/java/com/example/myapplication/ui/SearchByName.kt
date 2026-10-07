@@ -144,11 +144,16 @@ fun SearchScreen(
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
 
+                    // Takes whatever width is left after the location button,
+                    // so the button keeps its size on small screens.
+                    // (Was a fixed 300.dp, which squeezed the button.)
                     SearchFieldWithIcon(
                         value = viewModel.searchQuery,
                         onValueChange = {
                             viewModel.onSearchQueryChange(it)
-                        }
+                        },
+                        boxWidth = null,
+                        modifier = Modifier.weight(1f)
                     )
 
                     Spacer(
@@ -363,15 +368,22 @@ private fun LocationResultsList(
 
         /*
          * ADD BUTTON POSITION
+         *
+         * The button is now anchored to the RIGHT edge of the card
+         * (Alignment.TopEnd) instead of a distance from the left
+         * (0.84 × width), which pushed it past the card / screen edge
+         * on small phones.
+         *
+         * Inside AddShapeButton the blob is drawn 9.dp past the right
+         * edge of its 80.dp box, so -9.dp makes the blob's right edge
+         * flush with the card's right edge (as in the Figma design).
+         * The "+" keeps the same position relative to the blob as before
+         * (3.dp left of the box offset).
          */
 
-        val addButtonX =
-            (screenWidth * 0.84f)
-                .coerceIn(250.dp, 320.dp)
+        val addButtonX = (-9).dp
 
-        val addButtonPlusX =
-            (screenWidth * 0.83f)
-                .coerceIn(247.dp, 317.dp)
+        val addButtonPlusX = addButtonX - 3.dp
 
         /*
          * ADD BUTTON VERTICAL POSITIONS
@@ -496,6 +508,9 @@ private fun LocationResultsList(
                          */
 
                         AddShapeButton(
+                            // anchor to the card's right edge (see ADD BUTTON POSITION)
+                            modifier = Modifier.align(Alignment.TopEnd),
+
                             onClick = onAddLocationClick,
 
                             shapeColor =

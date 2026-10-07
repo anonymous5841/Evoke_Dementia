@@ -179,15 +179,15 @@ fun NotRecognisedContent(
                     Spacer(modifier = Modifier.height(21.dp))
 
                     // ── Address * + Add Voice * side by side ──────────────────────
+                    // Bottom-aligned: the location field and the mic button always
+                    // line up, whatever the label heights are (1 vs 2 lines, Urdu font).
                     Row(
-                        verticalAlignment = Alignment.Top,
+                        verticalAlignment = Alignment.Bottom,
                         horizontalArrangement = Arrangement.spacedBy(12.dp),
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         // Left: label + address field
-                        Column(modifier = Modifier
-                            .weight(1f)
-                            .padding(top = 16.dp)) {
+                        Column(modifier = Modifier.weight(1f)) {
                             FieldLabel(
                                 stringResource(R.string.location_label),
                                 18.sp,
@@ -203,17 +203,23 @@ fun NotRecognisedContent(
                         }
 
                         // Right: label + microphone button
+                        // No weight / fixed width here → label must wrap its text
+                        // (fillMaxWidth = false), otherwise it squeezes the location column.
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
                             FieldLabel(
                                 stringResource(R.string.add_person_voice_sample),
                                 17.sp,
                                 OutfitFont,
-                                FontWeight.Medium
+                                FontWeight.Medium,
+                                fillMaxWidth = false
                             )
-                            Spacer(modifier = Modifier.height(8.dp))
+                            Spacer(modifier = Modifier.height(12.dp))
                             ShadowButton(
                                 width = 72.dp,
-                                height = 51.dp,
+                                // Same height as LocationPickerField (52.dp) so top and
+                                // bottom edges match. ShadowButton's responsive rule turned
+                                // 51.dp into 48.dp here, so the button sat out of line.
+                                height = 52.dp,
                                 color = appColors.popupText,
                                 cornerRadius = 15.dp,
                                 onClick = { onVoiceSampleClick() }

@@ -27,6 +27,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import com.example.myapplication.ui.components.rememberBottomContentPadding
 
 class CameraPreviewScreen : ComponentActivity() {
 
@@ -50,6 +51,10 @@ fun CameraPreviewContent(
     onRefresh: () -> Unit = {}
 ) {
     val appColors = AppTheme.colors
+
+    // The bottom nav bar is shown on this screen (flat style, no bubble),
+    // so keep the controls above its visible part.
+    val navBarPadding = rememberBottomContentPadding()
 
     Scaffold(
         containerColor = appColors.background,
@@ -96,6 +101,7 @@ fun CameraPreviewContent(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(horizontal = horizontalPadding)
+                    .padding(bottom = navBarPadding)
             ) {
 
                 /*
@@ -130,9 +136,17 @@ fun CameraPreviewContent(
                  * -----------------------------------------------------
                  */
 
-                CameraPreviewPlaceholder(
-                    height = cameraHeight
-                )
+                // Keeps the design height (cameraHeight) when there is room.
+                // On short screens it shrinks to the space left, so the
+                // capture / gallery / refresh controls are never pushed
+                // under the nav bar.
+                Box(
+                    modifier = Modifier.weight(1f, fill = false)
+                ) {
+                    CameraPreviewPlaceholder(
+                        height = cameraHeight
+                    )
+                }
 
 
                 /*

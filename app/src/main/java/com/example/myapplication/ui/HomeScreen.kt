@@ -27,6 +27,10 @@ import androidx.compose.ui.unit.LayoutDirection
 import com.example.myapplication.utils.LanguageManager
 import com.example.myapplication.utils.LocalAppLanguage
 import androidx.compose.ui.Alignment
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.ui.layout.layout
+import androidx.compose.ui.unit.Dp
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun HomeScreen(
@@ -223,10 +227,20 @@ fun HomeScreen(
 
             /*
              * Greeting → menu grid.
+             *
+             * This is now the real visible gap. Before, the greeting's
+             * offset(y = -20.dp) left 20.dp of hidden empty space, so the
+             * visible gap was 42–54.dp.
              */
             val greetingToGridSpacing =
-                (maxHeight * 0.035f)
-                    .coerceIn(22.dp, 34.dp)
+                (maxHeight * 0.025f)
+                    .coerceIn(14.dp, 24.dp)
+
+            /*
+             * How far the greeting is pulled up towards the header
+             * (same as the old offset).
+             */
+            val greetingLift = 20.dp
 
 
             Column(
@@ -285,7 +299,9 @@ fun HomeScreen(
                             .padding(
                                 horizontal = horizontalPadding
                             )
-                            .offset(y = (-20).dp)
+                            // Same position as the old offset(y = -20.dp), but
+                            // the space it leaves below is removed too.
+                            .liftUp(greetingLift)
                     ) {
 
                         Text(
@@ -324,19 +340,53 @@ fun HomeScreen(
                  * -------------------------------------------------
                  * RESPONSIVE MENU GRID
                  * -------------------------------------------------
+                 *
+                 * The grid gets exactly the height left between the
+                 * greeting and the bottom nav bar and shrinks to fit it.
+                 * On very short screens it reaches its minimum size and
+                 * this area scrolls, so the bottom buttons are never
+                 * hidden under the nav bar.
                  */
 
-                RotatingRowGrid(
-                    rowsData = rowsData,
-
-                    startExpanded = startExpanded,
-
+                BoxWithConstraints(
                     modifier = Modifier
+                        .weight(1f)
                         .fillMaxWidth()
-                        .padding(
-                            horizontal = horizontalPadding
+                ) {
+
+                    // Room for the cards' shadows inside the scroll area
+                    val gridShadowPaddingTop = 4.dp
+                    val gridShadowPaddingBottom = 12.dp
+
+                    val gridAvailableHeight =
+                        (maxHeight - gridShadowPaddingTop - gridShadowPaddingBottom)
+                            .coerceAtLeast(0.dp)
+
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .verticalScroll(rememberScrollState())
+                            .padding(
+                                top = gridShadowPaddingTop,
+                                bottom = gridShadowPaddingBottom
+                            )
+                    ) {
+
+                        RotatingRowGrid(
+                            rowsData = rowsData,
+
+                            startExpanded = startExpanded,
+
+                            availableHeight = gridAvailableHeight,
+
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(
+                                    horizontal = horizontalPadding
+                                )
                         )
-                )
+                    }
+                }
             }
         }
     }
@@ -363,3 +413,17 @@ fun HomeScreenExpandedPreview() {
         )
     }
 }
+
+/*
+ * Draws the element [amount] higher AND removes that much space below it,
+ * so the content underneath moves up with it. (offset() only moves the
+ * drawing and leaves an empty gap.)
+ */
+private fun Modifier.liftUp(amount: Dp): Modifier =
+    layout { measurable, constraints ->
+        val placeable = measurable.measure(constraints)
+        val lift = amount.roundToPx().coerceAtMost(placeable.height)
+        layout(placeable.width, placeable.height - lift) {
+            placeable.place(0, -lift)
+        }
+    }
