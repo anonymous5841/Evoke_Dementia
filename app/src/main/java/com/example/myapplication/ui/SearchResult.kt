@@ -31,6 +31,7 @@ import com.example.myapplication.R
 import com.example.myapplication.ui.components.DateDisplayField
 import com.example.myapplication.ui.components.DiscussionSummaryBox
 import com.example.myapplication.ui.components.FieldLabel
+import com.example.myapplication.ui.components.FitText
 import com.example.myapplication.ui.components.languageStartAlignment
 import com.example.myapplication.ui.components.HeaderSection
 import com.example.myapplication.ui.components.LocationPickerField
@@ -352,34 +353,16 @@ fun SearchResultsContent(
                     ) {
 
                         Text(
-                            text =
-                                stringResource(
-                                    R.string.last_meeting_information
-                                ),
-
+                            text = stringResource(R.string.last_meeting_information),
                             fontSize = sectionTitleSize,
-
                             fontFamily = BaumansFont,
-
                             fontWeight = FontWeight.Normal,
-
                             color = appColors.pagesText,
-
-                            textAlign = textAlign,
-
-                            modifier = Modifier.fillMaxWidth(),
-
-                            onTextLayout = { result: TextLayoutResult ->
-
-                                textAlign =
-                                    if (result.lineCount > 1) {
-                                        TextAlign.Center
-                                    } else {
-                                        TextAlign.Left
-                                    }
-                            }
+                            textAlign = TextAlign.Center,
+                            maxLines = 1,
+                            softWrap = false,
+                            modifier = Modifier.fillMaxWidth()
                         )
-
                         Spacer(
                             modifier = Modifier.height(4.dp)
                         )
@@ -607,16 +590,19 @@ fun SearchResultsContent(
                                 }
                             ) {
 
-                                Text(
+                                // Shrinks to fit (long Urdu labels on small screens)
+                                FitText(
                                     text =
                                         stringResource(
                                             R.string.edit
                                         ),
 
-                                    fontSize = 22.sp,
+                                    maxFontSize = 22.sp,
+                                    minFontSize = 12.sp,
                                     fontFamily = OutfitFont,
                                     fontWeight = FontWeight.Medium,
-                                    color = appColors.popupText
+                                    color = appColors.popupText,
+                                    modifier = Modifier.padding(horizontal = 12.dp)
                                 )
                             }
                         }
@@ -635,16 +621,18 @@ fun SearchResultsContent(
                                 }
                             ) {
 
-                                Text(
+                                FitText(
                                     text =
                                         stringResource(
                                             R.string.delete_entry
                                         ),
 
-                                    fontSize = 20.sp,
+                                    maxFontSize = 20.sp,
+                                    minFontSize = 12.sp,
                                     fontFamily = OutfitFont,
                                     fontWeight = FontWeight.Medium,
-                                    color = appColors.popupText
+                                    color = appColors.popupText,
+                                    modifier = Modifier.padding(horizontal = 12.dp)
                                 )
                             }
                         }

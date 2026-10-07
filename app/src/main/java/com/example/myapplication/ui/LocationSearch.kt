@@ -14,6 +14,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.myapplication.ui.components.FieldLabel
+import com.example.myapplication.ui.components.FitText
+import com.example.myapplication.ui.components.languageStartAlignment
 import com.example.myapplication.ui.components.HeaderSection
 import com.example.myapplication.ui.components.LocationPickerField
 import com.example.myapplication.ui.components.ShadowButton
@@ -77,7 +79,10 @@ fun LocationSearchContent(
                         value = selectedLocation,
                         placeholder = stringResource(R.string.open_location_in_map),
                         onClick = { /* open map or location picker here */ },
-                        modifier = Modifier.fillMaxWidth(0.70f)
+                        modifier = Modifier
+                            // left in English, right in Urdu — under its label
+                            .align(languageStartAlignment())
+                            .fillMaxWidth(0.70f)
                     )
 
                     Spacer(modifier = Modifier.height(24.dp))
@@ -121,12 +126,15 @@ fun LocationSearchContent(
                             cornerRadius = 30.dp,
                             onClick = { onEdit() }
                         ) {
-                            Text(
+                            // Shrinks to fit (long Urdu labels on small screens)
+                            FitText(
                                 text = stringResource(R.string.edit),
                                 color = appColors.popupText,
-                                fontSize = 24.sp,
+                                maxFontSize = 24.sp,
+                                minFontSize = 12.sp,
                                 fontWeight = FontWeight.Medium,
-                                fontFamily = OutfitFont
+                                fontFamily = OutfitFont,
+                                modifier = Modifier.padding(horizontal = 12.dp)
                             )
                         }
 
@@ -137,12 +145,14 @@ fun LocationSearchContent(
                             cornerRadius = 30.dp,
                             onClick = { onDelete() }
                         ) {
-                            Text(
+                            FitText(
                                 text = stringResource(R.string.delete),
                                 color = appColors.pagesText,
-                                fontSize = 24.sp,
+                                maxFontSize = 24.sp,
+                                minFontSize = 12.sp,
                                 fontWeight = FontWeight.Medium,
-                                fontFamily = OutfitFont
+                                fontFamily = OutfitFont,
+                                modifier = Modifier.padding(horizontal = 12.dp)
                             )
                         }
                     }

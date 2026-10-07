@@ -18,6 +18,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpOffset
+import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.graphics.Shadow
@@ -35,6 +36,8 @@ import com.example.myapplication.ui.theme.GreenTheme
 import com.example.myapplication.ui.theme.OutfitFont
 import com.example.myapplication.ui.theme.MargarineFont
 import com.example.myapplication.ui.components.ShadowButton
+import androidx.compose.ui.text.rememberTextMeasurer
+import androidx.compose.ui.platform.LocalDensity
 
 @Composable
 fun PopupCard(
@@ -53,6 +56,8 @@ fun PopupCard(
 ) {
 
     val appColors = AppTheme.colors
+    val textMeasurer = rememberTextMeasurer()
+    val density = LocalDensity.current
 
     BoxWithConstraints(
         modifier = Modifier
@@ -126,17 +131,6 @@ fun PopupCard(
                     0.dp
                 )
 
-        val buttonWidth =
-            (200f * widthScale)
-                .coerceIn(
-                    160f,
-                    200f
-                )
-                .dp
-                .coerceAtMost(
-                    messageWidth
-                )
-
         val buttonHeightScale =
             (maxHeight.value / 851f)
                 .coerceIn(
@@ -144,13 +138,102 @@ fun PopupCard(
                     1f
                 )
 
-        val buttonHeight =
-            (52f * widthScale * buttonHeightScale)
+        val buttonTextSize =
+            (27f * widthScale * buttonHeightScale)
                 .coerceIn(
-                    40f,
-                    52f
+                    20f,
+                    42f
+                )
+                .sp
+
+        val buttonTextWidthPx =
+            textMeasurer.measure(
+                text = buttonText,
+                style = TextStyle(
+                    fontSize = buttonTextSize,
+                    fontFamily = OutfitFont,
+                    fontWeight = FontWeight.Medium
+                )
+            ).size.width
+
+        val buttonTextWidthDp =
+            with(density) {
+                buttonTextWidthPx.toDp()
+            }
+
+        val buttonHorizontalPadding =
+            (48f * widthScale)
+                .dp
+
+        val buttonWidth =
+            (buttonTextWidthDp + buttonHorizontalPadding)
+                .coerceAtLeast(
+                    (160f * widthScale).dp
+                )
+                .coerceAtMost(
+                    messageWidth
+                )
+
+        /*
+         * ============================================================
+         * BUTTON HEIGHT — [FIX] now accounts for actual wrapped text
+         * ============================================================
+         *
+         * buttonWidth can be squeezed below buttonTextWidthDp by the
+         * coerceAtMost(messageWidth) cap above — on narrow cards with
+         * longer strings (seen with the Urdu "Erase Data" button) the
+         * text then wraps onto two lines inside ShadowButton. The old
+         * buttonHeight formula had no idea this could happen — it was
+         * purely screen-size driven — so it stayed sized for one line
+         * and the second line got clipped.
+         *
+         * This re-measures buttonText constrained to the width it will
+         * ACTUALLY render at (buttonWidth minus horizontal padding),
+         * which tells us the real number of lines/height needed. If
+         * it wraps, buttonHeight grows to fit; if it doesn't, nothing
+         * changes from before.
+         */
+
+        val buttonTextConstrainedWidthPx =
+            with(density) {
+                (buttonWidth - buttonHorizontalPadding)
+                    .toPx()
+                    .toInt()
+                    .coerceAtLeast(0)
+            }
+
+        val buttonTextHeightPx =
+            textMeasurer.measure(
+                text = buttonText,
+                style = TextStyle(
+                    fontSize = buttonTextSize,
+                    fontFamily = OutfitFont,
+                    fontWeight = FontWeight.Medium
+                ),
+                constraints = Constraints(
+                    maxWidth = buttonTextConstrainedWidthPx
+                )
+            ).size.height
+
+        val buttonTextHeightDp =
+            with(density) {
+                buttonTextHeightPx.toDp()
+            }
+
+        val buttonVerticalPadding =
+            (16f * widthScale)
+                .dp
+
+        val buttonHeight =
+            (60f * widthScale * buttonHeightScale)
+                .coerceIn(
+                    46f,
+                    60f
                 )
                 .dp
+                .coerceAtLeast(
+                    buttonTextHeightDp + buttonVerticalPadding   // [FIX] grows to fit wrapped text
+                )
 
         val buttonSpacing =
             (34f * widthScale * buttonHeightScale)
@@ -161,26 +244,17 @@ fun PopupCard(
                 .dp
 
         val buttonCorner =
-            (50f * widthScale)
+            (56f * widthScale)
                 .coerceIn(
-                    44f,
-                    50f
+                    48f,
+                    56f
                 )
                 .dp
-
-        val buttonTextSize =
-            (27f * widthScale * buttonHeightScale)
-                .coerceIn(
-                    20f,
-                    27f
-                )
-                .sp
-
         val closeShapeWidth =
             (78f * widthScale)
                 .coerceIn(
                     64f,
-                    78f
+                    120f
                 )
                 .dp
 
@@ -188,7 +262,7 @@ fun PopupCard(
             (70f * widthScale)
                 .coerceIn(
                     60f,
-                    70f
+                    108f
                 )
                 .dp
 
@@ -196,7 +270,7 @@ fun PopupCard(
             (38f * widthScale)
                 .coerceIn(
                     32f,
-                    38f
+                    58f
                 )
                 .sp
 
@@ -326,7 +400,15 @@ fun PopupCard(
                                     FontWeight.Medium,
 
                                 fontFamily =
-                                    OutfitFont
+                                    OutfitFont,
+
+                                textAlign =
+                                    TextAlign.Center,
+
+                                modifier =
+                                    Modifier.padding(
+                                        horizontal = buttonHorizontalPadding / 2
+                                    )
                             )
                         }
                     }

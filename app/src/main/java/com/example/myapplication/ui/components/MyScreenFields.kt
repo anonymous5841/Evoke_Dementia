@@ -1214,7 +1214,7 @@ fun CascadeCard(
         )
     ) {
 
-        Box(
+        BoxWithConstraints(
             contentAlignment = Alignment.Center,
 
             modifier = Modifier
@@ -1222,12 +1222,33 @@ fun CascadeCard(
                 .padding(8.dp)
         ) {
 
+            /*
+             * Label size: the normal [fontSize], unless the label can't fit
+             * in the space left under the icon (e.g. "Search / Name / Location"
+             * in a small card) — then it gets just small enough to fit.
+             * Plain arithmetic on the card's current height, recalculated
+             * every frame, so it follows the card animation both ways.
+             */
+            val density = LocalDensity.current
+            val lineCount = item.label.count { it == '\n' } + 1
+            val textSpace = maxHeight - iconSize - 8.dp   // 8.dp = spacer under the icon
+
+            val fittedFontSize =
+                if (textSpace <= 0.dp) {
+                    fontSize  // card collapsed to a strip: content is hidden anyway
+                } else {
+                    // lineHeight = fontSize, so each line needs ~fontSize of height
+                    // (0.9 leaves a little room for tall letters).
+                    val maxByHeight = with(density) { (textSpace / lineCount * 0.9f).toSp() }
+                    minOf(fontSize.value, maxByHeight.value).coerceAtLeast(9f).sp
+                }
+
             CardContent(
                 item = item,
 
                 iconSize = iconSize,
 
-                fontSize = fontSize,
+                fontSize = fittedFontSize,
 
                 modifier =
                     Modifier.graphicsLayer {
@@ -1282,6 +1303,7 @@ fun CardContent(
             modifier = Modifier.height(8.dp)
         )
 
+        // fontSize is already fitted to the card in CascadeCard.
         Text(
             text = item.label,
 

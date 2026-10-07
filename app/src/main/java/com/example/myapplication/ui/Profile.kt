@@ -206,8 +206,10 @@ fun PersonFormContent(
                     // labels and the location field content follow the language.
                     // ============================================================
 
+                    // Bottom-aligned: the location field and the mic button stay
+                    // level even when the voice label needs 2–3 lines (Urdu).
                     Row(
-                        verticalAlignment = Alignment.Top,
+                        verticalAlignment = Alignment.Bottom,
                         horizontalArrangement = Arrangement.spacedBy(12.dp),
                         modifier = Modifier.fillMaxWidth()
                     ) {
@@ -220,7 +222,7 @@ fun PersonFormContent(
                             Box(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .height(45.dp),
+                                    .heightIn(min = 45.dp),   // was height(45.dp)
                                 contentAlignment = Alignment.BottomStart
                             ) {
                                 FieldLabel(
@@ -248,10 +250,13 @@ fun PersonFormContent(
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
 
+                            // heightIn instead of a fixed 45.dp: a fixed height cut
+                            // off the 2nd line of the Urdu label (Urdu letters are
+                            // much taller than English ones).
                             Box(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .height(45.dp),
+                                    .heightIn(min = 45.dp),
                                 contentAlignment = Alignment.BottomCenter
                             ) {
                                 FieldLabel(
@@ -266,7 +271,9 @@ fun PersonFormContent(
 
                             ShadowButton(
                                 width = 72.dp,
-                                height = 51.dp,
+                                // Same height as LocationPickerField (52.dp) so both
+                                // line up (51.dp is resized to ~48.dp by ShadowButton).
+                                height = 52.dp,
                                 color = appColors.iconSelected,
                                 cornerRadius = 15.dp,
                                 onClick = { onVoiceSampleClick() }

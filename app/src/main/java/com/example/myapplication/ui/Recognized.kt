@@ -72,10 +72,6 @@ fun RecognisedContent(
     var isPlaying by remember { mutableStateOf(false) }
     var speedMultiplier by remember { mutableStateOf(1f) }
 
-    var textAlign by remember {
-        mutableStateOf(TextAlign.Left)
-    }
-
     Scaffold(
         containerColor = appColors.background,
         contentWindowInsets = WindowInsets(0, 0, 0, 0)
@@ -448,23 +444,12 @@ fun RecognisedContent(
                             color =
                                 appColors.pagesText,
 
+                            // Always centred (same as "Add new information" below)
                             textAlign =
-                                textAlign,
+                                TextAlign.Center,
 
                             modifier =
-                                Modifier.fillMaxWidth(),
-
-                            onTextLayout = { result ->
-
-                                textAlign =
-                                    if (
-                                        result.lineCount > 1
-                                    ) {
-                                        TextAlign.Center
-                                    } else {
-                                        TextAlign.Left
-                                    }
-                            }
+                                Modifier.fillMaxWidth()
                         )
 
 
