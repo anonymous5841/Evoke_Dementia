@@ -32,33 +32,19 @@ fun ShadowButton(
     cornerRadius: Dp = 30.dp,
     shadowColor: Color = Color.Black,
     shadowAlpha: Int = 90,
+    useExactHeight: Boolean = false,   // [NEW]
     onClick: () -> Unit = {},
     content: @Composable () -> Unit
 ) {
+    BoxWithConstraints(modifier = modifier) {
 
-    BoxWithConstraints(
-        modifier = modifier
-    ) {
-
-        /*
-         * ============================================================
-         * RESPONSIVE DIMENSIONS
-         * ============================================================
-         */
-
-        /*
-         * Height
-         *
-         * The supplied height is treated as the design/reference
-         * value and adjusted slightly according to available width.
-         */
         val responsiveHeight =
-            if (height == 51.dp) {
-                (maxWidth * 0.13f)
-                    .coerceIn(48.dp, 55.dp)
+            if (useExactHeight) {
+                height   // trust the caller completely — PopupCard's case
+            } else if (height == 51.dp) {
+                (maxWidth * 0.13f).coerceIn(48.dp, 55.dp)
             } else if (height == 56.dp) {
-                (maxWidth * 0.14f)
-                    .coerceIn(52.dp, 60.dp)
+                (maxWidth * 0.14f).coerceIn(52.dp, 60.dp)
             } else {
                 height
             }
