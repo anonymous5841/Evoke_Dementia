@@ -21,6 +21,7 @@ import androidx.compose.ui.graphics.Paint
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import android.os.SystemClock
 
 
 @Composable
@@ -33,9 +34,19 @@ fun ShadowButton(
     shadowColor: Color = Color.Black,
     shadowAlpha: Int = 90,
     useExactHeight: Boolean = false,   // [NEW]
+    clickDebounceMs: Long = 600L,      // [DOUBLE-TAP GUARD] 0 = off
     onClick: () -> Unit = {},
     content: @Composable () -> Unit
 ) {
+    /*
+     * [DOUBLE-TAP GUARD]
+     * A second tap within clickDebounceMs is ignored. Without this,
+     * a double-click (very common with the emulator mouse, or when a
+     * slow Urdu popup makes the first tap look ignored) navigated
+     * twice and stacked two identical popups.
+     */
+    val lastClickTime = remember { longArrayOf(0L) }
+
     BoxWithConstraints(modifier = modifier) {
 
         val responsiveHeight =
@@ -198,7 +209,11 @@ fun ShadowButton(
                             bounded = true
                         )
                 ) {
-                    onClick()
+                    val now = SystemClock.elapsedRealtime()
+                    if (now - lastClickTime[0] >= clickDebounceMs) {
+                        lastClickTime[0] = now
+                        onClick()
+                    }
                 },
 
             contentAlignment =

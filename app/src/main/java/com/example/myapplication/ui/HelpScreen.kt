@@ -22,6 +22,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.myapplication.R
+import com.example.myapplication.ui.components.FitText
 import com.example.myapplication.ui.components.HeaderSection
 import com.example.myapplication.ui.theme.AppTheme
 import com.example.myapplication.ui.theme.GreenTheme
@@ -368,17 +369,22 @@ fun HelpCard(
 
 
         /*
-         * TEXT
+         * [HELP CARD TEXT] — one line, shrinks to fit
          *
-         * maxLines = 2 allows the text to
-         * wrap instead of overlapping when
-         * the card becomes narrow.
+         * The card height is fixed (125.dp). In English, "Send Message"
+         * and "Map to Home" did not fit on one line at 19.sp in the
+         * Martel font, so they wrapped to 2 lines and the second line
+         * was cut off by the bottom of the card. FitText keeps 19.sp
+         * when the text fits (Urdu, wide phones) and shrinks it only as
+         * much as needed (down to 13.sp) to stay on one line.
          */
 
-        Text(
+        FitText(
             text = title,
 
-            fontSize = 19.sp,
+            maxFontSize = 19.sp,
+
+            minFontSize = 13.sp,
 
             fontWeight =
                 FontWeight.Medium,
@@ -389,10 +395,13 @@ fun HelpCard(
             color =
                 Color.Black,
 
-            maxLines = 2,
+            maxLines = 1,
 
             textAlign =
-                TextAlign.Center
+                TextAlign.Center,
+
+            modifier =
+                Modifier.fillMaxWidth()
         )
     }
 }

@@ -81,6 +81,16 @@ fun DetailedSummaryScreen(
 ) {
     val appColors = AppTheme.colors
 
+    // [ONE-SHOT CLOSE] a double tap on the close shape must not pop
+    // the back stack twice (that also closed the screen behind it).
+    val closeHandled = androidx.compose.runtime.remember { booleanArrayOf(false) }
+    val closeOnce: () -> Unit = {
+        if (!closeHandled[0]) {
+            closeHandled[0] = true
+            onCloseClick()
+        }
+    }
+
     val summaryPoints = listOf(
         stringResource(R.string.discussion_summary_text)
     )
@@ -388,7 +398,7 @@ fun DetailedSummaryScreen(
                             )
                         )
                         .clickable {
-                            onCloseClick()
+                            closeOnce()
                         }
                 )
 
@@ -414,7 +424,7 @@ fun DetailedSummaryScreen(
                             y = closeTextOffsetY
                         )
                         .clickable {
-                            onCloseClick()
+                            closeOnce()
                         }
                 )
             }
