@@ -381,7 +381,7 @@ private fun LocationResultsList(
          * (3.dp left of the box offset).
          */
 
-        val addButtonX = (-9).dp
+        val addButtonX = (-5).dp
 
         val addButtonPlusX = addButtonX - 3.dp
 

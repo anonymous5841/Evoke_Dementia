@@ -9,7 +9,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -101,14 +100,14 @@ fun AppNavigation(
                 composable("addlocation") {
                     AddLocationContent(
                         onBack = { navController.popBackStack() },
-                        onAddClick = { navController.openPopup("add_success_popup") }
+                        onAddClick = { navController.navigate("add_success_popup") }
                     )
                 }
 
                 composable("notrecognised") { NotRecognisedContent(
                     onBack = { navController.popBackStack() },
                     onVoiceSampleClick = { navController.navigate("recorder") },
-                    onSave = {navController.openPopup("save_success_popup") }
+                    onSave = {navController.navigate("save_success_popup") }
                 )
                 }
 
@@ -142,7 +141,7 @@ fun AppNavigation(
                         onButtonClick = {
                             navController.popBackStack()
                             navController.popBackStack()
-                            navController.openPopup("delete_success_popup")
+                            navController.navigate("delete_success_popup")
 
                         }
                     )
@@ -159,7 +158,7 @@ fun AppNavigation(
                         onDismiss = { navController.popBackStack() },
                         onButtonClick = {
                             navController.popBackStack()
-                            navController.openPopup("delete_success_popup")
+                            navController.navigate("delete_success_popup")
 
                         }
                     )
@@ -193,7 +192,7 @@ fun AppNavigation(
                         onDismiss = { navController.popBackStack() },
                         onButtonClick = {
                             navController.popBackStack()
-                            navController.openPopup("edit_success_popup")
+                            navController.navigate("edit_success_popup")
 
                         }
                     )
@@ -288,15 +287,7 @@ fun AppNavigation(
                         showButton = true,
                         navController = navController,
                         onDismiss = { navController.popBackStack() },
-                        // [ERASE DATA BUTTON] was an empty {} — the button did nothing.
-                        // "Erase Data & Restart?" → clear the whole back stack and
-                        // start again from the splash screen.
-                        onButtonClick = {
-                            navController.navigate("splash") {
-                                popUpTo(navController.graph.id) { inclusive = true }
-                                launchSingleTop = true
-                            }
-                        }
+                        onButtonClick = {}
                     )
                 }
 
@@ -359,7 +350,7 @@ fun AppNavigation(
                         },
                         onVoiceSampleClick = { navController.navigate("recorder")
                         },
-                        onSave = {navController.openPopup("save_success_popup") }
+                        onSave = {navController.navigate("save_success_popup") }
 
                     )
 
@@ -397,10 +388,10 @@ fun AppNavigation(
                             navController.navigate("viewmore")
                         },
                         onEdit = {
-                            navController.openPopup("editpopup")
+                            navController.navigate("editpopup")
                         },
                         onDelete = {
-                            navController.openPopup("deletepopup")
+                            navController.navigate("deletepopup")
                         }
                     )
                 }
@@ -411,10 +402,10 @@ fun AppNavigation(
                             navController.popBackStack()
                         },
                         onEllipseClick = {
-                            navController.openPopup("detailpopup")
+                            navController.navigate("detailpopup")
                         },
                         onDeleteClick = {
-                            navController.openPopup("delete_viewmore_popup")
+                            navController.navigate("delete_viewmore_popup")
                         }
                     )
                 }
@@ -424,10 +415,10 @@ fun AppNavigation(
                             navController.popBackStack()
                         },
                         onEdit = {
-                            navController.openPopup("editpopup")
+                            navController.navigate("editpopup")
                         },
                         onDelete = {
-                            navController.openPopup("deletepopup")
+                            navController.navigate("deletepopup")
                         }
                     )
                 }
@@ -447,7 +438,7 @@ fun AppNavigation(
                             navController.navigate("language")
                         },
                         onEraseClick = {
-                            navController.openPopup("delete_data_popup")
+                            navController.navigate("delete_data_popup")
                         },
                         isBlueTheme = isBlueTheme,
                         onThemeToggle = onThemeToggle
@@ -469,10 +460,10 @@ fun AppNavigation(
                 composable("recorder") {
                     RecordScreen(
                         onBack      = {
-                            navController.openPopup("record_back_popup")
+                            navController.navigate("record_back_popup")
                              },
                         onDoneClick = {
-                            navController.openPopup("confirmationpopup")
+                            navController.navigate("confirmationpopup")
                         }
                     )
                 }
@@ -489,17 +480,4 @@ fun AppNavigation(
             }
         }
 
-}
-
-
-/*
- * [POPUP NAVIGATION] Opens a popup route only once.
- * launchSingleTop stops a double tap from stacking a second, identical
- * popup underneath. That duplicate was why X / the button seemed to do
- * nothing — they closed the top copy and revealed its twin.
- */
-private fun NavController.openPopup(route: String) {
-    navigate(route) {
-        launchSingleTop = true
-    }
 }
