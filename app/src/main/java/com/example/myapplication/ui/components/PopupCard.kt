@@ -3,10 +3,15 @@ package com.example.myapplication.ui.components
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -58,6 +63,30 @@ fun PopupCard(
     val appColors = AppTheme.colors
     val textMeasurer = rememberTextMeasurer()
     val density = LocalDensity.current
+
+    /*
+     * ============================================================
+     * [ONE-SHOT ACTION GUARD] — fix for "unresponsive" popups
+     * ============================================================
+     *
+     * Every popup action (X or button) calls popBackStack(), often
+     * two of them in a row. A second tap (double-click on the
+     * emulator, or a re-tap because the Urdu text made the popup
+     * slow to appear) used to run those pops AGAIN — closing extra
+     * screens or leaving a duplicate popup behind that looked like
+     * the button "did nothing".
+     *
+     * Now only the FIRST action of this popup runs; any later tap
+     * is ignored while the popup is closing.
+     */
+    var actionTaken by remember { mutableStateOf(false) }
+
+    val runOnce: (() -> Unit) -> Unit = { action ->
+        if (!actionTaken) {
+            actionTaken = true
+            action()
+        }
+    }
 
     BoxWithConstraints(
         modifier = Modifier
@@ -146,15 +175,25 @@ fun PopupCard(
                 )
                 .sp
 
+        val buttonTextStyle =
+            TextStyle(
+                fontSize = buttonTextSize,
+                fontFamily = OutfitFont,
+                fontWeight = FontWeight.Medium
+            )
+
+        /*
+         * Button WIDTH still follows the label (cached measurement):
+         * text width + padding, at least 160dp, at most the message
+         * width.
+         */
         val buttonTextWidthPx =
-            textMeasurer.measure(
-                text = buttonText,
-                style = TextStyle(
-                    fontSize = buttonTextSize,
-                    fontFamily = OutfitFont,
-                    fontWeight = FontWeight.Medium
-                )
-            ).size.width
+            remember(buttonText, buttonTextSize) {
+                textMeasurer.measure(
+                    text = buttonText,
+                    style = buttonTextStyle
+                ).size.width
+            }
 
         val buttonTextWidthDp =
             with(density) {
@@ -176,54 +215,20 @@ fun PopupCard(
 
         /*
          * ============================================================
-         * BUTTON HEIGHT — [FIX] now accounts for actual wrapped text
+         * [BUTTON HEIGHT] — fixed, never measured from the text
          * ============================================================
          *
-         * buttonWidth can be squeezed below buttonTextWidthDp by the
-         * coerceAtMost(messageWidth) cap above — on narrow cards with
-         * longer strings (seen with the Urdu "Erase Data" button) the
-         * text then wraps onto two lines inside ShadowButton. The old
-         * buttonHeight formula had no idea this could happen — it was
-         * purely screen-size driven — so it stayed sized for one line
-         * and the second line got clipped.
+         * The height used to grow to "measured text height + 16dp".
+         * Urdu is drawn with the device's own Urdu font, so that
+         * measurement differed per device: on the emulator (Noto
+         * Nastaliq Urdu) the label measured as 2 tall lines and the
+         * button became an oval, while phones looked fine.
          *
-         * This re-measures buttonText constrained to the width it will
-         * ACTUALLY render at (buttonWidth minus horizontal padding),
-         * which tells us the real number of lines/height needed. If
-         * it wraps, buttonHeight grows to fit; if it doesn't, nothing
-         * changes from before.
+         * Now the height is only screen-based (46–60dp, the original
+         * design) and the label is a single line that shrinks to fit
+         * (see [BUTTON LABEL] below). Same pill on every device and
+         * in both languages.
          */
-
-        val buttonTextConstrainedWidthPx =
-            with(density) {
-                (buttonWidth - buttonHorizontalPadding)
-                    .toPx()
-                    .toInt()
-                    .coerceAtLeast(0)
-            }
-
-        val buttonTextHeightPx =
-            textMeasurer.measure(
-                text = buttonText,
-                style = TextStyle(
-                    fontSize = buttonTextSize,
-                    fontFamily = OutfitFont,
-                    fontWeight = FontWeight.Medium
-                ),
-                constraints = Constraints(
-                    maxWidth = buttonTextConstrainedWidthPx
-                )
-            ).size.height
-
-        val buttonTextHeightDp =
-            with(density) {
-                buttonTextHeightPx.toDp()
-            }
-
-        val buttonVerticalPadding =
-            (16f * widthScale)
-                .dp
-
         val buttonHeight =
             (60f * widthScale * buttonHeightScale)
                 .coerceIn(
@@ -231,9 +236,6 @@ fun PopupCard(
                     60f
                 )
                 .dp
-                .coerceAtLeast(
-                    buttonTextHeightDp + buttonVerticalPadding   // [FIX] grows to fit wrapped text
-                )
 
         val buttonSpacing =
             (34f * widthScale * buttonHeightScale)
@@ -281,11 +283,9 @@ fun PopupCard(
             )
 
         /*
-         * popupHeight is now the MINIMUM height. The card grows when its
+         * popupHeight is the MINIMUM height. The card grows when its
          * content needs more room (e.g. the 2-line Urdu "erase data"
-         * message + button). With a fixed height the Column gave the
-         * button only the leftover space, so the button got squashed.
-         * Short popups look exactly as before (content centred).
+         * message + button). Short popups look exactly as before.
          */
         Box(
             modifier = Modifier
@@ -389,20 +389,32 @@ fun PopupCard(
                             cornerRadius =
                                 buttonCorner,
 
+                            // [EXACT HEIGHT] stop ShadowButton's 51/56dp
+                            // auto-resize from ever shrinking this button
+                            useExactHeight = true,
+
                             onClick = {
-                                onButtonClick()
+                                runOnce(onButtonClick)
                             }
                         ) {
 
-                            Text(
+                            /*
+                             * [BUTTON LABEL] one line; keeps buttonTextSize when
+                             * it fits, shrinks (down to 14sp) when it does not —
+                             * e.g. long Urdu "Erase Data" on narrow phones.
+                             */
+                            FitText(
                                 text =
                                     buttonText,
 
+                                maxFontSize =
+                                    buttonTextSize,
+
+                                minFontSize =
+                                    14.sp,
+
                                 color =
                                     appColors.pagesText,
-
-                                fontSize =
-                                    buttonTextSize,
 
                                 fontWeight =
                                     FontWeight.Medium,
@@ -412,6 +424,8 @@ fun PopupCard(
 
                                 textAlign =
                                     TextAlign.Center,
+
+                                maxLines = 1,
 
                                 modifier =
                                     Modifier.padding(
@@ -423,6 +437,11 @@ fun PopupCard(
                 }
             }
 
+            /*
+             * [CLOSE TAB] — one tap area for the whole yellow tab.
+             * Before, only the clipped image and the small "X" text
+             * were clickable (two separate targets, with dead corners).
+             */
             Box(
                 modifier = Modifier
                     .align(Alignment.TopEnd)
@@ -437,7 +456,13 @@ fun PopupCard(
                     .offsetShadow(
                         offsetX = (-14).dp,
                         offsetY = 14.dp
-                    ),
+                    )
+                    .clickable(
+                        interactionSource = remember { MutableInteractionSource() },
+                        indication = null
+                    ) {
+                        runOnce(onDismiss)
+                    },
                 contentAlignment = Alignment.Center
             ) {
 
@@ -472,9 +497,6 @@ fun PopupCard(
                                 bottomEnd = 0.dp
                             )
                         )
-                        .clickable {
-                            onDismiss()
-                        }
                 )
 
                 Text(
@@ -490,12 +512,7 @@ fun PopupCard(
                         MargarineFont,
 
                     fontWeight =
-                        FontWeight.Bold,
-
-                    modifier = Modifier
-                        .clickable {
-                            onDismiss()
-                        }
+                        FontWeight.Bold
                 )
             }
         }
