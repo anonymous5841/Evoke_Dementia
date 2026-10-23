@@ -1,0 +1,326 @@
+package com.example.evoke.ui
+
+import android.graphics.BitmapFactory
+import android.os.Bundle
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.example.evoke.ui.components.FieldLabel
+import com.example.evoke.ui.components.HeaderSection
+import com.example.evoke.ui.components.InfoNotePill
+import com.example.evoke.ui.components.LocationPickerField
+import com.example.evoke.ui.components.RecordConversationField
+import com.example.evoke.ui.components.ShadowButton
+import com.example.evoke.ui.components.ShadowTextField
+import com.example.evoke.ui.theme.AppTheme
+import com.example.evoke.ui.theme.BaumansFont
+import com.example.evoke.ui.theme.BlueTheme
+import com.example.evoke.ui.theme.GreenTheme
+import com.example.evoke.ui.theme.OutfitFont
+import com.example.evoke.R
+
+class NotRecognisedScreen : ComponentActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContent {
+            GreenTheme {
+                NotRecognisedContent()
+            }
+        }
+    }
+}
+
+@Composable
+fun NotRecognisedContent(
+    imageBitmap: ImageBitmap? = null,  // ← passed from previous screen or DB
+//    onSubmit: (name: String, relation: String, address: String) -> Unit = { _, _, _ -> },
+    onVoiceSampleClick: () -> Unit = {},   // ← add this
+    onSave: () -> Unit = {},
+    onBack: () -> Unit = {}
+) {
+    val appColors = AppTheme.colors
+    var nameText by remember { mutableStateOf("") }
+    var relationText by remember { mutableStateOf("") }
+    var selectedAddress by remember { mutableStateOf("") }
+
+    Scaffold(
+        containerColor = appColors.background,
+        contentWindowInsets = WindowInsets(0, 0, 0, 0)  // insets already handled at root
+    ) { innerPadding ->
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding)
+        ) {
+
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .verticalScroll(rememberScrollState())
+            ) {
+
+                Spacer(modifier = Modifier.height(218.dp))  // ← match your headerHeight
+
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 24.dp)
+                        .offset(y = (-40).dp)
+
+                ) {
+
+                    FieldLabel(
+                        stringResource(R.string.register),
+                        32.sp,
+                        BaumansFont,
+                        FontWeight.Normal
+                    )
+                    Spacer(modifier = Modifier.height(28.dp))
+
+                    // ── Image holder ──────────────────────────────────────────────
+                    Box(
+                        modifier = Modifier
+                            .width(206.dp)
+                            .height(182.dp)
+                            .align(Alignment.CenterHorizontally)
+                            .shadow(
+                                elevation = 6.dp,
+                                shape = RoundedCornerShape(15.dp),
+                                clip = false
+                            )
+                            .clip(RoundedCornerShape(15.dp))
+                            .background(appColors.textfield),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        if (imageBitmap != null) {
+                            Image(
+                                bitmap = imageBitmap,
+                                contentDescription = stringResource(R.string.profile_photo),
+                                contentScale = ContentScale.Crop,
+                                modifier = Modifier.fillMaxSize()
+                            )
+                        } else {
+                            Icon(
+                                painter = painterResource(id = R.drawable.profile_icon),
+                                contentDescription = stringResource(R.string.profile_photo),
+                                tint = appColors.backButton,
+                                modifier = Modifier.size(64.dp)
+                            )
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(28.dp))
+
+                    // ── Name * ────────────────────────────────────────────────────
+                    FieldLabel(
+                        stringResource(R.string.name_label),
+                        18.sp,
+                        OutfitFont,
+                        FontWeight.Medium
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    ShadowTextField(
+                        value = nameText,
+                        onValueChange = { nameText = it },
+                        placeholder = stringResource(R.string.enter_full_name),
+                        leadingIconRes = R.drawable.profile_icon,
+                        height = 52.dp,
+                        cornerRadius = 15.dp,
+                    )
+
+                    Spacer(modifier = Modifier.height(29.dp))
+
+                    // ── Relation * ────────────────────────────────────────────────
+                    FieldLabel(
+                        stringResource(R.string.relation_label),
+                        18.sp,
+                        OutfitFont,
+                        FontWeight.Medium
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    ShadowTextField(
+                        value = relationText,
+                        onValueChange = { relationText = it },
+                        placeholder = stringResource(R.string.enter_relation),
+                        leadingIconRes = R.drawable.relation_icon,
+                        height = 52.dp,
+                        cornerRadius = 15.dp,
+                    )
+
+                    Spacer(modifier = Modifier.height(36.dp))
+
+                    InfoNotePill(
+                        text = stringResource(R.string.select_location_record_both)
+                    )
+
+                    Spacer(modifier = Modifier.height(21.dp))
+
+                    // ── Address * + Add Voice * side by side ──────────────────────
+                    // Bottom-aligned: the location field and the mic button always
+                    // line up, whatever the label heights are (1 vs 2 lines, Urdu font).
+                    Row(
+                        verticalAlignment = Alignment.Bottom,
+                        horizontalArrangement = Arrangement.spacedBy(12.dp),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        // Left: label + address field
+                        Column(modifier = Modifier.weight(1f)) {
+                            FieldLabel(
+                                stringResource(R.string.location_label),
+                                18.sp,
+                                OutfitFont,
+                                FontWeight.Medium
+                            )
+                            Spacer(modifier = Modifier.height(12.dp))
+                            LocationPickerField(
+                                value = selectedAddress,
+                                placeholder = stringResource(R.string.get_current_location),
+                                onClick = { /* open map */ }
+                            )
+                        }
+
+                        // Right: label + microphone button
+                        // No weight / fixed width here → label must wrap its text
+                        // (fillMaxWidth = false), otherwise it squeezes the location column.
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            FieldLabel(
+                                stringResource(R.string.add_person_voice_sample),
+                                17.sp,
+                                OutfitFont,
+                                FontWeight.Medium,
+                                fillMaxWidth = false
+                            )
+                            Spacer(modifier = Modifier.height(12.dp))
+                            ShadowButton(
+                                width = 72.dp,
+                                // Same height as LocationPickerField (52.dp) so top and
+                                // bottom edges match. ShadowButton's responsive rule turned
+                                // 51.dp into 48.dp here, so the button sat out of line.
+                                height = 52.dp,
+                                color = appColors.popupText,
+                                cornerRadius = 15.dp,
+                                onClick = { onVoiceSampleClick() }
+                            ) {
+                                Icon(
+                                    painter = painterResource(id = R.drawable.microphone_icon),
+                                    contentDescription = stringResource(R.string.record_voice),
+                                    tint = appColors.pagesText,
+                                    modifier = Modifier.size(32.dp)
+                                )
+                            }
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(48.dp))
+
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(1.dp)
+                            .background(
+                                Brush.horizontalGradient(
+                                    colors = listOf(
+                                        Color.Transparent,
+                                        appColors.pagesText.copy(alpha = 0.5f),
+                                        Color.Transparent
+                                    )
+                                )
+                            )
+                    )
+                    Spacer(modifier = Modifier.height(27.dp))
+
+
+                    // Recording
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth(0.70f)
+                    ) {
+
+                        FieldLabel(
+                            stringResource(R.string.record_conversation),
+                            18.sp,
+                            OutfitFont,
+                            FontWeight.Medium
+                        )
+
+                        Spacer(modifier = Modifier.height(12.dp))
+
+                        RecordConversationField(
+                            value = selectedAddress,
+                            placeholder = stringResource(R.string.click_to_record),
+                            onClick = { onVoiceSampleClick() }
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(32.dp))
+
+                    ShadowButton(
+                        height = 56.dp,
+                        color = appColors.popupText,
+                        cornerRadius = 28.dp,
+                        onClick = {
+//                            onSubmit(nameText, relationText, selectedAddress)
+                            onSave()
+                        }
+                    ) {
+                        Text(
+                            text = stringResource(R.string.save),
+                            color = appColors.pagesText,
+                            fontSize = 22.sp,
+                            fontWeight = FontWeight.Medium,
+                            fontFamily = OutfitFont
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(64.dp))
+
+                }
+            }
+
+            // ── Header ────────────────────────────────────────────────────────
+            HeaderSection(
+                title = stringResource(R.string.result),
+                secondaryTitle = stringResource(R.string.not_recognised),
+                218.dp,
+                33.sp,
+                41.dp,
+                (28).dp,
+                leaves = appColors.headerDecorOffset2,
+                onBack = { onBack()})
+
+        }
+    }
+}
+
+@Preview(showBackground = true, showSystemUi = true)
+@Composable
+fun NotRecognisedPreview() {
+    BlueTheme {
+        val context = LocalContext.current
+        val bitmap = BitmapFactory.decodeResource(context.resources, R.drawable.loading_4)
+        NotRecognisedContent(imageBitmap = bitmap.asImageBitmap())
+    }
+}
