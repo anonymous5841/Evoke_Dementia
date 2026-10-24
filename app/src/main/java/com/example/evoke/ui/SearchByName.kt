@@ -379,7 +379,7 @@ private fun LocationResultsList(
          * (3.dp left of the box offset).
          */
 
-        val addButtonX = (-5).dp
+        val addButtonX = (-2).dp
 
         val addButtonPlusX = addButtonX - 3.dp
 
@@ -387,13 +387,12 @@ private fun LocationResultsList(
          * ADD BUTTON VERTICAL POSITIONS
          */
 
-        val addButtonY =
-            (screenHeight * 0.052f)
-                .coerceIn(34.dp, 42.dp)
+        // Blob top lines up with the card's top edge on every screen
+        // (the blob is drawn 29.dp down inside AddShapeButton's box).
+        val addButtonY = 40.dp
 
-        val addButtonPlusY =
-            (screenHeight * 0.035f)
-                .coerceIn(22.dp, 30.dp)
+        // Keeps the "+" centred inside the blob (same 12.dp gap as before).
+        val addButtonPlusY = addButtonY - 12.dp
 
 
         /*
