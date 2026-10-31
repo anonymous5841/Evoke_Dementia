@@ -29,6 +29,31 @@ import androidx.compose.ui.res.stringResource
 import com.example.evoke.ui.components.rememberBottomContentPadding
 import com.example.evoke.R
 
+
+import android.Manifest
+import android.content.Intent
+import android.content.pm.PackageManager
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.camera.core.CameraSelector
+import androidx.camera.core.ImageCapture
+import androidx.camera.core.ImageCaptureException
+import androidx.camera.lifecycle.ProcessCameraProvider
+import androidx.camera.view.PreviewView
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.runtime.*
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.viewinterop.AndroidView
+import androidx.core.content.ContextCompat
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import java.io.File
+import android.util.Log
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+
 class CameraPreviewScreen : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -36,7 +61,15 @@ class CameraPreviewScreen : ComponentActivity() {
 
         setContent {
             GreenTheme {
-                CameraPreviewContent()
+                CameraPreviewContent(
+                    onBack = { finish() },
+                    onImageReady = { uri ->
+                        startActivity(
+                            Intent(this, CapturedScreenActivity::class.java)
+                                .putExtra("image_uri", uri.toString())
+                        )
+                    }
+                )
             }
         }
     }
@@ -46,12 +79,75 @@ class CameraPreviewScreen : ComponentActivity() {
 @Composable
 fun CameraPreviewContent(
     onBack: () -> Unit = {},
-    onCapture: () -> Unit = {},
-    onGallery: () -> Unit = {},
+    onImageReady: (Uri) -> Unit = {},
     onRefresh: () -> Unit = {}
 ) {
     val appColors = AppTheme.colors
 
+    val context = LocalContext.current
+    val imageCapture = remember { ImageCapture.Builder().build() }
+
+    var hasCameraPermission by remember {
+        mutableStateOf(
+            ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA) ==
+                    PackageManager.PERMISSION_GRANTED
+        )
+    }
+    val permissionLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { granted -> hasCameraPermission = granted }
+
+    LaunchedEffect(Unit) {
+        if (!hasCameraPermission) permissionLauncher.launch(Manifest.permission.CAMERA)
+    }
+
+// ── NEW: re-check permission when returning from system Settings ──
+    val lifecycleOwner = LocalLifecycleOwner.current
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_RESUME) {
+                hasCameraPermission = ContextCompat.checkSelfPermission(
+                    context, Manifest.permission.CAMERA
+                ) == PackageManager.PERMISSION_GRANTED
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
+    }
+
+    val galleryLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.PickVisualMedia()
+    ) { uri: Uri? -> uri?.let { onImageReady(it) } }
+
+    // ── NEW: capture guard (replaces the old onCapture) ──
+    var isCapturing by remember { mutableStateOf(false) }
+
+    val onCapture: () -> Unit = {
+        if (hasCameraPermission && !isCapturing) {
+            isCapturing = true
+            val file = File(context.cacheDir, "capture_${System.currentTimeMillis()}.jpg")
+            imageCapture.takePicture(
+                ImageCapture.OutputFileOptions.Builder(file).build(),
+                ContextCompat.getMainExecutor(context),
+                object : ImageCapture.OnImageSavedCallback {
+                    override fun onImageSaved(output: ImageCapture.OutputFileResults) {
+                        isCapturing = false
+                        onImageReady(Uri.fromFile(file))
+                    }
+                    override fun onError(exception: ImageCaptureException) {
+                        isCapturing = false
+                        Log.e("CameraPreview", "Capture failed", exception)
+                    }
+                }
+            )
+        }
+    }
+
+    val onGallery: () -> Unit = {
+        galleryLauncher.launch(
+            PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+        )
+    }
     // The bottom nav bar is shown on this screen (flat style, no bubble),
     // so keep the controls above its visible part.
     val navBarPadding = rememberBottomContentPadding()
@@ -141,11 +237,20 @@ fun CameraPreviewContent(
                 // capture / gallery / refresh controls are never pushed
                 // under the nav bar.
                 Box(
-                    modifier = Modifier.weight(1f, fill = false)
+                    modifier = Modifier
+                        .weight(1f, fill = false)
+                        .height(cameraHeight)
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(20.dp))
                 ) {
-                    CameraPreviewPlaceholder(
-                        height = cameraHeight
-                    )
+                    if (hasCameraPermission) {
+                        LiveCameraPreview(
+                            modifier = Modifier.fillMaxSize(),
+                            imageCapture = imageCapture
+                        )
+                    } else {
+                        CameraPreviewPlaceholder(height = cameraHeight)
+                    }
                 }
 
 
@@ -362,6 +467,41 @@ private fun CameraActions(
     }
 }
 
+@Composable
+private fun LiveCameraPreview(
+    modifier: Modifier = Modifier,
+    imageCapture: ImageCapture
+) {
+    val lifecycleOwner = LocalLifecycleOwner.current
+
+    AndroidView(
+        modifier = modifier,
+        factory = { ctx ->
+            PreviewView(ctx).apply {
+                implementationMode = PreviewView.ImplementationMode.COMPATIBLE
+            }.also { previewView ->
+                val future = ProcessCameraProvider.getInstance(ctx)
+                future.addListener({
+                    val provider = future.get()
+                    val preview = androidx.camera.core.Preview.Builder().build().also {
+                        it.setSurfaceProvider(previewView.surfaceProvider)
+                    }
+                    try {
+                        provider.unbindAll()
+                        provider.bindToLifecycle(
+                            lifecycleOwner,
+                            CameraSelector.DEFAULT_BACK_CAMERA,
+                            preview,
+                            imageCapture
+                        )
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                    }
+                }, ContextCompat.getMainExecutor(ctx))
+            }
+        }
+    )
+}
 @Preview(
     showBackground = true,
     showSystemUi = true

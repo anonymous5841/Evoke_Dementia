@@ -15,6 +15,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.evoke.ui.AddLocationContent
 import com.example.evoke.ui.CameraPreviewContent
+import com.example.evoke.ui.CapturedScreen
 import com.example.evoke.ui.DemoScreen
 import com.example.evoke.ui.DetailedSummaryScreen
 import com.example.evoke.ui.FigmaMotionApp
@@ -46,7 +47,13 @@ import com.example.evoke.R
 import androidx.navigation.NavGraphBuilder
 import com.example.evoke.utils.ProvideAppLocale
 import androidx.compose.runtime.LaunchedEffect
-//newly one
+
+import android.net.Uri
+import androidx.activity.compose.BackHandler
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
+
 @SuppressLint("SuspiciousIndentation")
 @Composable
 fun AppNavigation(
@@ -338,17 +345,26 @@ fun AppNavigation(
 
             }
             composable("camera") {
-                CameraPreviewContent(
-                    onBack = {
-                        navController.popBackStack()
-                    },
-                    onCapture = {
-                        navController.navigate("recognised")
-                    },
-                    onGallery = {
-                        navController.navigate("notrecognised")
-                    }
-                )
+                var capturedImageUri by rememberSaveable { mutableStateOf<Uri?>(null) }
+
+                // System back from the preview returns to the camera instead of leaving it
+                BackHandler(enabled = capturedImageUri != null) {
+                    capturedImageUri = null
+                }
+
+                if (capturedImageUri != null) {
+                    CapturedScreen(
+                        imageUri = capturedImageUri,
+                        onBack = { capturedImageUri = null },
+                        onCapture = { navController.navigate("recognised") }
+                    )
+                } else {
+                    CameraPreviewContent(
+                        onBack = { navController.popBackStack() },
+                        onImageReady = { uri -> capturedImageUri = uri },
+                        onRefresh = { navController.navigate("notrecognised") }
+                    )
+                }
             }
 
             composable("search") { backStackEntry ->

@@ -21,21 +21,36 @@ import com.example.evoke.ui.theme.BlueTheme
 import com.example.evoke.ui.theme.OutfitFont
 import androidx.compose.ui.text.font.FontWeight
 
+
+import android.net.Uri
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.draw.clip
+import androidx.compose.foundation.shape.RoundedCornerShape
+import coil.compose.AsyncImage
+
 class CapturedScreenActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        val imageUri = intent.getStringExtra("image_uri")
+            ?.let { Uri.parse(it) }
+
         setContent {
             GreenTheme {
-                CapturedScreen()
+                CapturedScreen(
+                    imageUri = imageUri,
+                    onBack = { finish() }
+                )
             }
         }
     }
 }
 
+
 @Composable
 fun CapturedScreen(
+    imageUri: Uri? = null,
     onBack: () -> Unit = {},
     onCapture: () -> Unit = {}
 ) {
@@ -86,11 +101,24 @@ fun CapturedScreen(
                 // On short screens it shrinks to the space left, so the
                 // Capture button is never pushed under the nav bar.
                 Box(
-                    modifier = Modifier.weight(1f, fill = false)
+                    modifier = Modifier
+                        .weight(1f, fill = false)
+                        .height(cameraHeight)
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(20.dp))
                 ) {
-                    CameraPreviewPlaceholder(
-                        height = cameraHeight
-                    )
+                    if (imageUri != null) {
+                        AsyncImage(
+                            model = imageUri,
+                            contentDescription = "Captured image",
+                            contentScale = ContentScale.Crop,
+                            modifier = Modifier.fillMaxSize()
+                        )
+                    } else {
+                        CameraPreviewPlaceholder(
+                            height = cameraHeight
+                        )
+                    }
                 }
 
                 Spacer(modifier = Modifier.height(44.dp))
@@ -120,7 +148,7 @@ private fun CameraActions(
         onClick = onCapture
     ) {
         Text(
-            text = "Capture",
+            text = "Start processing",
             fontSize = 22.sp,
             fontWeight = FontWeight.Medium,
             fontFamily = OutfitFont,

@@ -83,6 +83,17 @@ dependencies {
     // Argon2 / crypto
     implementation("org.bouncycastle:bcprov-jdk18on:1.85.2")
 
+    //camerapreviewasync
+    implementation("io.coil-kt:coil-compose:2.6.0")
+
+    //camera screen
+    // CameraX
+    implementation("androidx.camera:camera-camera2:1.3.1")
+    implementation("androidx.camera:camera-lifecycle:1.3.1")
+    implementation("androidx.camera:camera-view:1.3.1")
+    implementation("androidx.lifecycle:lifecycle-runtime-compose:2.8.4")
+
+
     testImplementation(libs.junit)
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
