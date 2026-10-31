@@ -45,17 +45,21 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.evoke.R
 import androidx.navigation.NavGraphBuilder
 import com.example.evoke.utils.ProvideAppLocale
+import androidx.compose.runtime.LaunchedEffect
 //newly one
 @SuppressLint("SuspiciousIndentation")
 @Composable
 fun AppNavigation(
     isBlueTheme: Boolean,
     onThemeToggle: (Boolean) -> Unit,
+    onSplashScreenChanged: (Boolean) -> Unit
 ) {
     val navController = rememberNavController()
     val currentRoute by navController.currentBackStackEntryAsState()
     val currentDestination = currentRoute?.destination?.route
-
+    LaunchedEffect(currentDestination) {
+        onSplashScreenChanged(currentDestination == "splash")
+    }
     val selectedTab = when (currentDestination) {
         "home"    -> NavTab.HOME
         "profile" -> NavTab.PROFILE

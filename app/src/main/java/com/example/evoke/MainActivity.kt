@@ -39,7 +39,8 @@ import com.example.evoke.utils.LanguageController
 import com.example.evoke.utils.LocalAppLanguage
 import androidx.activity.compose.LocalActivityResultRegistryOwner
 import androidx.activity.compose.LocalActivity
-
+import androidx.compose.ui.graphics.Color
+import com.example.evoke.utils.ThemeManager
 class MainActivity : ComponentActivity() {
     override fun attachBaseContext(newBase: Context) {
 
@@ -68,12 +69,14 @@ class MainActivity : ComponentActivity() {
         )
         setContent {
 
-            var isBlueTheme by rememberSaveable {
-                mutableStateOf(false)
-            }
-
             val context = LocalContext.current
 
+            var isBlueTheme by rememberSaveable {
+                mutableStateOf(ThemeManager.isBlueTheme(context))
+            }
+            var isSplashScreen by rememberSaveable {
+                mutableStateOf(true)
+            }
             val currentLanguage = rememberSaveable {
                 mutableStateOf(
                     LanguageManager.getSavedLanguage(context)
@@ -126,8 +129,11 @@ class MainActivity : ComponentActivity() {
                     isBlue = isBlueTheme
                 ) {
 
-                    val barColor = AppTheme.colors.headerBg
-
+                    val barColor = if (isSplashScreen) {
+                        Color(0xFF3E634F)
+                    } else {
+                        AppTheme.colors.headerBg
+                    }
                     val useDarkIcons =
                         barColor.luminance() > 0.5f
 
@@ -182,6 +188,14 @@ class MainActivity : ComponentActivity() {
                                     isBlueTheme = isBlueTheme,
                                     onThemeToggle = {
                                         isBlueTheme = it
+
+                                        ThemeManager.saveTheme(
+                                            context,
+                                            if (it) ThemeManager.BLUE else ThemeManager.GREEN
+                                        )
+                                    },
+                                    onSplashScreenChanged = {
+                                        isSplashScreen = it
                                     }
                                 )
                             }
