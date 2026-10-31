@@ -32,6 +32,7 @@ import com.example.evoke.ui.SettingsContent
 import com.example.evoke.ui.ViewMoreScreen
 import com.example.evoke.ui.components.BottomNavBar
 import com.example.evoke.ui.components.NavTab
+import com.example.evoke.ui.CloudBackupScreen
 import androidx.navigation.compose.dialog
 import androidx.compose.ui.window.DialogProperties
 import com.example.evoke.ui.components.PopupCard
@@ -406,6 +407,15 @@ fun AppNavigation(
                     }
                 )
             }
+
+            composable("CloudBackup") {
+                CloudBackupScreen(
+                    onBack = {
+                        navController.popBackStack()
+                    }
+                )
+            }
+
             composable("settings") {
                 SettingsContent(
                     onBack = {
@@ -418,7 +428,9 @@ fun AppNavigation(
                         navController.openPopup("delete_data_popup")
                     },
                     isBlueTheme = isBlueTheme,
-                    onThemeToggle = onThemeToggle
+                    onThemeToggle = onThemeToggle,
+                    onCloudBackup = {
+                        navController.navigate("CloudBackup")                    }
                 )
             }
             composable("language") {

@@ -48,7 +48,8 @@ fun SettingsContent(
     onSelectLanguage: () -> Unit,
     isBlueTheme: Boolean,
     onThemeToggle: (Boolean) -> Unit,
-    onEraseClick: () -> Unit = {}
+    onEraseClick: () -> Unit = {},
+    onCloudBackup: () -> Unit
 ) {
 
     val appColors = AppTheme.colors
@@ -118,7 +119,7 @@ fun SettingsContent(
                         label = stringResource(R.string.cloud_backup),
                         iconRes = R.drawable.ic_backup,
                         iconSize = 38.dp,
-                        onClick = {}
+                        onClick = onCloudBackup
                     )
 
 
@@ -290,7 +291,8 @@ private fun SettingsPreview() {
             onBack = {},
             onSelectLanguage = {},
             isBlueTheme = isBlue,
-            onThemeToggle = { isBlue = it }
+            onThemeToggle = { isBlue = it },
+            onCloudBackup = {}
         )
     }
 }

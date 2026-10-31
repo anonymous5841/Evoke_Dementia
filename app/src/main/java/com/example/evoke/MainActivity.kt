@@ -37,6 +37,8 @@ import com.example.evoke.ui.PhoneOnlyGate
 import com.example.evoke.utils.LanguageController
 
 import com.example.evoke.utils.LocalAppLanguage
+import androidx.activity.compose.LocalActivityResultRegistryOwner
+import androidx.activity.compose.LocalActivity
 
 class MainActivity : ComponentActivity() {
     override fun attachBaseContext(newBase: Context) {
@@ -106,8 +108,13 @@ class MainActivity : ComponentActivity() {
 
             CompositionLocalProvider(
 
+                // Explicitly provide the Activity Result owner
+                LocalActivity provides this@MainActivity,
+                LocalActivityResultRegistryOwner provides this@MainActivity,
+                // Shared language state
                 LocalAppLanguage provides currentLanguage.value,
 
+                // Localized context
                 LocalContext provides localizedContext,
 
                 // Keep your application LTR
