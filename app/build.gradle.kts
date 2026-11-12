@@ -93,6 +93,12 @@ dependencies {
     implementation("androidx.camera:camera-view:1.3.1")
     implementation("androidx.lifecycle:lifecycle-runtime-compose:2.8.4")
 
+    // Emergency Call + Send Message (EmergencyAlertService / LocationShareService)
+    // FusedLocationProviderClient for the live location sent by SMS
+    implementation("com.google.android.gms:play-services-location:21.3.0")
+    // DataStore for the emergency-call escalation state (data/EmergencyContactState.kt)
+    implementation("androidx.datastore:datastore-preferences:1.1.1")
+
 
     testImplementation(libs.junit)
     androidTestImplementation(platform(libs.androidx.compose.bom))

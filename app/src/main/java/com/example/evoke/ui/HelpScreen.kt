@@ -26,17 +26,164 @@ import com.example.evoke.ui.components.HeaderSection
 import com.example.evoke.ui.theme.AppTheme
 import com.example.evoke.ui.theme.GreenTheme
 import com.example.evoke.ui.theme.MartelFont
+import com.example.evoke.ui.theme.OutfitFont
 import com.example.evoke.R
+import android.Manifest
+import android.content.Context
+import android.content.Intent
+import android.content.pm.PackageManager
+import android.location.LocationManager
+import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.ui.platform.LocalContext
+import androidx.core.content.ContextCompat
+import androidx.core.location.LocationManagerCompat
+import com.example.evoke.services.LocationShareService
 
 
 @Composable
 fun HelpScreen(
     onBack: () -> Unit = {},
-    onSendMessage: () -> Unit = {},
     onMapToHome: () -> Unit = {}
 ) {
 
     val appColors = AppTheme.colors
+
+
+    /*
+     * -------------------------------------------------------------
+     * SEND MESSAGE (live location sharing by SMS)
+     * -------------------------------------------------------------
+     *
+     * Ported from the backend HelpScreen. The "Send Message" card
+     * starts / stops LocationShareService.
+     */
+
+    val context = LocalContext.current
+
+    // Reflects the service's actual state, so the button stays correct even
+    // if the screen was recreated while sharing was already running.
+    val isSharing by LocationShareService.isRunning.collectAsState()
+
+    // Contacts come from the database (SQLite), not from user input here —
+    // see ContactRepository. SEND_SMS + ACCESS_FINE_LOCATION + RECEIVE_SMS are
+    // required for the core feature. READ_PHONE_STATE is optional — it lets the
+    // service try every active SIM (not just the system default) when sending,
+    // which matters if e.g. the default SIM has no balance. Declining it just
+    // means multi-SIM fallback is unavailable; it never blocks starting.
+    val coreRequiredPermissions = remember {
+        arrayOf(
+            Manifest.permission.SEND_SMS,
+            Manifest.permission.ACCESS_FINE_LOCATION,
+            Manifest.permission.RECEIVE_SMS
+        )
+    }
+    val allRequestedPermissions = remember {
+        coreRequiredPermissions + Manifest.permission.READ_PHONE_STATE
+    }
+
+    fun hasCoreRequiredPermissions(): Boolean = coreRequiredPermissions.all {
+        ContextCompat.checkSelfPermission(context, it) == PackageManager.PERMISSION_GRANTED
+    }
+
+    fun isLocationServiceEnabled(): Boolean {
+        val locationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
+        return LocationManagerCompat.isLocationEnabled(locationManager)
+    }
+
+    fun startSharing() {
+        if (!isLocationServiceEnabled()) {
+            Toast.makeText(
+                context,
+                context.getString(R.string.sharing_location_off),
+                Toast.LENGTH_LONG
+            ).show()
+            return
+        }
+        ContextCompat.startForegroundService(context, Intent(context, LocationShareService::class.java))
+        Toast.makeText(context, context.getString(R.string.sharing_starting), Toast.LENGTH_SHORT).show()
+    }
+
+    fun stopSharing() {
+        val stopIntent = Intent(context, LocationShareService::class.java).apply {
+            action = LocationShareService.ACTION_STOP
+        }
+        context.startService(stopIntent)
+        Toast.makeText(context, context.getString(R.string.sharing_stopped), Toast.LENGTH_SHORT).show()
+    }
+
+    val permissionLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestMultiplePermissions()
+    ) { results ->
+        val coreGranted = coreRequiredPermissions.all { results[it] == true }
+        if (coreGranted) {
+            startSharing()
+        } else {
+            Toast.makeText(
+                context,
+                context.getString(R.string.sharing_permissions_required),
+                Toast.LENGTH_LONG
+            ).show()
+        }
+    }
+
+    val lastEvent by LocationShareService.lastEvent.collectAsState()
+    LaunchedEffect(lastEvent) {
+        val event = lastEvent ?: return@LaunchedEffect
+        val message = when {
+            event.startsWith("sent:") -> {
+                val parts = event.removePrefix("sent:").split(":")
+                context.getString(
+                    R.string.sharing_event_sent,
+                    parts.getOrNull(1) ?: context.getString(R.string.sharing_event_contact_fallback),
+                    parts.getOrNull(0)
+                )
+            }
+            event.startsWith("escalated_send_failed:") ->
+                context.getString(R.string.sharing_event_escalated_send_failed, event.removePrefix("escalated_send_failed:"))
+            event.startsWith("no_reply_escalating:") ->
+                context.getString(R.string.sharing_event_no_reply_escalating, event.removePrefix("no_reply_escalating:"))
+            event.startsWith("reply_received:") ->
+                context.getString(R.string.sharing_event_reply_received, event.removePrefix("reply_received:"))
+            event == "no_contact" -> context.getString(R.string.sharing_event_no_contact)
+            event == "no_location_permission" -> context.getString(R.string.sharing_event_no_location_permission)
+            event == "no_sms_permission" -> context.getString(R.string.sharing_event_no_sms_permission)
+            event == "no_telephony_hardware" -> context.getString(R.string.sharing_no_telephony)
+            event == "no_sim" -> context.getString(R.string.sharing_event_no_sim)
+            event == "max_messages_reached" -> context.getString(R.string.sharing_event_max_messages)
+            event == "waiting_for_gps" -> context.getString(R.string.sharing_event_waiting_for_gps)
+            event == "all_contacts_exhausted" -> context.getString(R.string.sharing_event_all_exhausted)
+            event == "location_unavailable_for_escalation" -> context.getString(R.string.sharing_event_location_unavailable)
+            else -> null
+        }
+        message?.let { Toast.makeText(context, it, Toast.LENGTH_LONG).show() }
+    }
+
+    fun onSendMessageClicked() {
+        if (isSharing) {
+            stopSharing()
+            return
+        }
+        val hasTelephony = context.packageManager.hasSystemFeature(PackageManager.FEATURE_TELEPHONY)
+        if (!hasTelephony) {
+            Toast.makeText(
+                context,
+                context.getString(R.string.sharing_no_telephony),
+                Toast.LENGTH_LONG
+            ).show()
+            return
+        }
+        if (hasCoreRequiredPermissions()) {
+            startSharing()
+        } else {
+            permissionLauncher.launch(allRequestedPermissions)
+        }
+    }
 
     Scaffold(
         containerColor = appColors.background,
@@ -178,12 +325,18 @@ fun HelpScreen(
                                 R.drawable.message_icon,
 
                             title =
-                                stringResource(
-                                    R.string.send_message
-                                ),
+                                if (isSharing)
+                                    stringResource(
+                                        R.string.stop_sharing
+                                    )
+                                else
+                                    stringResource(
+                                        R.string.send_message
+                                    ),
 
-                            onClick =
-                                onSendMessage,
+                            onClick = {
+                                onSendMessageClicked()
+                            },
 
                             cardWidth =
                                 cardWidth,
@@ -230,6 +383,25 @@ fun HelpScreen(
 
                             cardHeight =
                                 cardHeight
+                        )
+                    }
+
+
+                    /*
+                     * LIVE TRACKING HINT (only while sharing)
+                     */
+
+                    if (isSharing) {
+                        Text(
+                            text = stringResource(
+                                R.string.sharing_live_tracking_hint,
+                                LocationShareService.MIN_DISTANCE_METERS.toInt()
+                            ),
+                            fontSize = 13.sp,
+                            fontFamily = OutfitFont,
+                            color = Color(0xFF5A5A5A),
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.fillMaxWidth()
                         )
                     }
                 }

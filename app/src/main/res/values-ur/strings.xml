@@ -193,4 +193,50 @@
         <string name="dialog_delete_data_title">ڈیٹا مٹائیں اور دوبارہ شروع کریں؟</string>
         <string name="dialog_delete_data_button">ڈیٹا مٹائیں</string>
 
+
+    <!-- Emergency Call (Home) -->
+    <string name="emergency_permissions_required">ایمرجنسی بٹن کے کام کرنے کے لیے کال، ایس ایم ایس، فون اسٹیٹ، کال لاگ اور لوکیشن کی تمام اجازتیں ضروری ہیں</string>
+    <string name="emergency_answered_title">انہوں نے پہلے ہی کال اٹھا لی ہے</string>
+    <string name="emergency_answered_message">انہیں دوبارہ کال کریں، یا اگلے رابطے پر جائیں؟</string>
+    <string name="emergency_call_again">دوبارہ کال کریں</string>
+    <string name="emergency_next_contact">اگلا رابطہ</string>
+    <string name="emergency_event_sms_sent">لوکیشن %1$s کو بھیج دی گئی</string>
+    <string name="emergency_event_sms_failed">لوکیشن کا پیغام %1$s کو نہیں بھیجا جا سکا</string>
+    <string name="emergency_event_call_failed">%1$s کو کال شروع نہیں ہو سکی</string>
+    <string name="emergency_event_invalid_number">غلط رابطہ نمبر \"%1$s\" چھوڑ دیا گیا — اسے اپنی رابطوں کی فہرست میں درست کریں</string>
+    <string name="emergency_event_answered">%1$s نے کال اٹھا لی</string>
+    <string name="emergency_event_no_answer_retry">%1$s نے جواب نہیں دیا — انہیں ایک بار پھر آزمانے کے لیے دوبارہ دبائیں</string>
+    <string name="emergency_event_no_answer_next">%1$s نے جواب نہیں دیا — اگلی بار دبانے پر اگلے رابطے کو کال ہوگی</string>
+    <string name="emergency_event_moved_to_next">اگلے رابطے پر منتقل کر دیا گیا</string>
+    <string name="emergency_event_all_exhausted">کسی بھی ہنگامی رابطے نے جواب نہیں دیا</string>
+    <string name="emergency_event_no_contacts">کوئی ہنگامی رابطہ محفوظ نہیں ہے</string>
+    <string name="emergency_event_internal_error">کچھ غلط ہو گیا: %1$s</string>
+    <string name="emergency_event_in_progress">ایمرجنسی الرٹ پہلے سے جاری ہے</string>
+    <string name="emergency_event_no_call_permission">کال کی اجازت نہیں دی گئی — سیٹنگز چیک کریں</string>
+    <string name="emergency_event_no_sms_permission">ایس ایم ایس کی اجازت نہیں دی گئی — سیٹنگز چیک کریں</string>
+    <string name="emergency_event_no_call_log_permission">کال لاگ کی اجازت نہیں دی گئی — سیٹنگز چیک کریں</string>
+    <string name="emergency_event_no_phone_state_permission">فون اسٹیٹ کی اجازت نہیں دی گئی — سیٹنگز چیک کریں</string>
+
+    <!-- Send Message / live location sharing (Help) -->
+    <string name="stop_sharing">شیئرنگ بند کریں</string>
+    <string name="sharing_location_off">اس ڈیوائس پر لوکیشن بند ہے — اسے سیٹنگز میں آن کریں اور دوبارہ کوشش کریں</string>
+    <string name="sharing_starting">شروع ہو رہا ہے — جی پی ایس کا انتظار ہے…</string>
+    <string name="sharing_stopped">لوکیشن شیئرنگ بند کر دی گئی</string>
+    <string name="sharing_permissions_required">اپنی لوکیشن شیئر کرنے کے لیے ایس ایم ایس، لوکیشن اور ایس ایم ایس وصول کرنے کی تمام اجازتیں ضروری ہیں</string>
+    <string name="sharing_no_telephony">یہ ڈیوائس ایس ایم ایس نہیں بھیج سکتی — موبائل نیٹ ورک کا ہارڈویئر موجود نہیں</string>
+    <string name="sharing_live_tracking_hint">لائیو ٹریکنگ جاری ہے — تقریباً %1$d میٹر یا زیادہ حرکت پر پیغام بھیجا جاتا ہے، اور اگر کوئی رابطہ 10 منٹ میں جواب نہ دے تو اگلے محفوظ رابطے کو بھیجا جاتا ہے</string>
+    <string name="sharing_event_sent">لوکیشن %1$s کو بھیج دی گئی (#%2$s)</string>
+    <string name="sharing_event_contact_fallback">رابطہ</string>
+    <string name="sharing_event_escalated_send_failed">%1$s تک پیغام نہیں پہنچ سکا — اگلے رابطے کو آزمایا جا رہا ہے</string>
+    <string name="sharing_event_no_reply_escalating">%1$s نے جواب نہیں دیا — اگلے رابطے کو آزمایا جا رہا ہے</string>
+    <string name="sharing_event_reply_received">%1$s نے جواب دیا — انہیں اپ ڈیٹس ملتی رہیں گی</string>
+    <string name="sharing_event_no_contact">کوئی ہنگامی رابطہ محفوظ نہیں ہے — براہ کرم کم از کم ایک رابطہ شامل کریں</string>
+    <string name="sharing_event_no_location_permission">لوکیشن کی اجازت نہیں دی گئی — سیٹنگز میں ایپ کی اجازتیں چیک کریں</string>
+    <string name="sharing_event_no_sms_permission">ایس ایم ایس کی اجازت نہیں دی گئی — سیٹنگز میں ایپ کی اجازتیں چیک کریں</string>
+    <string name="sharing_event_no_sim">ایس ایم ایس نہیں بھیجا جا سکا — اس ڈیوائس میں کوئی فعال سم نہیں ملی</string>
+    <string name="sharing_event_max_messages">اس سیشن کے پیغامات کی حد پوری ہو گئی — شیئرنگ بند کر دی گئی</string>
+    <string name="sharing_event_waiting_for_gps">ابھی تک جی پی ایس کا انتظار ہے — گھر کے اندر اس میں زیادہ وقت لگ سکتا ہے</string>
+    <string name="sharing_event_all_exhausted">کسی بھی محفوظ رابطے نے جواب نہیں دیا — شیئرنگ بند کر دی گئی</string>
+    <string name="sharing_event_location_unavailable">اگلے رابطے پر جاتے وقت لوکیشن حاصل نہیں ہو سکی</string>
+
 </resources>

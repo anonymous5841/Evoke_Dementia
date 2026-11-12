@@ -54,6 +54,16 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 
+import android.widget.Toast
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.key
+import androidx.compose.runtime.remember
+import androidx.compose.ui.platform.LocalContext
+import com.example.evoke.database.AppDatabase
+import com.example.evoke.database.repository.EmergencyContactRepository
+import com.example.evoke.database.viewmodel.AppViewModelFactory
+import com.example.evoke.database.viewmodel.EmergencyContactViewModel
+
 @SuppressLint("SuspiciousIndentation")
 @Composable
 fun AppNavigation(
@@ -126,11 +136,35 @@ fun AppNavigation(
             }
 
             composable("profile") {
-                PersonFormContent(
-                    mode = PersonFormMode.EDIT,
-                    onVoiceSampleClick = { navController.navigate("recorder") },
-                    onBack = { navController.popBackStack() },
-                )
+                val emergencyContactViewModel = rememberEmergencyContactViewModel()
+
+                // Pre-fill the 5 emergency contact fields with what is saved.
+                // The form copies its initial values only once, so it is keyed
+                // on the loaded list (null -> list happens exactly once).
+                val context = LocalContext.current
+                var savedEmergencyContacts by remember { mutableStateOf<List<String>?>(null) }
+                LaunchedEffect(Unit) {
+                    val saved = EmergencyContactRepository(
+                        AppDatabase.getDatabase(context.applicationContext)
+                    ).getContacts().map { it.phoneNo }
+                    savedEmergencyContacts = List(5) { saved.getOrNull(it) ?: "" }
+                }
+
+                key(savedEmergencyContacts) {
+                    PersonFormContent(
+                        mode = PersonFormMode.EDIT,
+                        initialEmergencyContacts = savedEmergencyContacts ?: List(5) { "" },
+                        onEdit = { _, _, emergencyContacts, _ ->
+                            // Emergency contacts used by Home > Emergency Call
+                            // and Help > Send Message.
+                            emergencyContactViewModel.replaceContacts(emergencyContacts) {
+                                navController.openPopup("edit_success_popup")
+                            }
+                        },
+                        onVoiceSampleClick = { navController.navigate("recorder") },
+                        onBack = { navController.popBackStack() },
+                    )
+                }
             }
 
             localizedDialog("detailpopup") {
@@ -317,12 +351,18 @@ fun AppNavigation(
                     slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.Down, tween(900, easing = FastOutSlowInEasing))
                 }
             ) {
+                val emergencyContactViewModel = rememberEmergencyContactViewModel()
+
                 PersonFormContent(
                     mode = PersonFormMode.ADD,
-                    onAdd = { _, _, _, _ ->
-                        navController.navigate("home") {
-                            launchSingleTop = true
-                            popUpTo("splash") { inclusive = true }   // clears both splash + addperson
+                    onAdd = { _, _, emergencyContacts, _ ->
+                        // Save the emergency contacts (used by Home > Emergency
+                        // Call and Help > Send Message), then go Home.
+                        emergencyContactViewModel.replaceContacts(emergencyContacts) {
+                            navController.navigate("home") {
+                                launchSingleTop = true
+                                popUpTo("splash") { inclusive = true }   // clears both splash + addperson
+                            }
                         }
                     },
                     onBack = { navController.popBackStack() },        // ← pops back to splash, triggers slide-down
@@ -489,6 +529,29 @@ fun AppNavigation(
         }
     }
 
+}
+
+
+/*
+ * EmergencyContactViewModel for the current screen, backed by the
+ * encrypted Room database. Any save error is shown as a Toast.
+ */
+@Composable
+private fun rememberEmergencyContactViewModel(): EmergencyContactViewModel {
+    val context = LocalContext.current
+    val factory = remember {
+        AppViewModelFactory(AppDatabase.getDatabase(context.applicationContext))
+    }
+    val emergencyContactViewModel: EmergencyContactViewModel = viewModel(factory = factory)
+
+    val error by emergencyContactViewModel.error.collectAsState()
+    LaunchedEffect(error) {
+        val message = error ?: return@LaunchedEffect
+        Toast.makeText(context, message, Toast.LENGTH_LONG).show()
+        emergencyContactViewModel.clearError()
+    }
+
+    return emergencyContactViewModel
 }
 
 

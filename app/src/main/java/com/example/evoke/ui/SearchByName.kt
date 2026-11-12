@@ -16,7 +16,9 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.AbsoluteAlignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
@@ -396,6 +398,48 @@ private fun LocationResultsList(
 
 
         /*
+         * LOCATION TEXT POSITION (English left, Urdu right)
+         *
+         * The app is always laid out LTR, so the label is placed with
+         * absolute alignment: top-left in English, top-right in Urdu.
+         *
+         * In Urdu it must stop just before the "+" blob. The blob has a
+         * fixed size (AddShapeButton: 58.dp wide, drawn 9.dp past the
+         * right edge of its box, and that box is moved by addButtonX), so
+         * its left edge sits this far in from the card's right edge:
+         *
+         *   58.dp - (9.dp + addButtonX)  ->  51.dp with addButtonX = -2.dp
+         *
+         * A small gap (scaled with the screen) is added on top of that.
+         */
+
+        val isUrdu = isUrduSelected()
+
+        val addBlobWidth = 58.dp
+
+        val addBlobOverhang = 9.dp + addButtonX
+
+        val addBlobInsetFromCardEnd = addBlobWidth - addBlobOverhang
+
+        val locationTextBlobGap =
+            (screenWidth * 0.015f)
+                .coerceIn(4.dp, 7.dp)
+
+        // English: distance from the card's left edge (unchanged)
+        val locationTextStartPadding =
+            (screenWidth * 0.02f)
+                .coerceIn(7.dp, 10.dp)
+
+        // Urdu: distance from the card's right edge (clears the blob)
+        val locationTextEndPadding =
+            addBlobInsetFromCardEnd + locationTextBlobGap
+
+        val locationTextTopPadding =
+            (screenHeight * 0.007f)
+                .coerceIn(5.dp, 8.dp)
+
+
+        /*
          * LOCATION RESULTS
          */
 
@@ -487,14 +531,29 @@ private fun LocationResultsList(
 
                                 fontWeight = FontWeight.Normal,
 
-                                modifier = Modifier
-                                    .align(Alignment.TopStart)
-                                    .padding(
-                                        start = (screenWidth * 0.02f)
-                                            .coerceIn(7.dp, 10.dp),
+                                // Long Urdu names wrap and stay right-aligned
+                                textAlign = if (isUrdu)
+                                    TextAlign.Right
+                                else
+                                    TextAlign.Left,
 
-                                        top = (screenHeight * 0.007f)
-                                            .coerceIn(5.dp, 8.dp)
+                                modifier = Modifier
+                                    .align(
+                                        if (isUrdu)
+                                            AbsoluteAlignment.TopRight
+                                        else
+                                            AbsoluteAlignment.TopLeft
+                                    )
+                                    .absolutePadding(
+                                        // Also keeps long Urdu text off the left edge
+                                        left = locationTextStartPadding,
+
+                                        right = if (isUrdu)
+                                            locationTextEndPadding
+                                        else
+                                            0.dp,
+
+                                        top = locationTextTopPadding
                                     )
                             )
                         }

@@ -29,6 +29,17 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.unit.Dp
 import com.example.evoke.R
+import android.Manifest
+import android.content.Intent
+import android.content.pm.PackageManager
+import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.ui.platform.LocalContext
+import androidx.core.content.ContextCompat
+import com.example.evoke.data.EmergencyContactState
+import com.example.evoke.services.EmergencyAlertService
+import kotlinx.coroutines.launch
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
@@ -65,6 +76,112 @@ fun HomeScreen(
 
     val settings =
         stringResource(R.string.settings)
+
+
+    /*
+     * -------------------------------------------------------------
+     * EMERGENCY CALL
+     * -------------------------------------------------------------
+     *
+     * Ported from the backend HomeScreen. The header's
+     * "Emergency Call" button drives EmergencyAlertService.
+     */
+
+    val context = LocalContext.current
+    val coroutineScope = rememberCoroutineScope()
+
+    // CALL_PHONE, READ_CALL_LOG, and READ_PHONE_STATE are all "dangerous"
+    // permissions — being in the manifest isn't enough, the user has to grant
+    // them at runtime or EmergencyAlertService silently no-ops (its permission
+    // guards just set lastEvent and return, they don't crash or retry).
+    val emergencyPermissions = remember {
+        arrayOf(
+            Manifest.permission.CALL_PHONE,
+            Manifest.permission.SEND_SMS,
+            Manifest.permission.READ_PHONE_STATE,
+            Manifest.permission.READ_CALL_LOG,
+            Manifest.permission.ACCESS_FINE_LOCATION
+        )
+    }
+
+    fun hasEmergencyPermissions(): Boolean = emergencyPermissions.all {
+        ContextCompat.checkSelfPermission(context, it) == PackageManager.PERMISSION_GRANTED
+    }
+
+    var showEmergencyChoiceDialog by remember { mutableStateOf(false) }
+
+    fun triggerEmergencyAlert(action: String = EmergencyAlertService.ACTION_TRIGGER) {
+        val intent = Intent(context, EmergencyAlertService::class.java).apply {
+            this.action = action
+        }
+        ContextCompat.startForegroundService(context, intent)
+    }
+
+    // Reads the saved state before deciding what a press should do: if the
+    // active contact already answered (and we're not past the 30-min reset
+    // window), show the "call again / next contact" dialog instead of
+    // re-running the normal attempt flow.
+    fun checkStateThenAct() {
+        coroutineScope.launch {
+            val state = EmergencyContactState.read(context)
+            val now = System.currentTimeMillis()
+            val stale = state.lastCallAt == 0L || now - state.lastCallAt > EmergencyContactState.RESET_AFTER_MS
+            if (state.answered && !stale) {
+                showEmergencyChoiceDialog = true
+            } else {
+                triggerEmergencyAlert(EmergencyAlertService.ACTION_TRIGGER)
+            }
+        }
+    }
+
+    val emergencyPermissionLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestMultiplePermissions()
+    ) { results ->
+        if (results.values.all { it }) {
+            checkStateThenAct()
+        } else {
+            Toast.makeText(
+                context,
+                context.getString(R.string.emergency_permissions_required),
+                Toast.LENGTH_LONG
+            ).show()
+        }
+    }
+
+    // Surfaces what actually happened inside the service — without this,
+    // permission failures, "no answer, escalating", etc. are invisible.
+    val emergencyEvent by EmergencyAlertService.lastEvent.collectAsState()
+    LaunchedEffect(emergencyEvent) {
+        val event = emergencyEvent ?: return@LaunchedEffect
+        val message = when {
+            event.startsWith("sms_sent:") -> context.getString(R.string.emergency_event_sms_sent, event.removePrefix("sms_sent:"))
+            event.startsWith("sms_failed:") -> context.getString(R.string.emergency_event_sms_failed, event.removePrefix("sms_failed:"))
+            event.startsWith("call_failed:") -> context.getString(R.string.emergency_event_call_failed, event.removePrefix("call_failed:"))
+            event.startsWith("invalid_contact_number:") -> context.getString(R.string.emergency_event_invalid_number, event.removePrefix("invalid_contact_number:"))
+            event.startsWith("answered:") -> context.getString(R.string.emergency_event_answered, event.removePrefix("answered:"))
+            event.startsWith("no_answer_retry_same_contact:") -> context.getString(R.string.emergency_event_no_answer_retry, event.removePrefix("no_answer_retry_same_contact:"))
+            event.startsWith("no_answer_moving_to_next:") -> context.getString(R.string.emergency_event_no_answer_next, event.removePrefix("no_answer_moving_to_next:"))
+            event == "moved_to_next_contact" -> context.getString(R.string.emergency_event_moved_to_next)
+            event == "all_contacts_exhausted" -> context.getString(R.string.emergency_event_all_exhausted)
+            event == "no_contacts_configured" -> context.getString(R.string.emergency_event_no_contacts)
+            event.startsWith("internal_error:") -> context.getString(R.string.emergency_event_internal_error, event.removePrefix("internal_error:"))
+            event == "already_in_progress" -> context.getString(R.string.emergency_event_in_progress)
+            event == "no_call_permission" -> context.getString(R.string.emergency_event_no_call_permission)
+            event == "no_sms_permission" -> context.getString(R.string.emergency_event_no_sms_permission)
+            event == "no_call_log_permission_assuming_no_answer" -> context.getString(R.string.emergency_event_no_call_log_permission)
+            event == "no_phone_state_permission_assuming_no_answer" -> context.getString(R.string.emergency_event_no_phone_state_permission)
+            else -> null
+        }
+        message?.let { Toast.makeText(context, it, Toast.LENGTH_LONG).show() }
+    }
+
+    // Resolved here, not inside the dialog: a dialog opens in its own window
+    // whose context still has the language the app was started with
+    // (see utils/ProvideAppLocale.kt).
+    val answeredTitle = stringResource(R.string.emergency_answered_title)
+    val answeredMessage = stringResource(R.string.emergency_answered_message)
+    val callAgainText = stringResource(R.string.emergency_call_again)
+    val nextContactText = stringResource(R.string.emergency_next_contact)
 
 
     /*
@@ -266,7 +383,14 @@ fun HomeScreen(
                         R.string.emergency_call
                     ),
                     onCenterButton = {
-                        // emergency action
+                        // Checks saved state first — if the active contact
+                        // already answered, this shows the choice dialog instead
+                        // of re-running the normal attempt flow.
+                        if (hasEmergencyPermissions()) {
+                            checkStateThenAct()
+                        } else {
+                            emergencyPermissionLauncher.launch(emergencyPermissions)
+                        }
                     }
                 )
 
@@ -388,6 +512,63 @@ fun HomeScreen(
                 }
             }
         }
+    }
+
+    if (showEmergencyChoiceDialog) {
+        AlertDialog(
+            onDismissRequest = { showEmergencyChoiceDialog = false },
+            containerColor = appColors.background,
+            titleContentColor = appColors.pagesText,
+            textContentColor = appColors.pagesText,
+            title = {
+                Text(
+                    text = answeredTitle,
+                    fontFamily = OutfitFont,
+                    fontWeight = FontWeight.Bold
+                )
+            },
+            text = {
+                Text(
+                    text = answeredMessage,
+                    fontFamily = OutfitFont,
+                    fontSize = 14.sp,
+                    lineHeight = 20.sp
+                )
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        showEmergencyChoiceDialog = false
+                        triggerEmergencyAlert(EmergencyAlertService.ACTION_CALL_EXISTING)
+                    },
+                    colors = ButtonDefaults.textButtonColors(
+                        contentColor = appColors.pagesText
+                    )
+                ) {
+                    Text(
+                        text = callAgainText,
+                        fontFamily = OutfitFont,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = {
+                        showEmergencyChoiceDialog = false
+                        triggerEmergencyAlert(EmergencyAlertService.ACTION_MOVE_TO_NEXT)
+                    },
+                    colors = ButtonDefaults.textButtonColors(
+                        contentColor = appColors.pagesText
+                    )
+                ) {
+                    Text(
+                        text = nextContactText,
+                        fontFamily = OutfitFont
+                    )
+                }
+            }
+        )
     }
 }
 

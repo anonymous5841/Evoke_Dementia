@@ -13,6 +13,34 @@ class EmergencyContactViewModel(
     private val repository: EmergencyContactRepository
 ) : ViewModel() {
 
+    /**
+     * Saves the emergency contact fields from the "Let us know you" /
+     * Profile form, replacing whatever was stored before.
+     */
+    fun replaceContacts(
+        phoneNumbers: List<String>,
+        onSuccess: () -> Unit = {}
+    ) {
+        viewModelScope.launch {
+            _isLoading.value = true
+            _error.value = null
+
+            try {
+                repository.replaceContacts(phoneNumbers)
+
+                refreshContacts()
+
+                onSuccess()
+
+            } catch (e: Exception) {
+                _error.value =
+                    e.message ?: "Failed to save emergency contacts."
+            } finally {
+                _isLoading.value = false
+            }
+        }
+    }
+
     private val _contacts =
         MutableStateFlow<List<EmergencyContact>>(emptyList())
 

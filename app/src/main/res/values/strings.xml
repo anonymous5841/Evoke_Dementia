@@ -192,4 +192,50 @@
         <string name="dialog_delete_data_title">Erase Data &amp; Restart?</string>
         <string name="dialog_delete_data_button">Erase Data</string>
 
+
+    <!-- Emergency Call (Home) -->
+    <string name="emergency_permissions_required">Call, SMS, phone-state, call-log, and location permissions are all needed for the emergency button to work</string>
+    <string name="emergency_answered_title">They already answered</string>
+    <string name="emergency_answered_message">Call them again, or move on to the next contact?</string>
+    <string name="emergency_call_again">Call again</string>
+    <string name="emergency_next_contact">Next contact</string>
+    <string name="emergency_event_sms_sent">Location sent to %1$s</string>
+    <string name="emergency_event_sms_failed">Couldn\'t send the location text to %1$s</string>
+    <string name="emergency_event_call_failed">Couldn\'t start a call to %1$s</string>
+    <string name="emergency_event_invalid_number">Skipping invalid contact number \"%1$s\" — update it in your contacts list</string>
+    <string name="emergency_event_answered">%1$s answered the call</string>
+    <string name="emergency_event_no_answer_retry">No answer from %1$s — press again to try them once more</string>
+    <string name="emergency_event_no_answer_next">No answer from %1$s — next press will try the next contact</string>
+    <string name="emergency_event_moved_to_next">Moved to the next contact</string>
+    <string name="emergency_event_all_exhausted">No emergency contacts answered</string>
+    <string name="emergency_event_no_contacts">No emergency contacts are configured</string>
+    <string name="emergency_event_internal_error">Something went wrong: %1$s</string>
+    <string name="emergency_event_in_progress">Emergency alert already in progress</string>
+    <string name="emergency_event_no_call_permission">Call permission isn\'t granted — check Settings</string>
+    <string name="emergency_event_no_sms_permission">SMS permission isn\'t granted — check Settings</string>
+    <string name="emergency_event_no_call_log_permission">Call-log permission isn\'t granted — check Settings</string>
+    <string name="emergency_event_no_phone_state_permission">Phone-state permission isn\'t granted — check Settings</string>
+
+    <!-- Send Message / live location sharing (Help) -->
+    <string name="stop_sharing">Stop Sharing</string>
+    <string name="sharing_location_off">Location is turned off on this device — turn it on in Settings and try again</string>
+    <string name="sharing_starting">Starting up — waiting for GPS fix…</string>
+    <string name="sharing_stopped">Location sharing stopped</string>
+    <string name="sharing_permissions_required">SMS, Location, and SMS-receive permissions are all required to share your location</string>
+    <string name="sharing_no_telephony">This device can\'t send SMS — no cellular hardware</string>
+    <string name="sharing_live_tracking_hint">Live tracking active — texts on ~%1$dm+ movement, escalates through your saved contacts if one doesn\'t respond within 10 min</string>
+    <string name="sharing_event_sent">Location sent to %1$s (#%2$s)</string>
+    <string name="sharing_event_contact_fallback">contact</string>
+    <string name="sharing_event_escalated_send_failed">Couldn\'t reach %1$s — trying next contact</string>
+    <string name="sharing_event_no_reply_escalating">No reply from %1$s — trying next contact</string>
+    <string name="sharing_event_reply_received">%1$s replied — they\'ll keep getting updates</string>
+    <string name="sharing_event_no_contact">No emergency contacts configured — please add at least one</string>
+    <string name="sharing_event_no_location_permission">Location permission isn\'t granted — check app permissions in Settings</string>
+    <string name="sharing_event_no_sms_permission">SMS permission isn\'t granted — check app permissions in Settings</string>
+    <string name="sharing_event_no_sim">Couldn\'t send SMS — no active SIM found on this device</string>
+    <string name="sharing_event_max_messages">Reached the message limit for this session — sharing stopped</string>
+    <string name="sharing_event_waiting_for_gps">Still waiting for a GPS fix — this can take longer indoors</string>
+    <string name="sharing_event_all_exhausted">None of the saved contacts responded — sharing stopped</string>
+    <string name="sharing_event_location_unavailable">Couldn\'t get a location fix while escalating</string>
+
 </resources>
