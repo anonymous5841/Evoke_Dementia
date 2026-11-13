@@ -37,12 +37,17 @@ class AppDataManager(
 
         // 2. Delete the encrypted SQLCipher database.
         applicationContext.deleteDatabase(
-            "dementia_database"
+            "evoke_database"
         )
 
         // 3. Delete all locally stored profile images.
         PersonImageStorage(applicationContext)
             .deleteAllProfileImages()
+
+        // 3b. Delete all stored conversation audio.
+        AudioStorage(applicationContext).deleteAllAudio()
+        File(applicationContext.filesDir, "audio").delete()
+
 
         // 4. Delete the database key and Keystore master key.
         DatabaseKeyManager(applicationContext)

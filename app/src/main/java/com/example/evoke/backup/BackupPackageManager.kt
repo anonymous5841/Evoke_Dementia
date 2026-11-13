@@ -120,20 +120,16 @@ class BackupPackageManager(
 //            archiveManager.createBackupArchive(
 //                temporaryArchive
 //            )
-// Make sure the Room/SQLCipher database is physically created
-// before closing it for backup.
-            AppDatabase
-                .getDatabase(context)
-                .openHelper
-                .writableDatabase
-
-            AppDatabase.checkpointDatabase()
-
-            AppDatabase.closeDatabase()
-
-            archiveManager.createBackupArchive(
-                temporaryArchive
-            )
+// The database is NOT closed any more. Closing it left every
+            // repository, DAO and ViewModel pointing at a closed instance.
+            // withQuiescedDatabase creates the database file if needed,
+            // checkpoints the WAL, holds the write lock and verifies the
+            // WAL is empty while the archive is built.
+            AppDatabase.withQuiescedDatabase(context) {
+                archiveManager.createBackupArchive(
+                    temporaryArchive
+                )
+            }
             // ---------------------------------------------------------
             // 3. Get the local BackupKey.
             // ---------------------------------------------------------
@@ -340,6 +336,21 @@ class BackupPackageManager(
         )
     }
 
+    private fun verifyRestoredDatabase(databaseKey: ByteArray) {
+        try {
+            val database = AppDatabase.getDatabaseWithKey(context, databaseKey)
+            database.openHelper.writableDatabase
+                .query("PRAGMA quick_check")
+                .use { cursor ->
+                    check(cursor.moveToFirst() && cursor.getString(0) == "ok") {
+                        "Restored database failed its integrity check."
+                    }
+                }
+        } finally {
+            AppDatabase.closeDatabase()
+        }
+    }
+
     /**
      * Restores a complete backup package.
      *
@@ -464,13 +475,10 @@ class BackupPackageManager(
             )
 
             // ---------------------------------------------------------
-            // 7. Close any existing database before replacing it.
-            // ---------------------------------------------------------
-
-            AppDatabase.closeDatabase()
-
-            // ---------------------------------------------------------
-            // 8. Extract ZIP.
+            // 7. Extract and validate the ZIP.
+            //
+            //    Nothing live is touched yet, so a wrong password or a
+            //    corrupt backup can never damage the existing data.
             // ---------------------------------------------------------
 
             val extractedDirectory =
@@ -479,32 +487,52 @@ class BackupPackageManager(
                 )
 
             // ---------------------------------------------------------
-            // 9. Store recovered DatabaseKey in the local
-            //    Android Keystore-protected DatabaseKeyManager.
+            // 8. Swap the restored data in, with rollback.
             //
-            //    This happens only after the encrypted backup has
-            //    successfully decrypted and the ZIP has been validated.
+            //    Order: files first (undoable), then the database key.
+            //    If the key cannot be stored, the old files AND the old key
+            //    are put back, so the app is never left with a database
+            //    that its key cannot open.
             // ---------------------------------------------------------
 
-            databaseKeyManager.restoreDatabaseKey(
-                databaseKey
-            )
+            val restoredDatabaseKey =
+                requireNotNull(databaseKey) {
+                    "Database key was not recovered."
+                }
+
+            val previousDatabaseKey =
+                runCatching { databaseKeyManager.getDatabaseKey() }.getOrNull()
+
             try {
+                AppDatabase.closeDatabase()
 
-                // -----------------------------------------------------
-                // 9. Replace local database + people images.
-                // -----------------------------------------------------
+                val swap = archiveManager.swapInRestoredBackup(extractedDirectory)
 
-                archiveManager.commitRestoredBackup(
-                    extractedDirectory
-                )
+                try {
+                    databaseKeyManager.restoreDatabaseKey(restoredDatabaseKey)
+                    verifyRestoredDatabase(restoredDatabaseKey)
+                } catch (exception: Exception) {
+                    // Key first, then files, and never let one failure hide the other.
+                    previousDatabaseKey?.let { previous ->
+                        runCatching { databaseKeyManager.restoreDatabaseKey(previous) }
+                            .onFailure { exception.addSuppressed(it) }
+                    }
+                    runCatching { swap.rollback() }
+                        .onFailure { exception.addSuppressed(it) }
+                    throw exception
+                }
+
+                // Only reached when the restored DB opened and passed its check.
+                swap.commit()
 
             } finally {
-
-                archiveManager.deleteTemporaryBackup(
-                    extractedDirectory
-                )
+                previousDatabaseKey?.fill(0)
+                archiveManager.deleteTemporaryBackup(extractedDirectory)
             }
+
+            // After a successful restore every repository / ViewModel
+            // still references the old database instance. Restart the
+            // app (or recreate AppViewModelFactory and all ViewModels).
 
             // ---------------------------------------------------------
             // 10. Delete decrypted temporary ZIP.

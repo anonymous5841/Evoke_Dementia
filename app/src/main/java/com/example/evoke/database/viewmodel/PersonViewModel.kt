@@ -162,8 +162,9 @@ class PersonViewModel(
         dateTime: Long,
         latitude: Double? = null,
         longitude: Double? = null,
-        rawConversation: String? = null,
+        audioPath: String? = null,
         voiceEmbedding: VoiceEmbedding? = null,
+        profileImageProvider: ((personId: Long) -> String)? = null,
         onSuccess: (Long) -> Unit = {}
     ) {
         viewModelScope.launch {
@@ -178,8 +179,9 @@ class PersonViewModel(
                         dateTime = dateTime,
                         latitude = latitude,
                         longitude = longitude,
-                        rawConversation = rawConversation,
-                        voiceEmbedding = voiceEmbedding
+                        audioPath = audioPath,
+                        voiceEmbedding = voiceEmbedding,
+                        profileImageProvider = profileImageProvider
                     )
 
                 _persons.value =
@@ -278,10 +280,9 @@ class PersonViewModel(
                     repository.addFaceEmbedding(embedding)
 
                 _faceEmbeddings.value =
-                    repository.getAllFaceEmbeddings()
-                        .filter {
-                            it.personId == embedding.personId
-                        }
+                    repository.getFaceEmbeddingsForPerson(
+                        embedding.personId
+                    )
 
                 onSuccess(embeddingId)
 
@@ -305,10 +306,9 @@ class PersonViewModel(
                     repository.addVoiceEmbedding(embedding)
 
                 _voiceEmbeddings.value =
-                    repository.getAllVoiceEmbeddings()
-                        .filter {
-                            it.personId == embedding.personId
-                        }
+                    repository.getVoiceEmbeddingsForPerson(
+                        embedding.personId
+                    )
 
                 onSuccess(embeddingId)
 
@@ -327,16 +327,10 @@ class PersonViewModel(
 
             try {
                 _faceEmbeddings.value =
-                    repository.getAllFaceEmbeddings()
-                        .filter {
-                            it.personId == personId
-                        }
+                    repository.getFaceEmbeddingsForPerson(personId)
 
                 _voiceEmbeddings.value =
-                    repository.getAllVoiceEmbeddings()
-                        .filter {
-                            it.personId == personId
-                        }
+                    repository.getVoiceEmbeddingsForPerson(personId)
 
             } catch (e: Exception) {
                 _error.value =

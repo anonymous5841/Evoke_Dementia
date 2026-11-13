@@ -7,11 +7,14 @@ import com.example.evoke.database.PersonDetails
 import com.example.evoke.database.RecognitionDetails
 import com.example.evoke.database.VoiceEmbedding
 import com.example.evoke.database.AppDatabase
+import com.example.evoke.storage.AudioStorage
+import com.example.evoke.storage.PersonImageStorage
 
 class PersonRepository(
     private val db: AppDatabase,
-    private val recognitionRepository: RecognitionRepository
-
+    private val recognitionRepository: RecognitionRepository,
+    private val audioStorage: AudioStorage,
+    private val imageStorage: PersonImageStorage
 ) {
 
     private val personDao = db.personDao()
@@ -20,49 +23,123 @@ class PersonRepository(
     private val recognitionDao = db.recognitionEventDao()
     private val historyDao = db.personHistoryDao()
     private val conversationDao = db.conversationDao()
+    private val pendingDao = db.pendingConversationDao()
 
+    companion object {
+        const val MAX_PERSONS = 100
+    }
+    /**
+     * Registers a person, their first embeddings and the first recognition
+     * in ONE transaction.
+     *
+     * [profileImageProvider] is called inside the transaction, right after
+     * the person row exists, with the new personId. It must save the profile
+     * image and return its relative path. That way the image file name can
+     * use the real personId, Person.profileImagePath is never left empty,
+     * and if anything later in the transaction fails, the image is deleted.
+     *
+     * The repository takes ownership of [audioPath]'s file: it is deleted if
+     * registration fails or the recording cannot be queued. Registration
+     * itself never fails because the pending queue is full or GPS is missing.
+     *
+     *
+     *  * A person must have a first recognition with a location or a queued
+     *  * conversation. If neither is available (no GPS, voice disabled, or the
+     *  * pending queue is full) registration fails and everything is rolled back.
+     */
     suspend fun createPerson(
         person: Person,
         firstFaceEmbedding: FaceEmbedding,
         dateTime: Long,
         latitude: Double? = null,
         longitude: Double? = null,
-        rawConversation: String? = null,
-        voiceEmbedding: VoiceEmbedding? = null
+        audioPath: String? = null,
+        voiceEmbedding: VoiceEmbedding? = null,
+        profileImageProvider: ((personId: Long) -> String)? = null
     ): Long {
 
-        return db.withTransaction {
+        var savedImagePath: String? = null
 
-            val personId = personDao.insert(
-                person.copy(
-                    voiceEnabled = voiceEmbedding != null
+        val saved = try {
+
+            db.withTransaction {
+
+                // Prevent registration when the maximum number of persons is reached.
+                check(personDao.getPersonCount() < MAX_PERSONS) {
+                    "The maximum limit of $MAX_PERSONS persons has been reached."
+                }
+
+                val personId = personDao.insert(
+                    person.copy(
+                        voiceEnabled = voiceEmbedding != null
+                    )
                 )
-            )
 
-            faceEmbeddingDao.insert(
-                firstFaceEmbedding.copy(
-                    personId = personId
-                )
-            )
+                if (profileImageProvider != null) {
 
-            if (voiceEmbedding != null) {
-                voiceEmbeddingDao.insert(
-                    voiceEmbedding.copy(
+                    val imagePath = profileImageProvider(personId)
+
+                    savedImagePath = imagePath
+
+                    personDao.updatePersonDetails(
+                        personId = personId,
+                        name = person.name,
+                        relation = person.relation,
+                        profileImagePath = imagePath
+                    )
+                }
+
+                faceEmbeddingDao.insert(
+                    firstFaceEmbedding.copy(
                         personId = personId
                     )
                 )
+
+                if (voiceEmbedding != null) {
+                    voiceEmbeddingDao.insert(
+                        voiceEmbedding.copy(
+                            personId = personId
+                        )
+                    )
+                }
+
+                val recognition =
+                    recognitionRepository.createRecognitionInternal(
+                        personId = personId,
+                        dateTime = dateTime,
+                        latitude = latitude,
+                        longitude = longitude,
+                        audioPath = audioPath
+                    )
+
+                check(recognition.recognitionId != null) {
+                    "A person needs a location or a recorded conversation."
+                }
+
+                personId to recognition.audioQueued
             }
 
-            recognitionRepository.createRecognitionInternal(
-                personId = personId,
-                dateTime = dateTime,
-                latitude = latitude,
-                longitude = longitude,
-                rawConversation = rawConversation
-            )
+        } catch (exception: Throwable) {
 
-            personId
+            // The transaction rolled back: remove the files it created.
+            val imagePath = savedImagePath
+
+            if (imagePath != null) {
+                imageStorage.deleteProfileImage(imagePath)
+            }
+
+            audioStorage.deleteAudio(audioPath)
+
+            throw exception
         }
+
+        val (personId, audioQueued) = saved
+
+        if (!audioQueued) {
+            audioStorage.deleteAudio(audioPath)
+        }
+
+        return personId
     }
 
     suspend fun getPersonDetails(
@@ -154,6 +231,15 @@ class PersonRepository(
         return voiceEmbeddingDao.getAllEmbeddings()
     }
 
+    // Query a single person instead of loading every embedding and filtering.
+    suspend fun getFaceEmbeddingsForPerson(personId: Long): List<FaceEmbedding> {
+        return faceEmbeddingDao.getEmbeddingsForPerson(personId)
+    }
+
+    suspend fun getVoiceEmbeddingsForPerson(personId: Long): List<VoiceEmbedding> {
+        return voiceEmbeddingDao.getEmbeddingsForPerson(personId)
+    }
+
     suspend fun findExistingPerson(
         name: String,
         relation: String
@@ -161,75 +247,123 @@ class PersonRepository(
         return personDao.findByNameAndRelation(name, relation)
     }
 
+    /**
+     * Deletes the person (their recognitions, conversations, pending items
+     * and embeddings cascade in Room) and then the files that Room does not
+     * know how to remove: pending audio and the profile image.
+     */
     suspend fun deletePerson(person: Person) {
-        personDao.delete(person)
+
+        val audioPaths = db.withTransaction {
+
+            val paths =
+                pendingDao.getAudioPathsForPerson(person.personId)
+
+            personDao.delete(person)
+
+            paths
+        }
+
+        audioPaths.forEach { path ->
+            audioStorage.deleteAudio(path)
+        }
+
+        imageStorage.deleteProfileImage(person.personId)
+
+        if (person.profileImagePath.isNotBlank()) {
+            imageStorage.deleteProfileImage(person.profileImagePath)
+        }
     }
+
 
     suspend fun addFaceEmbedding(
         embedding: FaceEmbedding
     ): Long {
 
-        val count =
-            faceEmbeddingDao.getEmbeddingCount(embedding.personId)
-
-        // Less than 3 → simply add the new embedding
-        if (count < 3) {
-            return faceEmbeddingDao.insert(embedding)
-        }
-
-        // Already have 3 → find the weakest one
-        val lowestQuality =
-            faceEmbeddingDao.getLowestQualityEmbedding(
-                embedding.personId
-            ) ?: return faceEmbeddingDao.insert(embedding)
-
-        // New embedding isn't better → don't store it
-        if (embedding.quality <= lowestQuality.quality) {
-            return lowestQuality.embeddingId
-        }
-
-        // New embedding is better → replace weakest
         return db.withTransaction {
+
+            // Check the current number of face embeddings for this person.
+            val count =
+                faceEmbeddingDao.getEmbeddingCount(embedding.personId)
+
+            // If fewer than 3 exist, insert the new embedding.
+            if (count < 3) {
+                return@withTransaction faceEmbeddingDao.insert(embedding)
+            }
+
+            // Three already exist, so find the weakest one.
+            val lowestQuality =
+                faceEmbeddingDao.getLowestQualityEmbedding(
+                    embedding.personId
+                ) ?: throw IllegalStateException(
+                    "Could not find the lowest-quality face embedding."
+                )
+
+            // Keep the existing embedding if the new one isn't better.
+            if (embedding.quality <= lowestQuality.quality) {
+                return@withTransaction lowestQuality.embeddingId
+            }
+
+            // Replace the weakest embedding with the better one.
             faceEmbeddingDao.delete(lowestQuality)
 
             faceEmbeddingDao.insert(embedding)
         }
     }
 
+
     suspend fun addVoiceEmbedding(
         embedding: VoiceEmbedding
     ): Long {
 
-        val count =
-            voiceEmbeddingDao.getEmbeddingCount(embedding.personId)
-
-        // Less than 3 → simply add the new embedding
-        if (count < 3) {
-            return voiceEmbeddingDao.insert(embedding)
-        }
-
-        // Already have 3 → find the weakest one
-        val lowestQuality =
-            voiceEmbeddingDao.getLowestQualityEmbedding(
-                embedding.personId
-            ) ?: return voiceEmbeddingDao.insert(embedding)
-
-        // New embedding isn't better → don't store it
-        if (embedding.quality <= lowestQuality.quality) {
-            return lowestQuality.voiceEmbeddingId
-        }
-
-        // New embedding is better → replace weakest
         return db.withTransaction {
+
+            // Check the current number of voice embeddings for this person.
+            val count =
+                voiceEmbeddingDao.getEmbeddingCount(embedding.personId)
+
+            // If fewer than 3 exist, insert the new embedding.
+            if (count < 3) {
+
+                val insertedId = voiceEmbeddingDao.insert(embedding)
+
+                // A person with a voice sample can have conversations recorded.
+                personDao.setVoiceEnabled(
+                    personId = embedding.personId,
+                    enabled = true
+                )
+
+                return@withTransaction insertedId
+            }
+
+            // Three already exist, so find the weakest one.
+            val lowestQuality =
+                voiceEmbeddingDao.getLowestQualityEmbedding(
+                    embedding.personId
+                ) ?: throw IllegalStateException(
+                    "Could not find the lowest-quality voice embedding."
+                )
+
+            // Keep the existing embedding if the new one isn't better.
+            if (embedding.quality <= lowestQuality.quality) {
+                return@withTransaction lowestQuality.voiceEmbeddingId
+            }
+
+            // Replace the weakest embedding with the better one.
             voiceEmbeddingDao.delete(lowestQuality)
 
             voiceEmbeddingDao.insert(embedding)
         }
     }
 
+
     suspend fun searchPersonsByName(
         name: String
     ): List<Person> {
         return personDao.searchPersonsByName(name)
+    }
+    // Returns whether voice recording is enabled for this person.
+    suspend fun isVoiceEnabled(personId: Long): Boolean {
+        return personDao.isVoiceEnabled(personId) ?: false
     }
 }

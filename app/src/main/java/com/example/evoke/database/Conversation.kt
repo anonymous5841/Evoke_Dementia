@@ -15,9 +15,8 @@ import androidx.room.PrimaryKey
             onDelete = ForeignKey.CASCADE
         )
     ],
-    indices = [
-        Index("recognitionId")
-    ]
+    indices = [ Index(value = ["recognitionId"], unique = true) ]
+
 )
 data class Conversation(
     @PrimaryKey(autoGenerate = true)

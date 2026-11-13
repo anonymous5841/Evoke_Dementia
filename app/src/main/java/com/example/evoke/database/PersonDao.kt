@@ -64,4 +64,15 @@ interface PersonDao {
     suspend fun isVoiceEnabled(
         personId: Long
     ): Boolean?
+
+    // Voice recording becomes available once a voice sample exists.
+    @Query("""
+    UPDATE persons
+    SET voiceEnabled = :enabled
+    WHERE personId = :personId
+""")
+    suspend fun setVoiceEnabled(
+        personId: Long,
+        enabled: Boolean
+    )
 }

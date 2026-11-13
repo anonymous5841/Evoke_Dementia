@@ -6,9 +6,15 @@ import com.example.evoke.database.EmergencyContact
 import com.example.evoke.database.User
 import com.example.evoke.database.UserVoiceEmbedding
 import com.example.evoke.database.UserWithDetails
+import com.example.evoke.storage.AudioStorage
+import com.example.evoke.storage.PersonImageStorage
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 class UserRepository(
-    private val db: AppDatabase
+    private val db: AppDatabase,
+    private val audioStorage: AudioStorage,
+    private val imageStorage: PersonImageStorage
 ) {
 
     private val userDao = db.userDao()
@@ -61,6 +67,8 @@ class UserRepository(
 
         return db.withTransaction {
 
+            check(userDao.getUser() == null) { "A user already exists." }
+
             val userId = userDao.insert(user)
 
             emergencyContacts.forEach { contact ->
@@ -96,7 +104,7 @@ class UserRepository(
         db.withTransaction {
 
             // Update user details
-            userDao.update(user)
+            check(userDao.update(user) == 1) { "User does not exist." }
 
             // Replace emergency contacts
             emergencyContactDao.deleteAll()
@@ -106,36 +114,53 @@ class UserRepository(
             }
         }
     }
+    /**
+     * Wipes every table AND the files that belong to them (profile images
+     * and conversation audio).
+     *
+     * clearAllTables() must not run inside withTransaction (it runs a
+     * VACUUM) and must not run on the main thread, so it is called directly
+     * on the IO dispatcher.
+     *
+     * The database key is NOT removed here. To also remove the key and the
+     * database file, use AppDataManager.clearAllLocalData().
+     */
     suspend fun deleteUserAndResetDatabase() {
-        db.withTransaction {
+        withContext(Dispatchers.IO) {
             db.clearAllTables()
+            audioStorage.deleteAllAudio()
+            imageStorage.deleteAllProfileImages()
         }
     }
+
     suspend fun addVoiceEmbedding(
         embedding: UserVoiceEmbedding
     ): Long {
 
-        val embeddings =
-            userVoiceEmbeddingDao.getAllEmbeddings()
-
-        // Less than 3 → simply add the new embedding
-        if (embeddings.size < 3) {
-            return userVoiceEmbeddingDao.insert(embedding)
-        }
-
-        // Already have 3 → find the weakest
-        val lowestQuality =
-            userVoiceEmbeddingDao.getLowestQualityEmbedding()
-                ?: return userVoiceEmbeddingDao.insert(embedding)
-
-        // New embedding isn't better → don't store it
-        if (embedding.quality <= lowestQuality.quality) {
-            return lowestQuality.userVoiceEmbeddingId
-        }
-
-        // New embedding is better → replace weakest
         return db.withTransaction {
 
+            // Retrieve the currently stored user voice embeddings.
+            val embeddings =
+                userVoiceEmbeddingDao.getAllEmbeddings()
+
+            // If fewer than 3 exist, insert the new embedding.
+            if (embeddings.size < 3) {
+                return@withTransaction userVoiceEmbeddingDao.insert(embedding)
+            }
+
+            // Three already exist, so find the weakest one.
+            val lowestQuality =
+                userVoiceEmbeddingDao.getLowestQualityEmbedding()
+                    ?: throw IllegalStateException(
+                        "Could not find the lowest-quality user voice embedding."
+                    )
+
+            // Keep the existing embedding if the new one isn't better.
+            if (embedding.quality <= lowestQuality.quality) {
+                return@withTransaction lowestQuality.userVoiceEmbeddingId
+            }
+
+            // Replace the weakest embedding with the better one.
             userVoiceEmbeddingDao.delete(lowestQuality)
 
             userVoiceEmbeddingDao.insert(embedding)

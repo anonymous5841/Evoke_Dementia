@@ -26,6 +26,10 @@ class EmergencyContactRepository(
             .filter { it.isNotEmpty() }
             .take(5)
 
+        require(cleaned.isNotEmpty()) {
+            "At least 1 emergency contact is required."
+        }
+
         db.withTransaction {
             dao.deleteAll()
 
@@ -44,45 +48,58 @@ class EmergencyContactRepository(
         contact: EmergencyContact
     ): Long {
 
-        val count = dao.getContactCount()
+        return db.withTransaction {
 
-        if (count >= 5) {
-            throw IllegalStateException(
-                "Maximum of 5 emergency contacts allowed."
-            )
+            // Check the maximum number of emergency contacts.
+            val count = dao.getContactCount()
+
+            if (count >= 5) {
+                throw IllegalStateException(
+                    "Maximum of 5 emergency contacts allowed."
+                )
+            }
+
+            // Validate the priority.
+            if (contact.priority !in 1..5) {
+                throw IllegalArgumentException(
+                    "Emergency contact priority must be between 1 and 5."
+                )
+            }
+
+            // Make sure the priority isn't already assigned.
+            if (dao.getByPriority(contact.priority) != null) {
+                throw IllegalArgumentException(
+                    "This priority is already assigned."
+                )
+            }
+
+            // Insert only after all checks have passed.
+            dao.insert(contact)
         }
-
-        if (contact.priority !in 1..5) {
-            throw IllegalArgumentException(
-                "Emergency contact priority must be between 1 and 5."
-            )
-        }
-
-        if (dao.getByPriority(contact.priority) != null) {
-            throw IllegalArgumentException(
-                "This priority is already assigned."
-            )
-        }
-
-        return dao.insert(contact)
     }
 
     suspend fun getContacts(): List<EmergencyContact> {
         return dao.getAllOrderedByPriority()
     }
 
+
     suspend fun deleteContact(
         contact: EmergencyContact
     ) {
-        val count = dao.getContactCount()
 
-        if (count <= 1) {
-            throw IllegalStateException(
-                "At least 1 emergency contact is required."
-            )
+        db.withTransaction {
+
+            // At least one emergency contact must remain.
+            val count = dao.getContactCount()
+
+            if (count <= 1) {
+                throw IllegalStateException(
+                    "At least 1 emergency contact is required."
+                )
+            }
+
+            dao.delete(contact)
         }
-
-        dao.delete(contact)
     }
 
     suspend fun getContactCount(): Int {

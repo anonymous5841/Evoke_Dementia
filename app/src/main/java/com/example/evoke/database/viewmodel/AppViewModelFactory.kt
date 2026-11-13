@@ -1,5 +1,6 @@
 package com.example.evoke.database.viewmodel
 
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.example.evoke.database.AppDatabase
@@ -8,18 +9,30 @@ import com.example.evoke.database.repository.LocationRepository
 import com.example.evoke.database.repository.PersonRepository
 import com.example.evoke.database.repository.RecognitionRepository
 import com.example.evoke.database.repository.UserRepository
+import com.example.evoke.storage.AudioStorage
+import com.example.evoke.storage.PersonImageStorage
 
 class AppViewModelFactory(
-    private val db: AppDatabase
+    private val db: AppDatabase,
+    context: Context
 ) : ViewModelProvider.Factory {
 
+    // The repositories own the files that belong to the rows they delete.
+    private val audioStorage =
+        AudioStorage(context.applicationContext)
+
+    private val imageStorage =
+        PersonImageStorage(context.applicationContext)
+
     private val recognitionRepository =
-        RecognitionRepository(db)
+        RecognitionRepository(db, audioStorage)
 
     private val personRepository =
         PersonRepository(
             db = db,
-            recognitionRepository = recognitionRepository
+            recognitionRepository = recognitionRepository,
+            audioStorage = audioStorage,
+            imageStorage = imageStorage
         )
 
     private val emergencyContactRepository =
@@ -29,7 +42,15 @@ class AppViewModelFactory(
         LocationRepository(db)
 
     private val userRepository =
-        UserRepository(db)
+        UserRepository(db, audioStorage, imageStorage)
+
+    /**
+     * Call once at app start, before any recording can be saved.
+     * Removes half-copied and unreferenced audio files.
+     */
+    suspend fun cleanupOrphanedAudio() {
+        recognitionRepository.cleanupOrphanedAudio()
+    }
 
     @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel> create(

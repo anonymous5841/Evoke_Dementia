@@ -12,59 +12,50 @@ class RecognitionViewModel(
     private val repository: RecognitionRepository
 ) : ViewModel() {
 
-    private val _pendingConversationCount =
-        MutableStateFlow(0)
+    private val _pendingConversationCount = MutableStateFlow(0)
 
-    val pendingConversationCount:
-            StateFlow<Int> =
+    val pendingConversationCount: StateFlow<Int> =
         _pendingConversationCount.asStateFlow()
 
-
-    private val _lastRecognitionId =
-        MutableStateFlow<Long?>(null)
+    private val _lastRecognitionId = MutableStateFlow<Long?>(null)
 
     val lastRecognitionId: StateFlow<Long?> =
         _lastRecognitionId.asStateFlow()
 
-
-    private val _isLoading =
-        MutableStateFlow(false)
+    private val _isLoading = MutableStateFlow(false)
 
     val isLoading: StateFlow<Boolean> =
         _isLoading.asStateFlow()
 
-
-    private val _error =
-        MutableStateFlow<String?>(null)
+    private val _error = MutableStateFlow<String?>(null)
 
     val error: StateFlow<String?> =
         _error.asStateFlow()
 
-
+    // Creates a recognition using an optional location and audio recording.
     fun createRecognition(
         personId: Long,
         dateTime: Long,
         latitude: Double? = null,
         longitude: Double? = null,
-        rawConversation: String? = null,
+        audioPath: String? = null,
         onSuccess: (Long) -> Unit = {}
     ) {
         viewModelScope.launch {
+
             _isLoading.value = true
             _error.value = null
 
             try {
-                val recognitionId =
-                    repository.createRecognition(
-                        personId = personId,
-                        dateTime = dateTime,
-                        latitude = latitude,
-                        longitude = longitude,
-                        rawConversation = rawConversation
-                    )
+                val recognitionId = repository.createRecognition(
+                    personId = personId,
+                    dateTime = dateTime,
+                    latitude = latitude,
+                    longitude = longitude,
+                    audioPath = audioPath
+                )
 
-                _lastRecognitionId.value =
-                    recognitionId
+                _lastRecognitionId.value = recognitionId
 
                 loadPendingConversationCount()
 
@@ -79,39 +70,9 @@ class RecognitionViewModel(
         }
     }
 
-
-    fun markConversationSummarized(
-        conversationId: Long,
-        summary: String,
-        onSuccess: () -> Unit = {}
-    ) {
-        viewModelScope.launch {
-            _isLoading.value = true
-            _error.value = null
-
-            try {
-                repository.markConversationSummarized(
-                    conversationId = conversationId,
-                    summary = summary
-                )
-
-                loadPendingConversationCount()
-
-                onSuccess()
-
-            } catch (e: Exception) {
-                _error.value =
-                    e.message ?: "Failed to save conversation summary."
-            } finally {
-                _isLoading.value = false
-            }
-        }
-    }
-
-
+    // Loads the current number of pending conversations.
     fun loadPendingConversationCount() {
         viewModelScope.launch {
-            _error.value = null
 
             try {
                 _pendingConversationCount.value =
@@ -124,19 +85,17 @@ class RecognitionViewModel(
         }
     }
 
-
     fun deleteRecognition(
         recognitionId: Long,
         onSuccess: () -> Unit = {}
     ) {
         viewModelScope.launch {
+
             _isLoading.value = true
             _error.value = null
 
             try {
-                repository.deleteRecognition(
-                    recognitionId
-                )
+                repository.deleteRecognition(recognitionId)
 
                 if (_lastRecognitionId.value == recognitionId) {
                     _lastRecognitionId.value = null
@@ -155,11 +114,9 @@ class RecognitionViewModel(
         }
     }
 
-
     fun clearLastRecognition() {
         _lastRecognitionId.value = null
     }
-
 
     fun clearError() {
         _error.value = null

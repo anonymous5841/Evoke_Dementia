@@ -40,7 +40,13 @@ import com.example.evoke.utils.LocalAppLanguage
 import androidx.activity.compose.LocalActivityResultRegistryOwner
 import androidx.activity.compose.LocalActivity
 import androidx.compose.ui.graphics.Color
+import androidx.lifecycle.lifecycleScope
+import com.example.evoke.database.AppDatabase
+import com.example.evoke.database.viewmodel.AppViewModelFactory
 import com.example.evoke.utils.ThemeManager
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+
 class MainActivity : ComponentActivity() {
     override fun attachBaseContext(newBase: Context) {
 
@@ -57,6 +63,9 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+//        if (BuildConfig.DEBUG) {
+//            com.example.evoke.debug.DebugSeed.seedIfEmpty(applicationContext)
+//        }
         enableEdgeToEdge(
             statusBarStyle = SystemBarStyle.auto(
                 android.graphics.Color.TRANSPARENT,
@@ -67,6 +76,52 @@ class MainActivity : ComponentActivity() {
                 android.graphics.Color.TRANSPARENT
             )
         )
+/*
+create startupcleaning.kt:
+package com.example.evoke
+
+import android.util.Log
+import com.example.evoke.database.viewmodel.AppViewModelFactory
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
+import java.util.concurrent.atomic.AtomicBoolean
+
+object StartupCleanup {
+
+    private val started = AtomicBoolean(false)
+    private val finished = CompletableDeferred<Unit>()
+    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+
+    // Runs at most once per process, so recreating the Activity can
+    // never delete a recording that is saved but not yet in the database.
+    fun runOnce(factory: AppViewModelFactory) {
+        if (!started.compareAndSet(false, true)) return
+        scope.launch {
+            try {
+                factory.cleanupOrphanedAudio()
+            } catch (e: Exception) {
+                Log.e("StartupCleanup", "Cleanup failed", e)
+            } finally {
+                finished.complete(Unit)
+            }
+        }
+    }
+
+    suspend fun awaitFinished() = finished.await()
+}
+
+replace lifecycleScope.launch(Dispatchers.IO) { factory.cleanupOrphanedAudio() } with StartupCleanup.runOnce(factory)
+do this only if you want the things like :
+Cleanup must finish before any recording is saved.
+Cleanup must not run again when the Activity is recreated, for example on screen rotation.
+ */
+//        val factory =
+//            AppViewModelFactory(AppDatabase.getDatabase(applicationContext), applicationContext)
+//        lifecycleScope.launch(Dispatchers.IO) { factory.cleanupOrphanedAudio() }
+
         setContent {
 
             val context = LocalContext.current
@@ -206,3 +261,8 @@ class MainActivity : ComponentActivity() {
         }
     }
 }
+
+//lifecycleScope.launch {
+//    appViewModelFactory.cleanupOrphanedAudio()
+//    recognitionViewModel.loadPendingConversationCount()
+//}

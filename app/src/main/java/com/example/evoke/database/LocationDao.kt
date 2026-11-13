@@ -6,6 +6,16 @@ import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Update
 
+// A bare coordinate returned by the bounding-box queries.
+// The exact distance is computed in Kotlin (see LocationRepository),
+// because SQLite on Android / SQLCipher is not guaranteed to have
+// SIN, COS, ASIN, SQRT and POWER available.
+data class GeoPoint(
+    val id: Long,
+    val latitude: Double,
+    val longitude: Double
+)
+
 @Dao
 interface LocationDao {
 
@@ -32,112 +42,34 @@ interface LocationDao {
         LIMIT 1
     """)
     suspend fun getById(locationId: Long): Location?
+
+    // Saved locations inside a bounding box (uses the latitude/longitude indices).
     @Query("""
-    SELECT *
-    FROM (
-        
-        SELECT
-            locationId AS id,
-            latitude,
-            longitude,
-
-            (
-                6371.0 * 2.0 * ASIN(
-                    SQRT(
-                        POWER(
-                            SIN(
-                                (latitude - :latitude)
-                                * 3.141592653589793 / 180.0 / 2.0
-                            ),
-                            2
-                        )
-                        +
-                        COS(
-                            :latitude * 3.141592653589793 / 180.0
-                        )
-                        *
-                        COS(
-                            latitude * 3.141592653589793 / 180.0
-                        )
-                        *
-                        POWER(
-                            SIN(
-                                (longitude - :longitude)
-                                * 3.141592653589793 / 180.0 / 2.0
-                            ),
-                            2
-                        )
-                    )
-                )
-            ) AS distanceKm,
-
-            'LOCATION' AS source
-
+        SELECT locationId AS id, latitude, longitude
         FROM locations
-
         WHERE latitude BETWEEN :minLatitude AND :maxLatitude
           AND longitude BETWEEN :minLongitude AND :maxLongitude
+    """)
+    suspend fun getLocationsInBox(
+        minLatitude: Double,
+        maxLatitude: Double,
+        minLongitude: Double,
+        maxLongitude: Double
+    ): List<GeoPoint>
 
-
-        UNION ALL
-
-
-        SELECT
-            historyId AS id,
-            latitude,
-            longitude,
-
-            (
-                6371.0 * 2.0 * ASIN(
-                    SQRT(
-                        POWER(
-                            SIN(
-                                (latitude - :latitude)
-                                * 3.141592653589793 / 180.0 / 2.0
-                            ),
-                            2
-                        )
-                        +
-                        COS(
-                            :latitude * 3.141592653589793 / 180.0
-                        )
-                        *
-                        COS(
-                            latitude * 3.141592653589793 / 180.0
-                        )
-                        *
-                        POWER(
-                            SIN(
-                                (longitude - :longitude)
-                                * 3.141592653589793 / 180.0 / 2.0
-                            ),
-                            2
-                        )
-                    )
-                )
-            ) AS distanceKm,
-
-            'PERSON_HISTORY' AS source
-
+    // Person-history points inside a bounding box.
+    @Query("""
+        SELECT historyId AS id, latitude, longitude
         FROM person_history
-
         WHERE latitude IS NOT NULL
           AND longitude IS NOT NULL
           AND latitude BETWEEN :minLatitude AND :maxLatitude
           AND longitude BETWEEN :minLongitude AND :maxLongitude
-    )
-
-    WHERE distanceKm <= :radiusKm
-
-    ORDER BY distanceKm ASC
-""")
-    suspend fun getNearbyResults(
-        latitude: Double,
-        longitude: Double,
+    """)
+    suspend fun getHistoryPointsInBox(
         minLatitude: Double,
         maxLatitude: Double,
         minLongitude: Double,
-        maxLongitude: Double,
-        radiusKm: Double
-    ): List<NearbyResult>
+        maxLongitude: Double
+    ): List<GeoPoint>
 }

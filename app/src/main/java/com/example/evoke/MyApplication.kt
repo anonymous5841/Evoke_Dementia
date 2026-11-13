@@ -740,3 +740,44 @@ class MyApplication : Application() {
         System.loadLibrary("sqlcipher")
     }
 }
+
+
+/*
+* look into these before deploying :
+*
+* Both are genuine, but neither is serious enough to block your testing. They matter before you ship to real users.
+
+1. Process-death recovery: genuine, narrow
+
+I earlier described the exposed window as “a few milliseconds of renames”. That understated it. The window runs from the first rename in swapInRestoredBackup until swap.commit(), and it includes the key save and verifyRestoredDatabase, which opens an SQLCipher database and runs quick_check. That can take a second or more.
+
+If the process dies inside that window, one of two things happens:
+
+Killed before restoreDatabaseKey runs: the files are the restored ones, but the stored key is the old one. On the next launch getDatabase() fails to open the database, and the app is stuck.
+Killed after the key is saved but before commit(): the files and key are consistent, so the app works, and the .restore_old files are just leftovers. The next restore attempt deletes them as “leftovers from an earlier interrupted restore”, which is harmless here.
+
+The first case is the real risk. It needs Android to kill the app mid-restore, which is rare but possible if the user switches away while the restore runs.
+
+Fix: a small journal file, written just before the first rename.
+
+Before the swap, write restore_journal.json in filesDir. It holds the previous encrypted key strings (encrypted_database_key and database_key_iv, copied as they are) and the stage SWAPPING. They are still decryptable because the Keystore master key is now kept.
+On startup, before AppDatabase.getDatabase(), check for the journal. If it exists, roll back: move the live data aside, move each .restore_old copy back, restore the old key strings, then delete the journal.
+Always roll back, never try to finish a half-done restore. The backup is still on Drive, so the user can simply retry.
+2. commit() ignoring failed deletes: genuine, but don’t make it throw
+
+You’re right that the Boolean is ignored. Throwing when it’s false would be wrong, though. By the time commit() runs, the restore has already succeeded, and an exception there would reach the outer catch and show “Restore failed. Please check your backup password” for a restore that worked.
+
+The right design, once the journal exists:
+
+Delete the journal first. This is the real commit point. From here the restore counts as done.
+Delete the .restore_old copies best-effort. Log any failure, don’t throw.
+At startup, with no journal present, delete any stray *.restore_old files left behind.
+
+Without the journal, a simpler version is to ignore the failure and rely on the next restore cleaning up leftovers, which it already does. That is acceptable but leaves old data on disk longer than it should.
+
+Suggested order
+
+Fix 1 is real work, around 60 lines, and it has to be tested by killing the app mid-restore (for example with adb shell am kill or a deliberate Runtime.exit between the swap and the key save). Fix 2 comes almost free with it, so do them together.
+
+Since you’re still testing the main flow, finish those tests first. I’d add the journal before release, because the stuck-app failure is the one that can’t be recovered from the UI. Tell me when you want the code and I’ll write it against your current BackupArchiveManager and DatabaseKeyManager.
+* */

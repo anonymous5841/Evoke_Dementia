@@ -31,7 +31,7 @@ interface ConversationDao {
     suspend fun getByRecognitionId(recognitionId: Long): Conversation?
 
     @Query("""
-        SELECT *
+        SELECT conversations.*
         FROM conversations
         INNER JOIN recognition_events
             ON conversations.recognitionId = recognition_events.recognitionId
@@ -50,5 +50,5 @@ interface ConversationDao {
     suspend fun updateSummary(
         conversationId: Long,
         summary: String
-    )
+    ): Int
 }

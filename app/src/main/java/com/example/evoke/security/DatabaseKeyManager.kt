@@ -16,6 +16,7 @@ class DatabaseKeyManager(
 ) {
 
     companion object {
+        private const val DATABASE_FILE_NAME = "evoke_database"
         private const val KEYSTORE_PROVIDER = "AndroidKeyStore"
         private const val MASTER_KEY_ALIAS =
             "dementia_database_master_key"
@@ -54,47 +55,47 @@ class DatabaseKeyManager(
      */
     fun getDatabaseKey(): ByteArray {
 
-        val encryptedKey =
-            preferences.getString(
-                ENCRYPTED_KEY,
-                null
-            )
+        val encryptedKey = preferences.getString(ENCRYPTED_KEY, null)
+        val iv = preferences.getString(IV, null)
 
-        val iv =
-            preferences.getString(
-                IV,
-                null
-            )
-
-        return if (
-            encryptedKey == null ||
-            iv == null
-        ) {
-
-            val databaseKey =
-                generateDatabaseKey()
-
-            saveDatabaseKey(
-                databaseKey
-            )
-
-            databaseKey
-
-        } else {
-
-            decryptDatabaseKey(
-                encryptedKey =
-                    Base64.decode(
-                        encryptedKey,
-                        Base64.DEFAULT
-                    ),
-                iv =
-                    Base64.decode(
-                        iv,
-                        Base64.DEFAULT
-                    )
-            )
+        if (encryptedKey == null && iv == null) {
+            // Only a genuine first run may create a key.
+            check(!context.getDatabasePath(DATABASE_FILE_NAME).exists()) {
+                "A database exists but its key is missing."
+            }
+            val databaseKey = generateDatabaseKey()
+            saveDatabaseKey(databaseKey)
+            return databaseKey
         }
+
+        check(encryptedKey != null && iv != null) {
+            "The stored database key record is incomplete."
+        }
+
+        return decryptDatabaseKey(
+            encryptedKey = Base64.decode(encryptedKey, Base64.DEFAULT),
+            iv = Base64.decode(iv, Base64.DEFAULT)
+        )
+    }
+
+    /**
+     * Restores a database key obtained from a backup.
+     *
+     * This is used only when restoring a backup onto
+     * a new device.
+     *
+     * The supplied database key is NOT stored directly.
+     * It is encrypted using a newly generated local
+     * Android Keystore master key.
+     */
+
+    fun restoreDatabaseKey(databaseKey: ByteArray) {
+        require(databaseKey.size == DATABASE_KEY_SIZE) {
+            "Database key must be 32 bytes."
+        }
+        // Keep the existing Keystore master key. saveDatabaseKey() replaces both
+        // stored values in one commit(), so there is no moment with no key.
+        saveDatabaseKey(databaseKey)
     }
 
     /**
@@ -108,43 +109,6 @@ class DatabaseKeyManager(
         return getDatabaseKey()
     }
 
-    /**
-     * Restores a database key obtained from a backup.
-     *
-     * This is used only when restoring a backup onto
-     * a new device.
-     *
-     * The supplied database key is NOT stored directly.
-     * It is encrypted using a newly generated local
-     * Android Keystore master key.
-     */
-    fun restoreDatabaseKey(
-        databaseKey: ByteArray
-    ) {
-
-        require(
-            databaseKey.size == DATABASE_KEY_SIZE
-        ) {
-            "Database key must be 32 bytes."
-        }
-
-        /*
-         * Remove any existing local key protection first.
-         *
-         * This is important when restoring onto an
-         * existing installation.
-         */
-        deleteStoredDatabaseKey()
-
-        /*
-         * saveDatabaseKey() will create a new local
-         * Android Keystore master key and protect
-         * the restored database key with it.
-         */
-        saveDatabaseKey(
-            databaseKey
-        )
-    }
 
     private fun generateDatabaseKey(): ByteArray {
 
@@ -186,7 +150,9 @@ class DatabaseKeyManager(
         val iv =
             cipher.iv
 
-        preferences.edit()
+        // commit() (synchronous) instead of apply(): if the process dies right
+        // after a restore, the new key must already be on disk.
+        val committed = preferences.edit()
             .putString(
                 ENCRYPTED_KEY,
                 Base64.encodeToString(
@@ -201,7 +167,11 @@ class DatabaseKeyManager(
                     Base64.NO_WRAP
                 )
             )
-            .apply()
+            .commit()
+
+        check(committed) {
+            "Unable to store the database key."
+        }
     }
 
     private fun decryptDatabaseKey(
@@ -295,7 +265,7 @@ class DatabaseKeyManager(
         preferences.edit()
             .remove(ENCRYPTED_KEY)
             .remove(IV)
-            .apply()
+            .commit()
 
         val keyStore =
             KeyStore.getInstance(

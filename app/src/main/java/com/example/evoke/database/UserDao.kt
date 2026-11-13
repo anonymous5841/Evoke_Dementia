@@ -12,7 +12,7 @@ interface UserDao {
     suspend fun insert(user: User): Long
 
     @Update
-    suspend fun update(user: User)
+    suspend fun update(user: User):Int
 
     @Query("SELECT * FROM users LIMIT 1")
     suspend fun getUser(): User?

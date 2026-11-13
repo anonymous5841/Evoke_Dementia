@@ -26,6 +26,15 @@ class GoogleDriveBackupManager {
 
         private const val METADATA_FILE_NAME =
             "evoke_backup_metadata.json"
+
+        // Names used LOCALLY after download. They must match
+        // BackupPackageManager (backup.enc / metadata.json), otherwise
+        // restoreBackup() cannot find the files.
+        private const val LOCAL_BACKUP_FILE_NAME =
+            "backup.enc"
+
+        private const val LOCAL_METADATA_FILE_NAME =
+            "metadata.json"
     }
 
     /**
@@ -162,13 +171,13 @@ class GoogleDriveBackupManager {
                 val backupFile =
                     File(
                         outputDirectory,
-                        BACKUP_FILE_NAME
+                        LOCAL_BACKUP_FILE_NAME
                     )
 
                 val metadataFile =
                     File(
                         outputDirectory,
-                        METADATA_FILE_NAME
+                        LOCAL_METADATA_FILE_NAME
                     )
 
                 downloadFile(
@@ -412,6 +421,10 @@ class GoogleDriveBackupManager {
 
             connection.doOutput = true
 
+            // Stream the upload instead of buffering the whole body
+            // (backups can contain audio) in memory.
+            connection.setChunkedStreamingMode(64 * 1024)
+
             connection.setRequestProperty(
                 "Authorization",
                 "Bearer $accessToken"
@@ -512,10 +525,10 @@ class GoogleDriveBackupManager {
                 mimeType
             )
 
-            connection.setRequestProperty(
-                "Content-Length",
-                file.length().toString()
-            )
+            // Content-Length set through setRequestProperty is ignored by
+            // HttpURLConnection, which then buffers the whole body in memory.
+            // A fixed-length streaming mode streams the file instead.
+            connection.setFixedLengthStreamingMode(file.length())
 
             file.inputStream().use { input ->
                 connection.outputStream.use { output ->

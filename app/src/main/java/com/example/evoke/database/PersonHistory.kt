@@ -15,9 +15,8 @@ import androidx.room.PrimaryKey
             onDelete = ForeignKey.CASCADE
         )
     ],
-    indices = [
-        Index("recognitionId")
-    ]
+    indices = [ Index(value = ["recognitionId"], unique = true) ]
+
 )
 data class PersonHistory(
     @PrimaryKey(autoGenerate = true)

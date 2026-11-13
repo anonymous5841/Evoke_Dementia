@@ -1,6 +1,8 @@
 package com.example.evoke.ui
 
 import android.app.Activity
+import android.content.Context
+import android.content.Intent
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -44,6 +46,9 @@ import java.io.File
 import androidx.activity.compose.LocalActivity
 import com.example.evoke.auth.NoInternetConnectionException
 import android.util.Log
+import com.example.evoke.database.AppDatabase
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 
 @Composable
@@ -59,6 +64,7 @@ fun CloudBackupScreen(
         mutableStateOf(false)
     }
 
+    var restartRequired by remember { mutableStateOf(false) }
 
     var googleAccount by remember {
         mutableStateOf<GoogleAccount?>(null)
@@ -113,6 +119,17 @@ fun CloudBackupScreen(
 
     val backupPackageManager = remember {
         BackupPackageManager(context)
+    }
+
+    suspend fun refreshDriveToken(): String {
+        val act = activity ?: throw IllegalStateException("Unable to access the current activity.")
+        val result = googleDriveManager.requestDriveAccess(act)
+        val token = (result as? DriveAuthorizationResult.Authorized)?.accessToken
+        if (token.isNullOrEmpty()) {
+            throw IllegalStateException("Google Drive authorization expired. Please reconnect.")
+        }
+        driveAccessToken = token
+        return token
     }
 
     // =============================================================
@@ -434,11 +451,13 @@ fun CloudBackupScreen(
                                 scope.launch {
 
                                     try {
+                                        val freshToken = refreshDriveToken()   // <-- new
 
                                         statusMessage = "Creating encrypted backup..."
 
-                                        val packageDirectory =
+                                        val packageDirectory = withContext(Dispatchers.IO) {
                                             backupPackageManager.createBackup(passwordChars)
+                                        }
                                         try {
 
                                             statusMessage =
@@ -447,8 +466,7 @@ fun CloudBackupScreen(
                                             val uploadResult =
                                                 googleDriveBackupManager
                                                     .uploadBackup(
-                                                        accessToken =
-                                                            driveAccessToken!!,
+                                                        accessToken = freshToken,
                                                         backupFile =
                                                             backupPackageManager
                                                                 .getEncryptedBackupFile(
@@ -468,6 +486,7 @@ fun CloudBackupScreen(
                                                     statusMessage =
                                                         "Backup completed successfully."
 
+                                                    Log.d("CloudBackup", "Backup completed")
                                                     showPasswordDialog = false
                                                 }
 
@@ -547,6 +566,23 @@ fun CloudBackupScreen(
                         fontFamily = OutfitFont
                     )
                 }
+            }
+        )
+    }
+
+    if (restartRequired) {
+        AlertDialog(
+            onDismissRequest = {},
+            containerColor = colors.background,
+            titleContentColor = colors.pagesText,
+            textContentColor = colors.pagesText,
+            title = { Text("Restart Required", fontFamily = OutfitFont, fontWeight = FontWeight.Bold) },
+            text = { Text("Evoke needs to restart to load your data.", fontFamily = OutfitFont) },
+            confirmButton = {
+                TextButton(
+                    onClick = { restartApp(context) },
+                    colors = ButtonDefaults.textButtonColors(contentColor = colors.pagesText)
+                ) { Text("Restart", fontFamily = OutfitFont) }
             }
         )
     }
@@ -737,6 +773,7 @@ fun CloudBackupScreen(
                             var restoreDirectory: File? = null
 
                             try {
+                                val freshToken = refreshDriveToken()   // <-- new
 
                                 statusMessage =
                                     "Downloading encrypted backup..."
@@ -750,8 +787,7 @@ fun CloudBackupScreen(
                                 val downloadResult =
                                     googleDriveBackupManager
                                         .downloadBackup(
-                                            accessToken =
-                                                driveAccessToken!!,
+                                            accessToken = freshToken,
                                             outputDirectory =
                                                 restoreDirectory
                                         )
@@ -767,62 +803,25 @@ fun CloudBackupScreen(
 
                                     is com.example.evoke.auth.DriveBackupDownloadResult.Success -> {
 
-                                        statusMessage =
-                                            "Preparing backup for restore..."
-
-                                        val downloadedBackup =
-                                            downloadResult.backupFile
-
-                                        val downloadedMetadata =
-                                            downloadResult.metadataFile
-
                                         val backupPackageDirectory =
-                                            downloadedBackup.parentFile
-                                                ?: throw IllegalStateException(
-                                                    "Invalid restore directory."
-                                                )
+                                            downloadResult.backupFile.parentFile
+                                                ?: throw IllegalStateException("Invalid restore directory.")
 
-                                        val expectedBackupFile =
-                                            File(
-                                                backupPackageDirectory,
-                                                "backup.enc"
-                                            )
+                                        statusMessage = "Restoring your data..."
 
-                                        val expectedMetadataFile =
-                                            File(
-                                                backupPackageDirectory,
-                                                "metadata.json"
-                                            )
-
-                                        require(
-                                            downloadedBackup.renameTo(
-                                                expectedBackupFile
-                                            )
-                                        ) {
-                                            "Unable to prepare encrypted backup."
-                                        }
-
-                                        require(
-                                            downloadedMetadata.renameTo(
-                                                expectedMetadataFile
-                                            )
-                                        ) {
-                                            "Unable to prepare backup metadata."
-                                        }
-
-                                        statusMessage =
-                                            "Restoring your data..."
-
-                                        backupPackageManager.restoreBackup(
+                                        withContext(Dispatchers.IO) {
+                                            backupPackageManager.restoreBackup(
                                                 packageDirectory = backupPackageDirectory,
                                                 password = passwordChars
                                             )
+                                        }
 
-                                        statusMessage =
-                                            "Data restored successfully."
+                                        statusMessage = "Data restored successfully."
 
-                                        showRestorePasswordDialog =
-                                            false
+                                        Log.d("CloudBackup", "Restore completed")
+
+                                        showRestorePasswordDialog = false
+                                        restartRequired = true
                                     }
                                 }
 
@@ -841,6 +840,11 @@ fun CloudBackupScreen(
                                     "Restore failed. Please check your backup password and try again."
 
                                 Log.e("CloudBackup", "Restore failed", e)
+
+                                if (!AppDatabase.isOpen()) {
+                                    showRestorePasswordDialog = false
+                                    restartRequired = true
+                                }
 
                             } finally {
 
@@ -1428,56 +1432,37 @@ fun CloudBackupScreen(
 
                                 Button(
                                     onClick = {
-                                        val token = driveAccessToken
+                                        isCheckingExistingBackup = true
 
-                                        if (token.isNullOrEmpty()) {
+                                        scope.launch {
+                                            try {
+                                                val token = refreshDriveToken()
 
-                                            statusMessage =
-                                                "Google Drive authorization is required."
+                                                statusMessage =
+                                                    "Checking Google Drive for an existing backup..."
 
-                                        } else {
-
-                                            isCheckingExistingBackup = true
-
-                                            scope.launch {
-                                                try {
-
-                                                    statusMessage =
-                                                        "Checking Google Drive for an existing backup..."
-
-                                                    val backupExists =
-                                                        googleDriveBackupManager.hasExistingBackup(
-                                                            accessToken = token
-                                                        )
-
-                                                    if (backupExists) {
-
-                                                        showReplaceBackupConfirmation = true
-
-                                                    } else {
-
-                                                        showPasswordDialog = true
-                                                    }
-
-                                                } catch (e: kotlinx.coroutines.CancellationException) {
-
-                                                    throw e
-
-                                                } catch (e: Exception) {
-
-                                                    statusMessage =
-                                                        "Unable to check Google Drive for an existing backup. Please try again."
-
-                                                    Log.e(
-                                                        "CloudBackup",
-                                                        "Existing backup check failed",
-                                                        e
+                                                val backupExists =
+                                                    googleDriveBackupManager.hasExistingBackup(
+                                                        accessToken = token
                                                     )
 
-                                                } finally {
-
-                                                    isCheckingExistingBackup = false
+                                                if (backupExists) {
+                                                    showReplaceBackupConfirmation = true
+                                                } else {
+                                                    showPasswordDialog = true
                                                 }
+
+                                            } catch (e: kotlinx.coroutines.CancellationException) {
+                                                throw e
+                                            } catch (e: NoInternetConnectionException) {
+                                                statusMessage =
+                                                    "No internet connection. Please connect to the internet and try again."
+                                            } catch (e: Exception) {
+                                                statusMessage =
+                                                    e.message ?: "Unable to check Google Drive for an existing backup."
+                                                Log.e("CloudBackup", "Existing backup check failed", e)
+                                            } finally {
+                                                isCheckingExistingBackup = false
                                             }
                                         }
                                     },
@@ -1683,6 +1668,14 @@ private fun backupFieldColors() = OutlinedTextFieldDefaults.colors(
     unfocusedTextColor = AppTheme.colors.pagesText,
     cursorColor = AppTheme.colors.pagesText
 )
+//Restart after restore (CloudBackupScreen.kt)
+private fun restartApp(context: Context) {
+    val intent = context.packageManager
+        .getLaunchIntentForPackage(context.packageName)!!
+        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+    context.startActivity(intent)
+    Runtime.getRuntime().exit(0)
+}
 // ── Preview ───────────────────────────────────────────────────────────────────
 
 @Preview(
