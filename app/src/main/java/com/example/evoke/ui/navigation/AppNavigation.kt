@@ -540,7 +540,8 @@ fun AppNavigation(
 private fun rememberEmergencyContactViewModel(): EmergencyContactViewModel {
     val context = LocalContext.current
     val factory = remember {
-        AppViewModelFactory(AppDatabase.getDatabase(context.applicationContext))
+        AppViewModelFactory(AppDatabase.getDatabase(context.applicationContext),
+            context = context.applicationContext)
     }
     val emergencyContactViewModel: EmergencyContactViewModel = viewModel(factory = factory)
 
