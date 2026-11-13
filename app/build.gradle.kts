@@ -48,6 +48,9 @@ android {
         compose = true
         buildConfig = true
     }
+    androidResources {
+        noCompress += "tflite"   // don't let AGP compress the model in the APK
+    }
 }
 
 dependencies {
@@ -98,6 +101,12 @@ dependencies {
     implementation("com.google.android.gms:play-services-location:21.3.0")
     // DataStore for the emergency-call escalation state (data/EmergencyContactState.kt)
     implementation("androidx.datastore:datastore-preferences:1.1.1")
+
+
+    //mobilefacenetmodel
+    implementation("org.tensorflow:tensorflow-lite:2.14.0")
+    implementation("com.google.mlkit:face-detection:16.1.7")
+    implementation("androidx.exifinterface:exifinterface:1.3.7")
 
 
     testImplementation(libs.junit)

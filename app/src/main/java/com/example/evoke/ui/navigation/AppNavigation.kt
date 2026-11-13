@@ -63,6 +63,11 @@ import com.example.evoke.database.AppDatabase
 import com.example.evoke.database.repository.EmergencyContactRepository
 import com.example.evoke.database.viewmodel.AppViewModelFactory
 import com.example.evoke.database.viewmodel.EmergencyContactViewModel
+import android.util.Log
+import com.example.evoke.mobilefacenet.FaceConfig
+import com.example.evoke.mobilefacenet.FaceMatcher
+import com.example.evoke.mobilefacenet.FaceRecognitionViewModel
+import com.example.evoke.mobilefacenet.logFullEmbedding
 
 @SuppressLint("SuspiciousIndentation")
 @Composable
@@ -72,6 +77,7 @@ fun AppNavigation(
     onSplashScreenChanged: (Boolean) -> Unit
 ) {
     val navController = rememberNavController()
+    val faceVm: FaceRecognitionViewModel = viewModel()
     val currentRoute by navController.currentBackStackEntryAsState()
     val currentDestination = currentRoute?.destination?.route
     LaunchedEffect(currentDestination) {
@@ -128,11 +134,16 @@ fun AppNavigation(
                 )
             }
 
-            composable("notrecognised") { NotRecognisedContent(
-                onBack = { navController.popBackStack() },
-                onVoiceSampleClick = { navController.navigate("recorder") },
-                onSave = {navController.openPopup("save_success_popup") }
-            )
+            composable("notrecognised") {
+                NotRecognisedContent(
+                    imageBitmap = faceVm.profileBitmap,
+                    onBack = {
+                        faceVm.clear()
+                        navController.popBackStack()
+                    },
+                    onVoiceSampleClick = { navController.navigate("recorder") },
+                    onSave = {navController.openPopup("save_success_popup") }
+                )
             }
 
             composable("profile") {
@@ -371,7 +382,9 @@ fun AppNavigation(
             }
             composable("recognised") {
                 RecognisedContent(
+                    imageBitmap = faceVm.profileBitmap,
                     onBack = {
+                        faceVm.clear()
                         navController.popBackStack()
                     },
                     onViewmore = {
@@ -384,29 +397,51 @@ fun AppNavigation(
                 )
 
             }
+
             composable("camera") {
+                val store = faceVm.store
                 var capturedImageUri by rememberSaveable { mutableStateOf<Uri?>(null) }
 
-                // System back from the preview returns to the camera instead of leaving it
-                BackHandler(enabled = capturedImageUri != null) {
-                    capturedImageUri = null
-                }
+                BackHandler(enabled = capturedImageUri != null) { capturedImageUri = null }
 
                 if (capturedImageUri != null) {
                     CapturedScreen(
                         imageUri = capturedImageUri,
                         onBack = { capturedImageUri = null },
-                        onCapture = { navController.navigate("recognised") }
+                        onProcessingComplete = { result ->
+                            faceVm.lastResult = result
+                            logFullEmbedding(result)
+
+                            // TEMP: hardcoded test people while nobody is enrolled. REMOVE BEFORE RELEASE.
+                            val recognition = FaceMatcher.identify(
+                                queryEmbedding = result.embedding,
+                                references = store.loadReferences().ifEmpty { FaceMatcher.testReferences },
+                                threshold = FaceConfig.RECOGNITION_THRESHOLD
+                            )
+                            faceVm.matchResult = recognition
+
+                            Log.d(
+                                "FaceRecognition",
+                                """
+                    Recognized: ${recognition.isRecognized}
+                    Person: ${recognition.personId}
+                    Similarity: ${recognition.similarity}
+                    Threshold: ${recognition.threshold}
+                    """.trimIndent()
+                            )
+
+                            navController.navigate(
+                                if (recognition.isRecognized) "recognised" else "notrecognised"
+                            )
+                        }
                     )
                 } else {
                     CameraPreviewContent(
                         onBack = { navController.popBackStack() },
-                        onImageReady = { uri -> capturedImageUri = uri },
-                        onRefresh = { navController.navigate("notrecognised") }
+                        onImageReady = { uri -> capturedImageUri = uri }
                     )
                 }
             }
-
             composable("search") { backStackEntry ->
                 val searchViewModel: SearchViewModel = viewModel(backStackEntry)
                 SearchScreen(

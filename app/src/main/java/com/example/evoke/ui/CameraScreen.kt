@@ -22,8 +22,6 @@ import com.example.evoke.ui.components.GlowCaptureButton
 import com.example.evoke.ui.theme.AppTheme
 import com.example.evoke.ui.theme.GreenTheme
 import com.example.evoke.ui.theme.OutfitFont
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import com.example.evoke.ui.components.rememberBottomContentPadding
@@ -80,7 +78,6 @@ class CameraPreviewScreen : ComponentActivity() {
 fun CameraPreviewContent(
     onBack: () -> Unit = {},
     onImageReady: (Uri) -> Unit = {},
-    onRefresh: () -> Unit = {}
 ) {
     val appColors = AppTheme.colors
 
@@ -263,7 +260,6 @@ fun CameraPreviewContent(
                 CameraActions(
                     onCapture = onCapture,
                     onGallery = onGallery,
-                    onRefresh = onRefresh
                 )
 
 
@@ -285,7 +281,6 @@ fun CameraPreviewContent(
 private fun CameraActions(
     onCapture: () -> Unit,
     onGallery: () -> Unit,
-    onRefresh: () -> Unit
 ) {
 
     val appColors = AppTheme.colors
@@ -401,63 +396,6 @@ private fun CameraActions(
             Text(
                 text = stringResource(
                     R.string.capture
-                ),
-                fontSize = 16.sp,
-                fontFamily = OutfitFont,
-                color = Color.Black
-            )
-        }
-
-
-        /*
-         * ---------------------------------------------------------
-         * REFRESH
-         * ---------------------------------------------------------
-         */
-
-        Column(
-            modifier = Modifier
-                .align(Alignment.CenterEnd)
-                .padding(
-                    end = sidePadding,
-                    top = 18.dp
-                )
-                .clickable {
-                    onRefresh()
-                },
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-
-            IconButton(
-                onClick = {
-                    onRefresh()
-                },
-                modifier = Modifier.size(
-                    iconButtonSize
-                )
-            ) {
-
-                Icon(
-                    imageVector = Icons.Default.Refresh,
-                    contentDescription = stringResource(
-                        R.string.refresh_icon
-                    ),
-                    modifier = Modifier.size(
-                        iconSize
-                    ),
-                    tint = appColors.backButton
-                )
-            }
-
-            Spacer(
-                modifier = Modifier.height(
-                    labelSpacing
-                )
-            )
-
-            Text(
-                text = stringResource(
-                    R.string.refresh
                 ),
                 fontSize = 16.sp,
                 fontFamily = OutfitFont,
