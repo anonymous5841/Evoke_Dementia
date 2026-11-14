@@ -54,6 +54,7 @@
 
         <activity
             android:name=".MainActivity"
+            android:launchMode="singleTask"
             android:screenOrientation="portrait"
             android:resizeableActivity="false"
             android:exported="true"
@@ -63,6 +64,13 @@
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+
+            <!-- Add Location > Customise: Google Maps "Share -> Evoke" sends the chosen place here -->
+            <intent-filter>
+                <action android:name="android.intent.action.SEND" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="text/plain" />
             </intent-filter>
         </activity>
     </application>

@@ -239,4 +239,23 @@
     <string name="sharing_event_all_exhausted">کسی بھی محفوظ رابطے نے جواب نہیں دیا — شیئرنگ بند کر دی گئی</string>
     <string name="sharing_event_location_unavailable">اگلے رابطے پر جاتے وقت لوکیشن حاصل نہیں ہو سکی</string>
 
+    <!-- [ADD LOCATION] current location -->
+    <string name="addloc_finding">Finding location…</string>
+    <string name="addloc_finding_hint">Please wait, this may take a minute.</string>
+    <string name="addloc_current_title">Want to Keep the following current Location?</string>
+    <string name="addloc_shared_title">Want to Keep the following Location?</string>
+    <string name="addloc_accuracy">Accuracy: about %1$d m</string>
+    <string name="addloc_cancel">Cancel</string>
+    <string name="addloc_confirm">Save</string>
+    <string name="addloc_location_not_found">Location not found. Try again.</string>
+    <string name="addloc_turn_on_location">Turn on Location (GPS).</string>
+    <string name="addloc_permission_needed">Location permission needed.</string>
+    <string name="addloc_select_first">Get location first.</string>
+    <string name="addloc_no_maps_app">No map app found.</string>
+    <string name="addloc_customise">Customise</string>
+    <string name="addloc_customise_hint">Long-press a place, then Share → Evoke.</string>
+    <string name="addloc_internet_needed">Internet needed.</string>
+    <string name="addloc_reading">Reading location…</string>
+    <string name="addloc_read_failed">Couldn\'t read location.</string>
+
 </resources>

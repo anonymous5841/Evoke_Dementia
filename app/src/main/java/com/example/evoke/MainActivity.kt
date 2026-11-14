@@ -1,6 +1,8 @@
 package com.example.evoke
 
 import android.app.Activity
+import android.content.Intent
+import com.example.evoke.location.SharedLocationInbox
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
@@ -62,6 +64,9 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // [SHARED LOCATION] app opened by Google Maps "Share -> Evoke" (not again after recreation)
+        if (savedInstanceState == null) SharedLocationInbox.offer(intent)
 
 //        if (BuildConfig.DEBUG) {
 //            com.example.evoke.debug.DebugSeed.seedIfEmpty(applicationContext)
@@ -259,6 +264,13 @@ Cleanup must not run again when the Activity is recreated, for example on screen
                 }
             }
         }
+    }
+
+    // [SHARED LOCATION] app already open (singleTask): Google Maps "Share -> Evoke" arrives here
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        SharedLocationInbox.offer(intent)
     }
 }
 

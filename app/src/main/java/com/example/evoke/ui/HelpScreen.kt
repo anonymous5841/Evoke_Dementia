@@ -1,5 +1,7 @@
 package com.example.evoke.ui
-
+import android.content.ActivityNotFoundException
+import android.net.Uri
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -13,6 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -29,6 +32,7 @@ import com.example.evoke.ui.theme.MartelFont
 import com.example.evoke.ui.theme.OutfitFont
 import com.example.evoke.R
 import android.Manifest
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -46,6 +50,7 @@ import androidx.core.location.LocationManagerCompat
 import com.example.evoke.services.LocationShareService
 
 
+@SuppressLint("LocalContextGetResourceValueCall")
 @Composable
 fun HelpScreen(
     onBack: () -> Unit = {},
@@ -182,6 +187,52 @@ fun HelpScreen(
             startSharing()
         } else {
             permissionLauncher.launch(allRequestedPermissions)
+        }
+    }
+    //val context = LocalContext.current
+
+    /*
+     * [HOME LOCATION - TEMP VARIABLE]
+     * TODO: replace with the home location fetched from the Database
+     * once the Database is connected.
+     */
+    val homeLatitude: Double = 31.5204
+    val homeLongitude: Double = 74.3587
+
+    /*
+     * [OPEN GOOGLE MAPS NAVIGATION]
+     * Opens Google Maps turn-by-turn navigation (walking) to home.
+     * If the Google Maps app isn't installed, opens Google Maps
+     * directions in the browser instead.
+     */
+    fun openGoogleMapsNavigation(latitude: Double, longitude: Double) {
+        Log.d("MapToHome", "Map to Home clicked -> $latitude,$longitude")
+
+        val navigationIntent = Intent(
+            Intent.ACTION_VIEW,
+            Uri.parse("google.navigation:q=$latitude,$longitude&mode=w")
+        ).apply {
+            setPackage("com.google.android.apps.maps")
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        }
+
+        try {
+            context.startActivity(navigationIntent)
+        } catch (e: ActivityNotFoundException) {
+            Log.w("MapToHome", "Google Maps app not found, opening browser", e)
+            val browserIntent = Intent(
+                Intent.ACTION_VIEW,
+                Uri.parse("https://www.google.com/maps/dir/?api=1&destination=$latitude,$longitude&travelmode=walking")
+            ).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            try {
+                context.startActivity(browserIntent)
+            } catch (e: ActivityNotFoundException) {
+                Toast.makeText(context, "No app found to open the map", Toast.LENGTH_LONG).show()
+            }
+        } catch (e: Exception) {
+            // [MAP TO HOME ERROR]
+            Log.e("MapToHome", "Couldn't open Google Maps", e)
+            Toast.makeText(context, "Couldn't open Google Maps: ${e.message}", Toast.LENGTH_LONG).show()
         }
     }
 
@@ -371,8 +422,10 @@ fun HelpScreen(
                                     R.string.map_to_home
                                 ),
 
-                            onClick =
-                                onMapToHome,
+                            // [MAP TO HOME CLICK] opens Google Maps walking navigation to home
+                            onClick = {
+                                openGoogleMapsNavigation(homeLatitude, homeLongitude)
+                            },
 
                             iconWidth = 66.dp,
 

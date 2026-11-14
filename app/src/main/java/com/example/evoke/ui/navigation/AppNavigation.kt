@@ -14,6 +14,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.evoke.ui.AddLocationContent
+import com.example.evoke.location.SharedLocationInbox
 import com.example.evoke.ui.CameraPreviewContent
 import com.example.evoke.ui.CapturedScreen
 import com.example.evoke.ui.DemoScreen
@@ -82,6 +83,15 @@ fun AppNavigation(
     val currentDestination = currentRoute?.destination?.route
     LaunchedEffect(currentDestination) {
         onSplashScreenChanged(currentDestination == "splash")
+    }
+
+    // [SHARED LOCATION] a place shared from Google Maps while on Home -> open Add Location,
+    // which reads it (normally the user is already on Add Location after "Customise").
+    val pendingSharedLocation by SharedLocationInbox.pending.collectAsState()
+    LaunchedEffect(pendingSharedLocation, currentDestination) {
+        if (pendingSharedLocation != null && currentDestination == "home") {
+            navController.navigate("addlocation") { launchSingleTop = true }
+        }
     }
     val selectedTab = when (currentDestination) {
         "home"    -> NavTab.HOME
