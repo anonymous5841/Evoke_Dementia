@@ -6,6 +6,10 @@
 
 
     <uses-permission android:name="android.permission.CAMERA" />
+
+    <!-- Voice samples + conversation recording (voice/VoiceRecorder) -->
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-feature android:name="android.hardware.microphone" android:required="false" />
     <uses-feature android:name="android.hardware.camera" android:required="false" />
 
     <!-- Emergency Call (Home) + Send Message (Help): SMS, calls, location -->

@@ -49,7 +49,8 @@ android {
         buildConfig = true
     }
     androidResources {
-        noCompress += "tflite"   // don't let AGP compress the model in the APK
+        // don't let AGP compress the models in the APK (face: tflite, voice: onnx)
+        noCompress += listOf("tflite", "onnx")
     }
 }
 
@@ -107,6 +108,10 @@ dependencies {
     implementation("org.tensorflow:tensorflow-lite:2.14.0")
     implementation("com.google.mlkit:face-detection:16.1.7")
     implementation("androidx.exifinterface:exifinterface:1.3.7")
+
+    // Voice pipeline (voice/): Silero VAD + CAM++ speaker model via sherpa-onnx.
+    // Bundles its own libonnxruntime.so; models are in assets/ (root, not a sub-folder).
+    implementation(files("libs/sherpa-onnx-1.13.0.aar"))
 
 
     testImplementation(libs.junit)

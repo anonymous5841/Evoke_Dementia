@@ -739,6 +739,16 @@ class MyApplication : Application() {
 
         System.loadLibrary("sqlcipher")
     }
+
+    // Frees the voice model (CAM++, ~30 MB) when Android asks for memory.
+    // It is loaded again automatically the next time it is needed.
+    @Suppress("DEPRECATION")
+    override fun onTrimMemory(level: Int) {
+        super.onTrimMemory(level)
+        if (level >= android.content.ComponentCallbacks2.TRIM_MEMORY_BACKGROUND) {
+            com.example.evoke.voice.VoiceModels.release()
+        }
+    }
 }
 
 
