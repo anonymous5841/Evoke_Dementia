@@ -10,6 +10,8 @@ import androidx.compose.foundation.background
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.text.style.TextAlign
+import com.example.evoke.ui.components.isUrduSelected
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
@@ -537,6 +539,7 @@ fun RecordingItem(
     plusFontSize: androidx.compose.ui.unit.TextUnit =
         67.sp
 ) {
+    val isUrdu = isUrduSelected()
 
     var selectedLocation by remember {
         mutableStateOf("")
@@ -719,7 +722,15 @@ fun RecordingItem(
                             Color.Black,
 
                         fontFamily =
-                            OutfitFont
+                            OutfitFont,
+
+                        // Same width as the location bar below, so in Urdu
+                        // the label sits at the bar's right edge.
+                        textAlign =
+                            if (isUrdu) TextAlign.End else TextAlign.Start,
+
+                        modifier =
+                            Modifier.fillMaxWidth(0.70f)
                     )
 
 
@@ -784,11 +795,17 @@ fun RecordingItem(
                         fontWeight =
                             FontWeight.Medium,
 
+                        textAlign =
+                            if (isUrdu) TextAlign.End else TextAlign.Start,
+
                         modifier =
-                            Modifier.padding(
-                                start = 15.dp,
-                                top = 8.dp
-                            )
+                            Modifier
+                                .fillMaxWidth()
+                                .padding(
+                                    start = 15.dp,
+                                    end = 15.dp,
+                                    top = 8.dp
+                                )
                     )
                 }
             }

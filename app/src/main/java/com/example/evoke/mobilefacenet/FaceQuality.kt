@@ -1,5 +1,7 @@
 package com.example.evoke.mobilefacenet
 
+import com.example.evoke.R
+import androidx.annotation.StringRes
 import android.graphics.Bitmap
 import com.google.mlkit.vision.face.Face
 import kotlin.math.min
@@ -19,7 +21,7 @@ object FaceQuality {
 
     class Report(
         val ok: Boolean,
-        val message: String?,
+        @StringRes val messageRes: Int?,
         val faceSizePx: Int,
         val meanLuma: Float,
         val eyeGlareFraction: Float
@@ -62,11 +64,11 @@ object FaceQuality {
         )
 
         val message = when {
-            facePx < limits.minFacePx -> "The face is too small. Move closer and try again."
-            meanLuma > limits.maxLuma -> "The photo is too bright. Try softer light."
-            meanLuma < limits.minLuma -> "The photo is too dark. Try more light."
+            facePx < limits.minFacePx -> R.string.face_too_small
+            meanLuma > limits.maxLuma -> R.string.face_too_bright
+            meanLuma < limits.minLuma -> R.string.face_too_dark
             glare > limits.maxEyeGlare ->
-                "There is glare over the eyes. Tilt the head slightly or change the lighting."
+                R.string.face_eye_glare
             else -> null
         }
 

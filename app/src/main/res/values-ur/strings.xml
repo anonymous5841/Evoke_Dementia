@@ -258,4 +258,94 @@
     <string name="addloc_reading">Reading location…</string>
     <string name="addloc_read_failed">Couldn\'t read location.</string>
 
+    <!-- [CAPTURED SCREEN / FACE PIPELINE] -->
+    <string name="face_captured_image">لی گئی تصویر</string>
+    <string name="face_photo_several_people">ایک سے زیادہ افراد والی تصویر</string>
+    <string name="face_start_processing">پراسیسنگ شروع کریں</string>
+    <string name="face_checking_person">اس شخص کی جانچ کی جا رہی ہے…</string>
+    <string name="face_tap_person">جس شخص کی جانچ کرنا چاہتے ہیں، اس پر ٹیپ کریں</string>
+    <string name="face_no_face">کوئی چہرہ نظر نہیں آیا۔ بہتر روشنی میں لی گئی کوئی دوسری تصویر استعمال کریں۔</string>
+    <string name="face_process_offline_failed">اس تصویر کو آف لائن پراسیس نہیں کیا جا سکا: %1$s</string>
+    <string name="face_no_suitable">کوئی مناسب چہرہ نہیں ملا۔ براہِ کرم ایسی تصویر استعمال کریں جس میں شخص کا چہرہ کیمرے کی طرف ہو۔</string>
+    <string name="face_landmarks_missing">آنکھیں اور منہ واضح طور پر نظر نہیں آ رہے۔ زیادہ صاف اور سامنے سے لی گئی تصویر استعمال کریں۔</string>
+    <string name="face_too_small">چہرہ بہت چھوٹا ہے۔ کیمرے کے قریب آئیں اور دوبارہ کوشش کریں۔</string>
+    <string name="face_too_bright">تصویر میں روشنی بہت زیادہ ہے۔ ہلکی روشنی میں دوبارہ کوشش کریں۔</string>
+    <string name="face_too_dark">تصویر بہت تاریک ہے۔ زیادہ روشنی میں دوبارہ کوشش کریں۔</string>
+    <string name="face_eye_glare">آنکھوں پر روشنی کی چمک پڑ رہی ہے۔ سر کو تھوڑا سا جھکائیں یا روشنی کا رخ تبدیل کریں۔</string>
+    <string name="face_quality_low">تصویر کا معیار بہت کم ہے۔</string>
+
+    <!-- [CLOUD BACKUP] -->
+    <string name="cb_replace_existing_backup_title">موجودہ بیک اپ تبدیل کریں؟</string>
+    <string name="cb_replace_existing_backup_message">گوگل ڈرائیو میں Evoke کا بیک اپ پہلے سے موجود ہے۔ کیا آپ اسے نئے بیک اپ سے تبدیل کرنا چاہتے ہیں؟ آپ کا موجودہ کلاؤڈ بیک اپ اوور رائٹ ہو جائے گا۔</string>
+    <string name="cb_replace_backup">بیک اپ تبدیل کریں</string>
+    <string name="cb_cancel">منسوخ کریں</string>
+    <string name="cb_create_password_title">بیک اپ پاس ورڈ بنائیں</string>
+    <string name="cb_create_password_message">یہ پاس ورڈ آپ کے بیک اپ کی حفاظت کرتا ہے۔ کسی دوسرے ڈیوائس پر اپنا بیک اپ بحال کرنے کے لیے آپ کو اسی پاس ورڈ کی ضرورت ہوگی۔</string>
+    <string name="cb_backup_password_hint">بیک اپ پاس ورڈ</string>
+    <string name="cb_confirm_password">پاس ورڈ کی تصدیق کریں</string>
+    <string name="cb_enter_password">براہ کرم پاس ورڈ درج کریں۔</string>
+    <string name="cb_password_min_length">پاس ورڈ کم از کم 8 حروف کا ہونا چاہیے۔</string>
+    <string name="cb_passwords_mismatch">پاس ورڈز مطابقت نہیں رکھتے۔</string>
+    <string name="cb_drive_not_authorized">گوگل ڈرائیو مجاز نہیں ہے۔</string>
+    <string name="cb_creating_encrypted">انکرپٹڈ بیک اپ تیار کیا جا رہا ہے...</string>
+    <string name="cb_uploading_encrypted">انکرپٹڈ بیک اپ اپ لوڈ کیا جا رہا ہے...</string>
+    <string name="cb_backup_completed">بیک اپ کامیابی سے مکمل ہو گیا۔</string>
+    <string name="cb_backup_upload_failed_detail">بیک اپ اپ لوڈ ناکام ہو گیا:\n%1$s</string>
+    <string name="cb_no_internet">انٹرنیٹ کنکشن نہیں ہے۔ براہ کرم انٹرنیٹ سے مربوط ہوں اور دوبارہ کوشش کریں۔</string>
+    <string name="cb_backup_upload_failed">بیک اپ اپ لوڈ ناکام ہو گیا۔ براہ کرم دوبارہ کوشش کریں۔</string>
+    <string name="cb_backup_creation_failed_detail">بیک اپ بنانا ناکام ہو گیا:\n%1$s</string>
+    <string name="cb_backing_up">بیک اپ ہو رہا ہے...</string>
+    <string name="cb_create_backup">بیک اپ بنائیں</string>
+    <string name="cb_replace_existing_data_title">کیا موجودہ ڈیٹا تبدیل کریں؟</string>
+    <string name="cb_replace_existing_data_message">اس ڈیوائس پر موجودہ ڈیٹا پایا گیا ہے۔ بحال کرنے سے آپ کا موجودہ لوکل ڈیٹا بیس اور محفوظ شدہ افراد کی تصاویر آپ کے گوگل ڈرائیو بیک اپ سے تبدیل ہو جائیں گی۔ اس عمل کو واپس نہیں لیا جا سکتا۔ کیا آپ جاری رکھنا چاہتے ہیں؟</string>
+    <string name="cb_continue">جاری رکھیں</string>
+    <string name="cb_restore_my_data">میرا ڈیٹا بحال کریں</string>
+    <string name="cb_restore_password_message">وہ پاس ورڈ درج کریں جو آپ نے اپنا بیک اپ بناتے وقت استعمال کیا تھا۔</string>
+    <string name="cb_backup_password_label">بیک اپ پاس ورڈ</string>
+    <string name="cb_downloading_encrypted">انکرپٹڈ بیک اپ ڈاؤن لوڈ ہو رہا ہے...</string>
+    <string name="cb_backup_download_failed_detail">بیک اپ ڈاؤن لوڈ ناکام ہو گیا:\n%1$s</string>
+    <string name="cb_restoring_data">آپ کا ڈیٹا بحال کیا جا رہا ہے...</string>
+    <string name="cb_data_restored">ڈیٹا کامیابی کے ساتھ بحال ہو گیا۔</string>
+    <string name="cb_restore_failed">بحالی ناکام ہو گئی۔ براہ کرم اپنے بیک اپ پاس ورڈ کی تصدیق کریں اور دوبارہ کوشش کریں۔</string>
+    <string name="cb_restoring">بحال ہو رہا ہے...</string>
+    <string name="cb_restore">بحال کریں</string>
+    <string name="cb_no_activity">موجودہ سرگرمی (activity) تک رسائی ممکن نہیں۔</string>
+    <string name="cb_drive_auth_cancelled">گوگل ڈرائیو کی توثیق منسوخ کر دی گئی تھی۔</string>
+    <string name="cb_drive_auth_failed">گوگل ڈرائیو کی توثیق ناکام ہو گئی۔</string>
+    <string name="cb_drive_connected">گوگل ڈرائیو کامیابی سے منسلک ہو گیا۔</string>
+    <string name="cb_additional_auth">مزید توثیق کی ضرورت ہے۔</string>
+
+    <!-- [CLOUD BACKUP] not in the translation sheet: please review -->
+    <string name="cb_drive_auth_expired">گوگل ڈرائیو کی توثیق کی مدت ختم ہو گئی ہے۔ براہ کرم دوبارہ منسلک کریں۔</string>
+    <string name="cb_restart_required_title">ایپ دوبارہ شروع کرنا ضروری ہے</string>
+    <string name="cb_restart_required_message">آپ کا ڈیٹا لوڈ کرنے کے لیے Evoke کو دوبارہ شروع کرنا ضروری ہے۔</string>
+    <string name="cb_restart">دوبارہ شروع کریں</string>
+    <string name="cb_cloud_backup_enabled">کلاؤڈ بیک اپ فعال ہے</string>
+    <string name="cb_status_drive_connected">گوگل ڈرائیو منسلک ہے۔</string>
+    <string name="cb_status_ready">آپ کا بیک اپ ترتیب دینے کے لیے تیار ہے۔</string>
+    <string name="cb_status_default">اپنے ڈیٹا کی ایک انکرپٹڈ کاپی محفوظ رکھیں۔</string>
+    <string name="cb_enable_cloud_backup">کلاؤڈ بیک اپ فعال کریں</string>
+    <string name="cb_enable_cloud_backup_desc">اپنا انکرپٹڈ بیک اپ اپنے کلاؤڈ اسٹوریج میں محفوظ کریں۔</string>
+    <string name="cb_data_protected">آپ کا ڈیٹا محفوظ رہتا ہے</string>
+    <string name="cb_encrypted_backup">انکرپٹڈ بیک اپ</string>
+    <string name="cb_encrypted_backup_desc">آپ کا بیک اپ آپ کے ڈیوائس سے باہر جانے سے پہلے انکرپٹ کر دیا جاتا ہے۔</string>
+    <string name="cb_private_storage">نجی اسٹوریج</string>
+    <string name="cb_private_storage_desc">صرف یہی ایپ اپنے بیک اپ اسٹوریج تک رسائی حاصل کر سکتی ہے۔</string>
+    <string name="cb_google_account">گوگل اکاؤنٹ</string>
+    <string name="cb_connected_to">%1$s سے منسلک ہے۔</string>
+    <string name="cb_your_google_account">آپ کے گوگل اکاؤنٹ</string>
+    <string name="cb_connect_account_prompt">کلاؤڈ بیک اپ استعمال کرنے کے لیے اپنا گوگل اکاؤنٹ منسلک کریں۔</string>
+    <string name="cb_connect_account_later">کلاؤڈ بیک اپ فعال کرنے پر اکاؤنٹ منسلک کریں۔</string>
+    <string name="cb_account_connected">گوگل اکاؤنٹ منسلک ہو گیا۔</string>
+    <string name="cb_drive_auth_start_failed">گوگل ڈرائیو کی توثیق شروع نہیں کی جا سکی۔</string>
+    <string name="cb_account_connect_failed">آپ کا گوگل اکاؤنٹ منسلک نہیں ہو سکا۔ براہ کرم دوبارہ کوشش کریں۔</string>
+    <string name="cb_drive_connected_button">گوگل ڈرائیو منسلک ہے</string>
+    <string name="cb_authorize_drive">گوگل ڈرائیو کی اجازت دیں</string>
+    <string name="cb_connect_google_account">گوگل اکاؤنٹ منسلک کریں</string>
+    <string name="cb_checking_existing">گوگل ڈرائیو میں موجودہ بیک اپ تلاش کیا جا رہا ہے...</string>
+    <string name="cb_check_existing_failed">گوگل ڈرائیو میں موجودہ بیک اپ کی جانچ نہیں ہو سکی۔</string>
+    <string name="cb_creating_backup">بیک اپ بنایا جا رہا ہے...</string>
+    <string name="cb_back_up_my_data">میرے ڈیٹا کا بیک اپ لیں</string>
+    <string name="cb_optional_info">کلاؤڈ بیک اپ اختیاری ہے۔ اگر بیک اپ فعال نہ کیا جائے تو آپ کا ڈیٹا اسی ڈیوائس پر محفوظ رہے گا۔</string>
+
 </resources>

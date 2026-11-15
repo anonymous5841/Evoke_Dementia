@@ -1,5 +1,7 @@
 package com.example.evoke.ui
 
+import com.example.evoke.R
+import androidx.compose.ui.res.stringResource
 import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Bundle
@@ -109,7 +111,7 @@ fun CapturedScreen(
 
     suspend fun runPipeline(active: FacePipeline, bitmap: Bitmap, face: Face?) {
         when (val outcome = active.process(bitmap, FaceQuality.Profile.RECOGNIZE, face)) {
-            is FacePipeline.Outcome.Failure -> errorMessage = outcome.message
+            is FacePipeline.Outcome.Failure -> errorMessage = context.getString(outcome.messageRes)
             is FacePipeline.Outcome.Success -> {
                 onProcessingComplete(
                     FaceRecognitionResult(
@@ -137,7 +139,7 @@ fun CapturedScreen(
                 val faces = active.findFaces(bitmap)
                 when {
                     faces.isEmpty() ->
-                        errorMessage = "No face detected. Try another photo with better lighting."
+                        errorMessage = context.getString(R.string.face_no_face)
                     faces.size == 1 -> runPipeline(active, bitmap, null)
                     else -> {
                         pickerBitmap = bitmap
@@ -146,7 +148,7 @@ fun CapturedScreen(
                 }
             } catch (e: Exception) {
                 Log.e("FaceRecognition", "Face processing failed", e)
-                errorMessage = "Couldn't process this photo offline: ${e.message}"
+                errorMessage = context.getString(R.string.face_process_offline_failed, e.message ?: "")
             } finally {
                 isProcessing = false
             }
@@ -225,7 +227,7 @@ fun CapturedScreen(
                                         runPipeline(active, pickerBitmap!!, face)
                                     } catch (e: Exception) {
                                         Log.e("FaceRecognition", "Face processing failed", e)
-                                        errorMessage = "Couldn't process this photo offline: ${e.message}"
+                                        errorMessage = context.getString(R.string.face_process_offline_failed, e.message ?: "")
                                     } finally {
                                         isProcessing = false
                                     }
@@ -234,7 +236,7 @@ fun CapturedScreen(
                         )
                         imageUri != null -> AsyncImage(
                             model = imageUri,
-                            contentDescription = "Captured image",
+                            contentDescription = stringResource(R.string.face_captured_image),
                             contentScale = ContentScale.Fit,   // Fit so the whole photo is visible
                             modifier = Modifier.fillMaxSize()
                         )
@@ -256,7 +258,7 @@ fun CapturedScreen(
 
                 if (isPicking) {
                     Text(
-                        text = if (isProcessing) "Checking this person…" else "Tap the person you want to check",
+                        text = if (isProcessing) stringResource(R.string.face_checking_person) else stringResource(R.string.face_tap_person),
                         fontSize = 16.sp,
                         fontFamily = OutfitFont,
                         fontWeight = FontWeight.Medium,
@@ -298,7 +300,7 @@ private fun CameraActions(
             )
         } else {
             Text(
-                text = "Start processing",
+                text = stringResource(R.string.face_start_processing),
                 fontSize = 22.sp,
                 fontWeight = FontWeight.Medium,
                 fontFamily = OutfitFont,
@@ -346,7 +348,7 @@ private fun FacePicker(
         ) {
             Image(
                 bitmap = image,
-                contentDescription = "Photo with several people",
+                contentDescription = stringResource(R.string.face_photo_several_people),
                 contentScale = ContentScale.FillBounds,
                 modifier = Modifier
                     .fillMaxSize()

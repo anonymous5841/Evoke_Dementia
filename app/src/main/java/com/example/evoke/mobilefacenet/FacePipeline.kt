@@ -1,5 +1,7 @@
 package com.example.evoke.mobilefacenet
 
+import com.example.evoke.R
+import androidx.annotation.StringRes
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Rect
@@ -44,7 +46,7 @@ class FacePipeline(context: Context) {
             val profilePhoto: Bitmap
         ) : Outcome()
 
-        class Failure(val reason: Reason, val message: String) : Outcome()
+        class Failure(val reason: Reason, @StringRes val messageRes: Int) : Outcome()
     }
 
     private val detector = FaceDetector()
@@ -78,20 +80,20 @@ class FacePipeline(context: Context) {
             if (faces.isEmpty()) {
                 return Outcome.Failure(
                     Reason.NO_FACE,
-                    "No face detected. Try another photo with better lighting."
+                    R.string.face_no_face
                 )
             }
             face = detector.selectBestFace(faces)
                 ?: return Outcome.Failure(
                     Reason.NO_FRONT_FACING_FACE,
-                    "No suitable face found. Please use a photo where someone is facing the camera."
+                    R.string.face_no_suitable
                 )
         }
 
         val aligned = withContext(Dispatchers.Default) { FaceAligner.align(bitmap, face) }
             ?: return Outcome.Failure(
                 Reason.LANDMARKS_MISSING,
-                "Couldn't see the eyes and mouth clearly. Try a sharper, front-facing photo."
+                R.string.face_landmarks_missing
             )
 
         val quality = FaceQuality.check(face, aligned, profile)
@@ -102,7 +104,7 @@ class FacePipeline(context: Context) {
         if (!quality.ok) {
             return Outcome.Failure(
                 Reason.POOR_QUALITY,
-                quality.message ?: "The photo quality is too low."
+                quality.messageRes ?: R.string.face_quality_low
             )
         }
 

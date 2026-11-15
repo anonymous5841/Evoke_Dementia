@@ -401,38 +401,17 @@ private fun LocationResultsList(
          * LOCATION TEXT POSITION (English left, Urdu right)
          *
          * The app is always laid out LTR, so the label is placed with
-         * absolute alignment: top-left in English, top-right in Urdu.
-         *
-         * In Urdu it must stop just before the "+" blob. The blob has a
-         * fixed size (AddShapeButton: 58.dp wide, drawn 9.dp past the
-         * right edge of its box, and that box is moved by addButtonX), so
-         * its left edge sits this far in from the card's right edge:
-         *
-         *   58.dp - (9.dp + addButtonX)  ->  51.dp with addButtonX = -2.dp
-         *
-         * A small gap (scaled with the screen) is added on top of that.
+         * absolute alignment: in English it sits at the card's top-left;
+         * in Urdu it takes the location bar's width and x-offset and is
+         * right-aligned, so it ends exactly above the bar's right edge.
          */
 
         val isUrdu = isUrduSelected()
-
-        val addBlobWidth = 58.dp
-
-        val addBlobOverhang = 9.dp + addButtonX
-
-        val addBlobInsetFromCardEnd = addBlobWidth - addBlobOverhang
-
-        val locationTextBlobGap =
-            (screenWidth * 0.015f)
-                .coerceIn(4.dp, 7.dp)
 
         // English: distance from the card's left edge (unchanged)
         val locationTextStartPadding =
             (screenWidth * 0.02f)
                 .coerceIn(7.dp, 10.dp)
-
-        // Urdu: distance from the card's right edge (clears the blob)
-        val locationTextEndPadding =
-            addBlobInsetFromCardEnd + locationTextBlobGap
 
         val locationTextTopPadding =
             (screenHeight * 0.007f)
@@ -537,24 +516,22 @@ private fun LocationResultsList(
                                 else
                                     TextAlign.Left,
 
-                                modifier = Modifier
-                                    .align(
-                                        if (isUrdu)
-                                            AbsoluteAlignment.TopRight
-                                        else
-                                            AbsoluteAlignment.TopLeft
-                                    )
-                                    .absolutePadding(
-                                        // Also keeps long Urdu text off the left edge
-                                        left = locationTextStartPadding,
-
-                                        right = if (isUrdu)
-                                            locationTextEndPadding
-                                        else
-                                            0.dp,
-
-                                        top = locationTextTopPadding
-                                    )
+                                modifier = if (isUrdu)
+                                    // Urdu: same width and x-offset as the
+                                    // location bar below, so the label ends
+                                    // exactly at the bar's right edge.
+                                    Modifier
+                                        .align(AbsoluteAlignment.TopLeft)
+                                        .offset(x = locationPickerOffsetX)
+                                        .absolutePadding(top = locationTextTopPadding)
+                                        .width(locationPickerWidth)
+                                else
+                                    Modifier
+                                        .align(AbsoluteAlignment.TopLeft)
+                                        .absolutePadding(
+                                            left = locationTextStartPadding,
+                                            top = locationTextTopPadding
+                                        )
                             )
                         }
 

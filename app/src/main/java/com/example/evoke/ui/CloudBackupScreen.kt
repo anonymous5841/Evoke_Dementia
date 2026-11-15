@@ -1,5 +1,6 @@
 package com.example.evoke.ui
 
+import com.example.evoke.R
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
@@ -122,11 +123,11 @@ fun CloudBackupScreen(
     }
 
     suspend fun refreshDriveToken(): String {
-        val act = activity ?: throw IllegalStateException("Unable to access the current activity.")
+        val act = activity ?: throw IllegalStateException(context.getString(R.string.cb_no_activity))
         val result = googleDriveManager.requestDriveAccess(act)
         val token = (result as? DriveAuthorizationResult.Authorized)?.accessToken
         if (token.isNullOrEmpty()) {
-            throw IllegalStateException("Google Drive authorization expired. Please reconnect.")
+            throw IllegalStateException(context.getString(R.string.cb_drive_auth_expired))
         }
         driveAccessToken = token
         return token
@@ -144,7 +145,7 @@ fun CloudBackupScreen(
 
             if (activity == null) {
                 statusMessage =
-                    "Unable to access the current activity."
+                    context.getString(R.string.cb_no_activity)
 
                 return@rememberLauncherForActivityResult
             }
@@ -155,7 +156,7 @@ fun CloudBackupScreen(
                 driveAccessToken = null
 
                 statusMessage =
-                    "Google Drive authorization was cancelled."
+                    context.getString(R.string.cb_drive_auth_cancelled)
 
                 return@rememberLauncherForActivityResult
             }
@@ -182,7 +183,7 @@ fun CloudBackupScreen(
                             driveAccessToken = null
 
                             statusMessage =
-                                "Google Drive authorization failed."
+                                context.getString(R.string.cb_drive_auth_failed)
 
                         } else {
 
@@ -190,7 +191,7 @@ fun CloudBackupScreen(
                             driveAccessToken = token
 
                             statusMessage =
-                                "Google Drive connected successfully."
+                                context.getString(R.string.cb_drive_connected)
                         }
                     }
 
@@ -209,7 +210,7 @@ fun CloudBackupScreen(
                         driveAccessToken = null
 
                         statusMessage =
-                            "Additional authorization is required."
+                            context.getString(R.string.cb_additional_auth)
                     }
                 }
 
@@ -220,7 +221,7 @@ fun CloudBackupScreen(
 
                 statusMessage =
                     e.message
-                        ?: "Google Drive authorization failed."
+                        ?: context.getString(R.string.cb_drive_auth_failed)
             }
         }
 
@@ -237,7 +238,7 @@ fun CloudBackupScreen(
 
             title = {
                 Text(
-                    text = "Replace Existing Backup?",
+                    text = context.getString(R.string.cb_replace_existing_backup_title),
                     fontFamily = OutfitFont,
                     fontWeight = FontWeight.Bold
                 )
@@ -245,9 +246,7 @@ fun CloudBackupScreen(
 
             text = {
                 Text(
-                    text = "An Evoke backup already exists in Google Drive. " +
-                            "Do you want to replace it with a new backup? " +
-                            "Your existing cloud backup will be overwritten.",
+                    text = context.getString(R.string.cb_replace_existing_backup_message),
                     fontFamily = OutfitFont,
                     fontSize = 14.sp,
                     lineHeight = 20.sp
@@ -265,7 +264,7 @@ fun CloudBackupScreen(
                     )
                 ) {
                     Text(
-                        text = "Replace Backup",
+                        text = context.getString(R.string.cb_replace_backup),
                         fontFamily = OutfitFont,
                         fontWeight = FontWeight.SemiBold
                     )
@@ -282,7 +281,7 @@ fun CloudBackupScreen(
                     )
                 ) {
                     Text(
-                        text = "Cancel",
+                        text = context.getString(R.string.cb_cancel),
                         fontFamily = OutfitFont
                     )
                 }
@@ -322,7 +321,7 @@ fun CloudBackupScreen(
             textContentColor = colors.pagesText,
             title = {
                 Text(
-                    text = "Create Backup Password",
+                    text = context.getString(R.string.cb_create_password_title),
                     fontFamily = OutfitFont,
                     fontWeight = FontWeight.Bold
                 )
@@ -333,9 +332,7 @@ fun CloudBackupScreen(
 
                     Text(
                         text =
-                            "This password protects your backup. " +
-                                    "You will need the same password " +
-                                    "to restore your backup on another device.",
+                            context.getString(R.string.cb_create_password_message),
                         fontFamily = OutfitFont,
                         fontSize = 14.sp,
                         lineHeight = 20.sp
@@ -354,7 +351,7 @@ fun CloudBackupScreen(
                         enabled = !isBackingUp,
                         label = {
                             Text(
-                                text = "Backup password",
+                                text = context.getString(R.string.cb_backup_password_hint),
                                 fontFamily = OutfitFont
                             )
                         },
@@ -378,7 +375,7 @@ fun CloudBackupScreen(
                         enabled = !isBackingUp && !isRestoring,
                         label = {
                             Text(
-                                text = "Confirm password",
+                                text = context.getString(R.string.cb_confirm_password),
                                 fontFamily = OutfitFont
                             )
                         },
@@ -416,25 +413,25 @@ fun CloudBackupScreen(
                             password.isEmpty() -> {
 
                                 passwordError =
-                                    "Please enter a password."
+                                    context.getString(R.string.cb_enter_password)
                             }
 
                             password.length < 8 -> {
 
                                 passwordError =
-                                    "Password must be at least 8 characters."
+                                    context.getString(R.string.cb_password_min_length)
                             }
 
                             password != confirmPassword -> {
 
                                 passwordError =
-                                    "Passwords do not match."
+                                    context.getString(R.string.cb_passwords_mismatch)
                             }
 
                             driveAccessToken.isNullOrEmpty() -> {
 
                                 passwordError =
-                                    "Google Drive is not authorized."
+                                    context.getString(R.string.cb_drive_not_authorized)
                             }
 
                             else -> {
@@ -453,7 +450,7 @@ fun CloudBackupScreen(
                                     try {
                                         val freshToken = refreshDriveToken()   // <-- new
 
-                                        statusMessage = "Creating encrypted backup..."
+                                        statusMessage = context.getString(R.string.cb_creating_encrypted)
 
                                         val packageDirectory = withContext(Dispatchers.IO) {
                                             backupPackageManager.createBackup(passwordChars)
@@ -461,7 +458,7 @@ fun CloudBackupScreen(
                                         try {
 
                                             statusMessage =
-                                                "Uploading encrypted backup..."
+                                                context.getString(R.string.cb_uploading_encrypted)
 
                                             val uploadResult =
                                                 googleDriveBackupManager
@@ -484,7 +481,7 @@ fun CloudBackupScreen(
                                                 is com.example.evoke.auth.DriveBackupUploadResult.Success -> {
 
                                                     statusMessage =
-                                                        "Backup completed successfully."
+                                                        context.getString(R.string.cb_backup_completed)
 
                                                     Log.d("CloudBackup", "Backup completed")
                                                     showPasswordDialog = false
@@ -493,7 +490,7 @@ fun CloudBackupScreen(
                                                 is com.example.evoke.auth.DriveBackupUploadResult.Failed -> {
 
                                                     statusMessage =
-                                                        "Backup upload failed:\n${uploadResult.message}"
+                                                        context.getString(R.string.cb_backup_upload_failed_detail, "${uploadResult.message}")
                                                 }
                                             }
 
@@ -501,7 +498,7 @@ fun CloudBackupScreen(
                                         } catch (e: NoInternetConnectionException) {
 
                                             statusMessage =
-                                                "No internet connection. Please connect to the internet and try again."
+                                                context.getString(R.string.cb_no_internet)
 
                                         } catch (e: kotlinx.coroutines.CancellationException) {
 
@@ -510,7 +507,7 @@ fun CloudBackupScreen(
                                         } catch (e: Exception) {
 
                                             statusMessage =
-                                                "Backup upload failed. Please try again."
+                                                context.getString(R.string.cb_backup_upload_failed)
 
                                             Log.e("CloudBackup", "Backup upload failed", e)
 
@@ -522,7 +519,7 @@ fun CloudBackupScreen(
                                     } catch (e: Exception) {
 
                                         statusMessage =
-                                            "Backup creation failed:\n${e.message}"
+                                            context.getString(R.string.cb_backup_creation_failed_detail, e.message ?: "")
 
                                     } finally {
 
@@ -539,9 +536,9 @@ fun CloudBackupScreen(
                     Text(
                         text =
                             if (isBackingUp)
-                                "Backing up..."
+                                context.getString(R.string.cb_backing_up)
                             else
-                                "Create Backup",
+                                context.getString(R.string.cb_create_backup),
                         fontFamily = OutfitFont,
                         fontWeight = FontWeight.SemiBold
                     )
@@ -562,7 +559,7 @@ fun CloudBackupScreen(
                 ) {
 
                     Text(
-                        text = "Cancel",
+                        text = context.getString(R.string.cb_cancel),
                         fontFamily = OutfitFont
                     )
                 }
@@ -576,13 +573,13 @@ fun CloudBackupScreen(
             containerColor = colors.background,
             titleContentColor = colors.pagesText,
             textContentColor = colors.pagesText,
-            title = { Text("Restart Required", fontFamily = OutfitFont, fontWeight = FontWeight.Bold) },
-            text = { Text("Evoke needs to restart to load your data.", fontFamily = OutfitFont) },
+            title = { Text(context.getString(R.string.cb_restart_required_title), fontFamily = OutfitFont, fontWeight = FontWeight.Bold) },
+            text = { Text(context.getString(R.string.cb_restart_required_message), fontFamily = OutfitFont) },
             confirmButton = {
                 TextButton(
                     onClick = { restartApp(context) },
                     colors = ButtonDefaults.textButtonColors(contentColor = colors.pagesText)
-                ) { Text("Restart", fontFamily = OutfitFont) }
+                ) { Text(context.getString(R.string.cb_restart), fontFamily = OutfitFont) }
             }
         )
     }
@@ -599,7 +596,7 @@ fun CloudBackupScreen(
 
             title = {
                 Text(
-                    text = "Replace Existing Data?",
+                    text = context.getString(R.string.cb_replace_existing_data_title),
                     fontFamily = OutfitFont,
                     fontWeight = FontWeight.Bold
                 )
@@ -607,10 +604,7 @@ fun CloudBackupScreen(
 
             text = {
                 Text(
-                    text = "Existing data on this device was found. " +
-                            "Restoring will replace your current local database " +
-                            "and saved people images with the data from your Google Drive backup. " +
-                            "This action cannot be undone. Do you want to continue?",
+                    text = context.getString(R.string.cb_replace_existing_data_message),
                     fontFamily = OutfitFont,
                     fontSize = 14.sp,
                     lineHeight = 20.sp
@@ -628,7 +622,7 @@ fun CloudBackupScreen(
                     )
                 ) {
                     Text(
-                        text = "Continue",
+                        text = context.getString(R.string.cb_continue),
                         fontFamily = OutfitFont,
                         fontWeight = FontWeight.SemiBold
                     )
@@ -645,7 +639,7 @@ fun CloudBackupScreen(
                     )
                 ) {
                     Text(
-                        text = "Cancel",
+                        text = context.getString(R.string.cb_cancel),
                         fontFamily = OutfitFont
                     )
                 }
@@ -676,7 +670,7 @@ fun CloudBackupScreen(
             textContentColor = colors.pagesText,
             title = {
                 Text(
-                    text = "Restore My Data",
+                    text = context.getString(R.string.cb_restore_my_data),
                     fontFamily = OutfitFont,
                     fontWeight = FontWeight.Bold
                 )
@@ -687,7 +681,7 @@ fun CloudBackupScreen(
 
                     Text(
                         text =
-                            "Enter the password you used when creating your backup.",
+                            context.getString(R.string.cb_restore_password_message),
                         fontFamily = OutfitFont,
                         fontSize = 14.sp,
                         lineHeight = 20.sp
@@ -705,7 +699,7 @@ fun CloudBackupScreen(
                         },
                         label = {
                             Text(
-                                text = "Backup Password",
+                                text = context.getString(R.string.cb_backup_password_label),
                                 fontFamily = OutfitFont
                             )
                         },
@@ -748,7 +742,7 @@ fun CloudBackupScreen(
                         if (restorePassword.length < 8) {
 
                             restorePasswordError =
-                                "Password must be at least 8 characters."
+                                context.getString(R.string.cb_password_min_length)
 
                             return@TextButton
                         }
@@ -756,7 +750,7 @@ fun CloudBackupScreen(
                         if (driveAccessToken.isNullOrEmpty()) {
 
                             restorePasswordError =
-                                "Google Drive is not authorized."
+                                context.getString(R.string.cb_drive_not_authorized)
 
                             return@TextButton
                         }
@@ -776,7 +770,7 @@ fun CloudBackupScreen(
                                 val freshToken = refreshDriveToken()   // <-- new
 
                                 statusMessage =
-                                    "Downloading encrypted backup..."
+                                    context.getString(R.string.cb_downloading_encrypted)
 
                                 restoreDirectory =
                                     File(
@@ -797,8 +791,7 @@ fun CloudBackupScreen(
                                     is com.example.evoke.auth.DriveBackupDownloadResult.Failed -> {
 
                                         statusMessage =
-                                            "Backup download failed:\n" +
-                                                    downloadResult.message
+                                            context.getString(R.string.cb_backup_download_failed_detail, "${downloadResult.message}")
                                     }
 
                                     is com.example.evoke.auth.DriveBackupDownloadResult.Success -> {
@@ -807,7 +800,7 @@ fun CloudBackupScreen(
                                             downloadResult.backupFile.parentFile
                                                 ?: throw IllegalStateException("Invalid restore directory.")
 
-                                        statusMessage = "Restoring your data..."
+                                        statusMessage = context.getString(R.string.cb_restoring_data)
 
                                         withContext(Dispatchers.IO) {
                                             backupPackageManager.restoreBackup(
@@ -816,7 +809,7 @@ fun CloudBackupScreen(
                                             )
                                         }
 
-                                        statusMessage = "Data restored successfully."
+                                        statusMessage = context.getString(R.string.cb_data_restored)
 
                                         Log.d("CloudBackup", "Restore completed")
 
@@ -828,7 +821,7 @@ fun CloudBackupScreen(
                             } catch (e: NoInternetConnectionException) {
 
                                 statusMessage =
-                                    "No internet connection. Please connect to the internet and try again."
+                                    context.getString(R.string.cb_no_internet)
 
                             } catch (e: kotlinx.coroutines.CancellationException) {
 
@@ -837,7 +830,7 @@ fun CloudBackupScreen(
                             } catch (e: Exception) {
 
                                 statusMessage =
-                                    "Restore failed. Please check your backup password and try again."
+                                    context.getString(R.string.cb_restore_failed)
 
                                 Log.e("CloudBackup", "Restore failed", e)
 
@@ -861,9 +854,9 @@ fun CloudBackupScreen(
                     Text(
                         text =
                             if (isRestoring)
-                                "Restoring..."
+                                context.getString(R.string.cb_restoring)
                             else
-                                "Restore",
+                                context.getString(R.string.cb_restore),
                         fontFamily = OutfitFont,
                         fontWeight = FontWeight.SemiBold
                     )
@@ -883,7 +876,7 @@ fun CloudBackupScreen(
                 ) {
 
                     Text(
-                        text = "Cancel",
+                        text = context.getString(R.string.cb_cancel),
                         fontFamily = OutfitFont
                     )
                 }
@@ -985,9 +978,9 @@ fun CloudBackupScreen(
                                 Text(
                                     text =
                                         if (backupEnabled)
-                                            "Cloud Backup Enabled"
+                                            context.getString(R.string.cb_cloud_backup_enabled)
                                         else
-                                            "Cloud Backup",
+                                            context.getString(R.string.cloud_backup),
                                     color =
                                         colors.pagesText,
                                     fontSize = 18.sp,
@@ -1004,13 +997,13 @@ fun CloudBackupScreen(
                                     text =
                                         when {
                                             driveAuthorized ->
-                                                "Google Drive is connected."
+                                                context.getString(R.string.cb_status_drive_connected)
 
                                             backupEnabled ->
-                                                "Your backup is ready to be configured."
+                                                context.getString(R.string.cb_status_ready)
 
                                             else ->
-                                                "Keep an encrypted copy of your data."
+                                                context.getString(R.string.cb_status_default)
                                         },
                                     color =
                                         colors.pagesText
@@ -1059,7 +1052,7 @@ fun CloudBackupScreen(
                             ) {
 
                                 Text(
-                                    text = "Enable Cloud Backup",
+                                    text = context.getString(R.string.cb_enable_cloud_backup),
                                     color =
                                         colors.pagesText,
                                     fontSize = 18.sp,
@@ -1074,7 +1067,7 @@ fun CloudBackupScreen(
 
                                 Text(
                                     text =
-                                        "Save an encrypted backup to your cloud storage.",
+                                        context.getString(R.string.cb_enable_cloud_backup_desc),
                                     color =
                                         colors.textFieldHint,
                                     fontSize = 13.sp,
@@ -1154,7 +1147,7 @@ fun CloudBackupScreen(
                                 )
 
                                 Text(
-                                    text = "Your data stays protected",
+                                    text = context.getString(R.string.cb_data_protected),
                                     color =
                                         colors.pagesText,
                                     fontSize = 17.sp,
@@ -1170,9 +1163,9 @@ fun CloudBackupScreen(
 
                             BackupSecurityItem(
                                 icon = Icons.Default.Lock,
-                                title = "Encrypted backup",
+                                title = context.getString(R.string.cb_encrypted_backup),
                                 description =
-                                    "Your backup is encrypted before it leaves your device."
+                                    context.getString(R.string.cb_encrypted_backup_desc)
                             )
 
                             Spacer(
@@ -1181,9 +1174,9 @@ fun CloudBackupScreen(
 
                             BackupSecurityItem(
                                 icon = Icons.Default.Storage,
-                                title = "Private storage",
+                                title = context.getString(R.string.cb_private_storage),
                                 description =
-                                    "Only this app can access its backup storage."
+                                    context.getString(R.string.cb_private_storage_desc)
                             )
                         }
                     }
@@ -1213,7 +1206,7 @@ fun CloudBackupScreen(
                         ) {
 
                             Text(
-                                text = "Google Account",
+                                text = context.getString(R.string.cb_google_account),
                                 color =
                                     colors.pagesText,
                                 fontSize = 17.sp,
@@ -1230,13 +1223,13 @@ fun CloudBackupScreen(
                                 text =
                                     when {
                                         googleAccount != null ->
-                                            "Connected to ${googleAccount?.displayName ?: "your Google Account"}."
+                                            context.getString(R.string.cb_connected_to, googleAccount?.displayName ?: context.getString(R.string.cb_your_google_account))
 
                                         backupEnabled ->
-                                            "Connect your Google Account to use cloud backup."
+                                            context.getString(R.string.cb_connect_account_prompt)
 
                                         else ->
-                                            "Connect an account when you enable cloud backup."
+                                            context.getString(R.string.cb_connect_account_later)
                                     },
                                 color =
                                     colors.textFieldHint,
@@ -1257,7 +1250,7 @@ fun CloudBackupScreen(
                                         if (activity == null) {
 
                                             statusMessage =
-                                                "Unable to access the current activity."
+                                                context.getString(R.string.cb_no_activity)
 
                                             return@OutlinedButton
                                         }
@@ -1281,7 +1274,7 @@ fun CloudBackupScreen(
                                                         account
 
                                                     statusMessage =
-                                                        "Google Account connected."
+                                                        context.getString(R.string.cb_account_connected)
                                                 }
 
                                                 // =============================================
@@ -1311,7 +1304,7 @@ fun CloudBackupScreen(
                                                                 null
 
                                                             statusMessage =
-                                                                "Google Drive authorization failed."
+                                                                context.getString(R.string.cb_drive_auth_failed)
 
                                                         } else {
 
@@ -1322,7 +1315,7 @@ fun CloudBackupScreen(
                                                                 token
 
                                                             statusMessage =
-                                                                "Google Drive connected successfully."
+                                                                context.getString(R.string.cb_drive_connected)
                                                         }
                                                     }
 
@@ -1334,7 +1327,7 @@ fun CloudBackupScreen(
                                                         if (pendingIntent == null) {
 
                                                             statusMessage =
-                                                                "Unable to start Google Drive authorization."
+                                                                context.getString(R.string.cb_drive_auth_start_failed)
 
                                                         } else {
 
@@ -1368,7 +1361,7 @@ fun CloudBackupScreen(
                                             } catch (e: NoInternetConnectionException) {
 
                                                 statusMessage =
-                                                    "No internet connection. Please connect to the internet and try again."
+                                                    context.getString(R.string.cb_no_internet)
 
                                             } catch (e: kotlinx.coroutines.CancellationException) {
 
@@ -1377,7 +1370,7 @@ fun CloudBackupScreen(
                                             } catch (e: Exception) {
 
                                                 statusMessage =
-                                                    "Unable to connect your Google Account. Please try again."
+                                                    context.getString(R.string.cb_account_connect_failed)
 
                                                 Log.e(
                                                     "CloudBackup",
@@ -1404,13 +1397,13 @@ fun CloudBackupScreen(
                                         text =
                                             when {
                                                 driveAuthorized ->
-                                                    "Google Drive Connected"
+                                                    context.getString(R.string.cb_drive_connected_button)
 
                                                 googleAccount != null ->
-                                                    "Authorize Google Drive"
+                                                    context.getString(R.string.cb_authorize_drive)
 
                                                 else ->
-                                                    "Connect Google Account"
+                                                    context.getString(R.string.cb_connect_google_account)
                                             },
                                         fontSize = 15.sp,
                                         fontWeight =
@@ -1439,7 +1432,7 @@ fun CloudBackupScreen(
                                                 val token = refreshDriveToken()
 
                                                 statusMessage =
-                                                    "Checking Google Drive for an existing backup..."
+                                                    context.getString(R.string.cb_checking_existing)
 
                                                 val backupExists =
                                                     googleDriveBackupManager.hasExistingBackup(
@@ -1456,10 +1449,10 @@ fun CloudBackupScreen(
                                                 throw e
                                             } catch (e: NoInternetConnectionException) {
                                                 statusMessage =
-                                                    "No internet connection. Please connect to the internet and try again."
+                                                    context.getString(R.string.cb_no_internet)
                                             } catch (e: Exception) {
                                                 statusMessage =
-                                                    e.message ?: "Unable to check Google Drive for an existing backup."
+                                                    e.message ?: context.getString(R.string.cb_check_existing_failed)
                                                 Log.e("CloudBackup", "Existing backup check failed", e)
                                             } finally {
                                                 isCheckingExistingBackup = false
@@ -1478,9 +1471,9 @@ fun CloudBackupScreen(
                                     Text(
                                         text =
                                             if (isBackingUp)
-                                                "Creating Backup..."
+                                                context.getString(R.string.cb_creating_backup)
                                             else
-                                                "Back Up My Data",
+                                                context.getString(R.string.cb_back_up_my_data),
                                         fontSize = 15.sp,
                                         fontWeight =
                                             FontWeight.SemiBold,
@@ -1506,7 +1499,7 @@ fun CloudBackupScreen(
                                     )
                                 ) {
                                     Text(
-                                        text = if (isRestoring) "Restoring..." else "Restore My Data",
+                                        text = if (isRestoring) context.getString(R.string.cb_restoring) else context.getString(R.string.cb_restore_my_data),
                                         fontSize = 15.sp,
                                         fontWeight = FontWeight.SemiBold,
                                         fontFamily = OutfitFont
@@ -1549,8 +1542,7 @@ fun CloudBackupScreen(
 
                     Text(
                         text =
-                            "Cloud backup is optional. Your data will remain " +
-                                    "on this device if backup is not enabled.",
+                            context.getString(R.string.cb_optional_info),
                         color =
                             colors.textFieldHint,
                         fontSize = 13.sp,
@@ -1572,7 +1564,7 @@ fun CloudBackupScreen(
             // =============================================================
 
 //            HeaderSection(
-//                title = "Cloud Backup",
+//                title = context.getString(R.string.cloud_backup),
 //                spacing = 72.dp,
 //                textSize = 39.sp,
 //                bottomspace = 30.dp,
@@ -1581,7 +1573,7 @@ fun CloudBackupScreen(
 //                onBack = onBack
 //            )
             HeaderSection(
-                title = "Cloud Backup",
+                title = context.getString(R.string.cloud_backup),
 
                 headerHeight = 218.dp,
 

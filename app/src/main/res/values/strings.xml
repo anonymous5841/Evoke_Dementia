@@ -257,4 +257,94 @@
     <string name="addloc_reading">Reading location…</string>
     <string name="addloc_read_failed">Couldn\'t read location.</string>
 
+    <!-- [CAPTURED SCREEN / FACE PIPELINE] -->
+    <string name="face_captured_image">Captured image</string>
+    <string name="face_photo_several_people">Photo with several people</string>
+    <string name="face_start_processing">Start processing</string>
+    <string name="face_checking_person">Checking this person…</string>
+    <string name="face_tap_person">Tap the person you want to check</string>
+    <string name="face_no_face">No face detected. Try another photo with better lighting.</string>
+    <string name="face_process_offline_failed">Couldn\'t process this photo offline: %1$s</string>
+    <string name="face_no_suitable">No suitable face found. Please use a photo where someone is facing the camera.</string>
+    <string name="face_landmarks_missing">Couldn\'t see the eyes and mouth clearly. Try a sharper, front-facing photo.</string>
+    <string name="face_too_small">The face is too small. Move closer and try again.</string>
+    <string name="face_too_bright">The photo is too bright. Try softer light.</string>
+    <string name="face_too_dark">The photo is too dark. Try more light.</string>
+    <string name="face_eye_glare">There is glare over the eyes. Tilt the head slightly or change the lighting.</string>
+    <string name="face_quality_low">The photo quality is too low.</string>
+
+    <!-- [CLOUD BACKUP] -->
+    <string name="cb_replace_existing_backup_title">Replace Existing Backup?</string>
+    <string name="cb_replace_existing_backup_message">An Evoke backup already exists in Google Drive. Do you want to replace it with a new backup? Your existing cloud backup will be overwritten.</string>
+    <string name="cb_replace_backup">Replace Backup</string>
+    <string name="cb_cancel">Cancel</string>
+    <string name="cb_create_password_title">Create Backup Password</string>
+    <string name="cb_create_password_message">This password protects your backup. You will need the same password to restore your backup on another device.</string>
+    <string name="cb_backup_password_hint">Backup password</string>
+    <string name="cb_confirm_password">Confirm password</string>
+    <string name="cb_enter_password">Please enter a password.</string>
+    <string name="cb_password_min_length">Password must be at least 8 characters.</string>
+    <string name="cb_passwords_mismatch">Passwords do not match.</string>
+    <string name="cb_drive_not_authorized">Google Drive is not authorized.</string>
+    <string name="cb_creating_encrypted">Creating encrypted backup...</string>
+    <string name="cb_uploading_encrypted">Uploading encrypted backup...</string>
+    <string name="cb_backup_completed">Backup completed successfully.</string>
+    <string name="cb_backup_upload_failed_detail">Backup upload failed:\n%1$s</string>
+    <string name="cb_no_internet">No internet connection. Please connect to the internet and try again.</string>
+    <string name="cb_backup_upload_failed">Backup upload failed. Please try again.</string>
+    <string name="cb_backup_creation_failed_detail">Backup creation failed:\n%1$s</string>
+    <string name="cb_backing_up">Backing up...</string>
+    <string name="cb_create_backup">Create Backup</string>
+    <string name="cb_replace_existing_data_title">Replace Existing Data?</string>
+    <string name="cb_replace_existing_data_message">Existing data on this device was found. Restoring will replace your current local database and saved people images with the data from your Google Drive backup. This action cannot be undone. Do you want to continue?</string>
+    <string name="cb_continue">Continue</string>
+    <string name="cb_restore_my_data">Restore My Data</string>
+    <string name="cb_restore_password_message">Enter the password you used when creating your backup.</string>
+    <string name="cb_backup_password_label">Backup Password</string>
+    <string name="cb_downloading_encrypted">Downloading encrypted backup...</string>
+    <string name="cb_backup_download_failed_detail">Backup download failed:\n%1$s</string>
+    <string name="cb_restoring_data">Restoring your data...</string>
+    <string name="cb_data_restored">Data restored successfully.</string>
+    <string name="cb_restore_failed">Restore failed. Please check your backup password and try again.</string>
+    <string name="cb_restoring">Restoring...</string>
+    <string name="cb_restore">Restore</string>
+    <string name="cb_no_activity">Unable to access the current activity.</string>
+    <string name="cb_drive_auth_cancelled">Google Drive authorization was cancelled.</string>
+    <string name="cb_drive_auth_failed">Google Drive authorization failed.</string>
+    <string name="cb_drive_connected">Google Drive connected successfully.</string>
+    <string name="cb_additional_auth">Additional authorization is required.</string>
+
+    <!-- [CLOUD BACKUP] more -->
+    <string name="cb_drive_auth_expired">Google Drive authorization expired. Please reconnect.</string>
+    <string name="cb_restart_required_title">Restart Required</string>
+    <string name="cb_restart_required_message">Evoke needs to restart to load your data.</string>
+    <string name="cb_restart">Restart</string>
+    <string name="cb_cloud_backup_enabled">Cloud Backup Enabled</string>
+    <string name="cb_status_drive_connected">Google Drive is connected.</string>
+    <string name="cb_status_ready">Your backup is ready to be configured.</string>
+    <string name="cb_status_default">Keep an encrypted copy of your data.</string>
+    <string name="cb_enable_cloud_backup">Enable Cloud Backup</string>
+    <string name="cb_enable_cloud_backup_desc">Save an encrypted backup to your cloud storage.</string>
+    <string name="cb_data_protected">Your data stays protected</string>
+    <string name="cb_encrypted_backup">Encrypted backup</string>
+    <string name="cb_encrypted_backup_desc">Your backup is encrypted before it leaves your device.</string>
+    <string name="cb_private_storage">Private storage</string>
+    <string name="cb_private_storage_desc">Only this app can access its backup storage.</string>
+    <string name="cb_google_account">Google Account</string>
+    <string name="cb_connected_to">Connected to %1$s.</string>
+    <string name="cb_your_google_account">your Google Account</string>
+    <string name="cb_connect_account_prompt">Connect your Google Account to use cloud backup.</string>
+    <string name="cb_connect_account_later">Connect an account when you enable cloud backup.</string>
+    <string name="cb_account_connected">Google Account connected.</string>
+    <string name="cb_drive_auth_start_failed">Unable to start Google Drive authorization.</string>
+    <string name="cb_account_connect_failed">Unable to connect your Google Account. Please try again.</string>
+    <string name="cb_drive_connected_button">Google Drive Connected</string>
+    <string name="cb_authorize_drive">Authorize Google Drive</string>
+    <string name="cb_connect_google_account">Connect Google Account</string>
+    <string name="cb_checking_existing">Checking Google Drive for an existing backup...</string>
+    <string name="cb_check_existing_failed">Unable to check Google Drive for an existing backup.</string>
+    <string name="cb_creating_backup">Creating Backup...</string>
+    <string name="cb_back_up_my_data">Back Up My Data</string>
+    <string name="cb_optional_info">Cloud backup is optional. Your data will remain on this device if backup is not enabled.</string>
+
 </resources>
