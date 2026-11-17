@@ -1,19 +1,29 @@
 package com.example.evoke.ui
 
+import android.Manifest
+import android.content.pm.PackageManager
 import android.os.Build
+import androidx.activity.compose.BackHandler
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.content.ContextCompat
 import com.example.evoke.ui.components.HeaderSection
 import androidx.compose.ui.draw.blur
 import androidx.compose.ui.tooling.preview.Preview
@@ -26,6 +36,13 @@ import com.example.evoke.ui.theme.AppTheme
 import com.example.evoke.ui.theme.GreenTheme
 import androidx.compose.ui.res.stringResource
 import com.example.evoke.R
+import com.example.evoke.ui.components.AppLanguageDirection
+import com.example.evoke.ui.components.isUrduSelected
+import com.example.evoke.voice.RecorderMode
+import com.example.evoke.voice.RecorderPhase
+import com.example.evoke.voice.RecorderUiState
+import com.example.evoke.voice.VoiceConfig
+import com.example.evoke.voice.VoiceSessionViewModel
 
 
 private fun Modifier.blurIfSupported(radius: Dp): Modifier {
@@ -53,97 +70,161 @@ private fun Modifier.blurIfSupported(radius: Dp): Modifier {
 private val supportsBlurAndGlow: Boolean
     get() = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
 
+/** Error text colour that stays readable on the dark card. */
+private val MessageErrorColor = Color(0xFFFFB4AB)
+
+private fun formatDuration(ms: Long): String {
+    val totalSeconds = ms / 1000
+    return "%d:%02d".format(totalSeconds / 60, totalSeconds % 60)
+}
+
+/**
+ * Recorder used for:
+ * - [RecorderMode.PATIENT_SAMPLE]  (Profile)        — 3 voice samples, script below the recorder
+ * - [RecorderMode.PARTNER_SAMPLE]  (Not recognised) — 3 voice samples, script below the recorder
+ * - [RecorderMode.CONVERSATION]    (Recognised / Not recognised) — no script, max 30 min
+ *
+ * The recorder card itself (size, position, animation, button) is the same in
+ * every mode; for voice samples the card extends downwards with the script,
+ * and the page scrolls.
+ *
+ * Stateless: the recording itself lives in VoiceSessionViewModel (see AppNavigation).
+ *
+ * Button by phase: READY "Start recording" → RECORDING "Done" (→ "Save recording?"
+ * popup) → STOPPED "Save" → PROCESSING spinner → DONE "Record sample n" /
+ * "Try again" / "Done".
+ */
 @Composable
 fun RecordScreen(
+    state: RecorderUiState = RecorderUiState(),
+    elapsedMs: Long = 0L,
     onBack: () -> Unit = {},
-    onDoneClick: () -> Unit = {}
+    onStartClick: () -> Unit = {},
+    onDoneClick: () -> Unit = {},
+    onSaveClick: () -> Unit = {},
+    onRetryClick: () -> Unit = {},
+    onNextSampleClick: () -> Unit = {},
+    onKeepAnywayClick: () -> Unit = {},
+    onFinishClick: () -> Unit = {}
 ) {
-    var isRecording by remember { mutableStateOf(true) }
     val appColors = AppTheme.colors
-    var Colory = Color.Unspecified
-    if (supportsBlurAndGlow) {
-        Colory= Color.White
-    } else {
-        Colory = Color.Black
+    val context = LocalContext.current
+    val iconShadowColor = if (supportsBlurAndGlow) Color.White else Color.Black
+
+    val showScript = state.mode != RecorderMode.CONVERSATION
+    val isRecording = state.phase == RecorderPhase.RECORDING
+    val maxMs = if (state.mode == RecorderMode.CONVERSATION)
+        VoiceConfig.MAX_CONVERSATION_RECORDING_MS
+    else
+        VoiceConfig.MAX_ENROLL_RECORDING_MS
+
+    // ── microphone permission ────────────────────────────────────────────────
+    var permissionDenied by remember { mutableStateOf(false) }
+    val permissionLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { granted ->
+        permissionDenied = !granted
+        if (granted) onStartClick()
     }
-        Scaffold(
+    val startWithPermission: () -> Unit = {
+        val granted = ContextCompat.checkSelfPermission(
+            context, Manifest.permission.RECORD_AUDIO
+        ) == PackageManager.PERMISSION_GRANTED
+        if (granted) {
+            permissionDenied = false
+            onStartClick()
+        } else {
+            permissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
+        }
+    }
+
+    // While a recording exists, system back asks "Don't save recording?" first.
+    BackHandler(enabled = isRecording || state.phase == RecorderPhase.STOPPED) { onBack() }
+
+    Scaffold(
         containerColor = Color.White,
         contentWindowInsets = WindowInsets(0, 0, 0, 0)  // insets already handled at root
     ) { innerPadding ->
-            BoxWithConstraints(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(innerPadding)
+        BoxWithConstraints(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding)
+        ) {
+
+            // ── same sizes as the original recorder card ──────────────────────
+            val cardWidth = maxWidth * 0.88f
+            val cardHeight = minOf(
+                cardWidth * 1.50f,
+                (maxHeight - 260.dp - 56.dp) * 0.95f
+            )
+            val voiceAnimationSize = cardWidth * 1.20f
+            val blobAnimationSize = cardWidth * 1.00f
+
+            // Calculate spacing
+            val headerHeight = 260.dp
+            val bottomPadding = 28.dp
+            val availableHeight = maxHeight - headerHeight - bottomPadding
+            val topPadding = (availableHeight - cardHeight) / 2f
+
+            Box(
+                modifier = Modifier.fillMaxSize()
             ) {
 
-                val cardWidth = maxWidth * 0.88f
-                val cardHeight = minOf(
-                    cardWidth * 1.50f,
-                    (maxHeight - 260.dp - 56.dp) * 0.95f
-                )
-                val voiceAnimationSize = cardWidth * 1.20f
-                val blobAnimationSize = cardWidth * 1.00f
-
-
-                // Calculate spacing
-                val headerHeight = 260.dp
-                val bottomPadding = 28.dp
-                val availableHeight = maxHeight - headerHeight - bottomPadding
-                val topPadding = (availableHeight - cardHeight) / 2f
-
-                Box(
-                    modifier = Modifier.fillMaxSize()
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        // voice samples: the card is taller than the screen (script below)
+                        .verticalScroll(rememberScrollState())
                 ) {
 
-                    Column(
-                        modifier = Modifier.fillMaxSize()
+                    // Header space
+                    Spacer(modifier = Modifier.height(headerHeight))
+
+                    // Top padding to center the recorder part of the card
+                    Spacer(modifier = Modifier.height(topPadding.coerceAtLeast(12.dp)))
+
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .offset(y = (-20).dp),
+                        contentAlignment = Alignment.TopCenter
                     ) {
-
-                        // Same idea as your LocationSearch screen
-                        // Header space
-                        Spacer(modifier = Modifier.height(headerHeight))
-
-                        // Top padding to center card
-                        Spacer(modifier = Modifier.height(topPadding.coerceAtLeast(12.dp)))
-
-                        Box(
+                        // ── Recording Card (extends down for the script) ───────
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
                             modifier = Modifier
-                                .fillMaxWidth()
-                                .offset(y = (-20).dp), // tweak this if needed
-                            contentAlignment = Alignment.TopCenter
+                                .width(cardWidth)
+                                .shadow(
+                                    elevation = 40.dp,
+                                    shape = RoundedCornerShape(62.dp),
+                                    ambientColor = Color.DarkGray.copy(alpha = 0.8f),
+                                    spotColor = Color.DarkGray.copy(alpha = 0.9f)
+                                )
+                                .background(
+                                    appColors.pagesText,
+                                    RoundedCornerShape(62.dp)
+                                )
                         ) {
-                            // ── Recording Card ─────────────────────────────────
+
+                            // ── Recorder part: exactly the original card ──────
                             Box(
                                 modifier = Modifier
-                                    .width(cardWidth)
-                                    .height(cardHeight)
-                                    .shadow(
-                                        elevation = 40.dp,
-                                        shape = RoundedCornerShape(62.dp),
-                                        ambientColor = Color.DarkGray.copy(alpha = 0.8f),
-                                        spotColor = Color.DarkGray.copy(alpha = 0.9f)
-                                    )
-                                    .background(
-                                        appColors.pagesText,
-                                        RoundedCornerShape(62.dp)
-                                    ),
+                                    .fillMaxWidth()
+                                    .height(cardHeight),
                                 contentAlignment = Alignment.Center
                             ) {
-
-                                // Column for animation + icon
                                 Column(
                                     horizontalAlignment = Alignment.CenterHorizontally,
                                     modifier = Modifier.fillMaxSize()
                                 ) {
-                                    // Animation + Icon
                                     Box(
                                         contentAlignment = Alignment.Center,
-                                        modifier = Modifier.fillMaxWidth(1f).fillMaxHeight(0.7f)
+                                        modifier = Modifier
+                                            .fillMaxWidth(1f)
+                                            .fillMaxHeight(0.7f)
                                     ) {
-                                        // API 31+ gets the blur/glow version (it's built to
-                                        // rely on real Modifier.blur); everything below that
-                                        // gets the no-blur liquid blob so it still looks
-                                        // intentional instead of flat.
+                                        // API 31+ gets the blur/glow version; older
+                                        // versions get the no-blur liquid blob.
                                         if (supportsBlurAndGlow) {
                                             VoiceRecorderAnimation(
                                                 modifier = Modifier.size(voiceAnimationSize),
@@ -160,73 +241,278 @@ fun RecordScreen(
                                             Icon(
                                                 painter = painterResource(id = R.drawable.recording_icon),
                                                 contentDescription = null, // decorative
-                                                tint = Colory.copy(alpha = 0.4f),
+                                                tint = iconShadowColor.copy(alpha = 0.4f),
                                                 modifier = Modifier
                                                     .size(50.dp)
                                                     .blurIfSupported(6.dp)
                                             )
-
                                             // Actual microphone icon
                                             Icon(
                                                 painter = painterResource(id = R.drawable.recording_icon),
                                                 contentDescription = stringResource(R.string.recording),
-                                                tint = appColors.popupText,   // Use the themed color from main
-                                                modifier = Modifier
-                                                    .size(50.dp)
+                                                tint = appColors.popupText,
+                                                modifier = Modifier.size(50.dp)
                                             )
                                         }
-
                                     }
                                 }
 
-                                // Done button
-                                Box(
+                                // Status + button, at the original button position
+                                Column(
+                                    horizontalAlignment = Alignment.CenterHorizontally,
                                     modifier = Modifier
-                                        .align(Alignment.BottomCenter)    // [BUTTON POSITION] bottom center
+                                        .align(Alignment.BottomCenter)
                                         .padding(bottom = cardHeight * 0.10f)
                                 ) {
+                                    StatusText(
+                                        state = state,
+                                        elapsedMs = elapsedMs,
+                                        maxMs = maxMs,
+                                        permissionDenied = permissionDenied,
+                                        modifier = Modifier.width(cardWidth * 0.84f)
+                                    )
+
+                                    Spacer(modifier = Modifier.height(10.dp))
 
                                     ShadowButton(
                                         width = cardWidth * 0.70f,
-                                        height = 48.dp,              // [BUTTON HEIGHT] matches Recorder.svg (48dp)
-                                        color = appColors.popupText,  // [BUTTON COLOR] matches Recorder.svg (#FFC107)
-                                        cornerRadius = 24.dp,              // full pill — matches Recorder.svg rx=24
+                                        height = 48.dp,
+                                        color = appColors.popupText,
+                                        cornerRadius = 24.dp,
                                         shadowColor = Color.White,
-                                        onClick = { onDoneClick() }
+                                        onClick = {
+                                            when (state.phase) {
+                                                RecorderPhase.READY -> startWithPermission()
+                                                RecorderPhase.RECORDING -> onDoneClick()
+                                                RecorderPhase.STOPPED -> onSaveClick()
+                                                RecorderPhase.PROCESSING -> Unit
+                                                RecorderPhase.DONE -> when {
+                                                    state.canRetry -> onRetryClick()
+                                                    state.canRecordAnother -> onNextSampleClick()
+                                                    else -> onFinishClick()
+                                                }
+                                            }
+                                        }
                                     ) {
-                                        Text(
-                                            text = stringResource(R.string.done_button),
-                                            color = Color.White,
-                                            fontSize = 20.sp,
-                                            fontWeight = FontWeight.Bold,
-                                            fontFamily = OutfitFont
-                                        )
+                                        if (state.phase == RecorderPhase.PROCESSING) {
+                                            CircularProgressIndicator(
+                                                color = Color.White,
+                                                strokeWidth = 2.dp,
+                                                modifier = Modifier.size(22.dp)
+                                            )
+                                        } else {
+                                            Text(
+                                                text = buttonText(state),
+                                                color = Color.White,
+                                                fontSize = 20.sp,
+                                                fontWeight = FontWeight.Bold,
+                                                fontFamily = OutfitFont
+                                            )
+                                        }
+                                    }
+
+                                    // Visitor sample refused as "sounds like the patient":
+                                    // the caregiver can keep it if it is a different person.
+                                    if (state.phase == RecorderPhase.DONE && state.canKeepAnyway) {
+                                        TextButton(onClick = onKeepAnywayClick) {
+                                            Text(
+                                                text = stringResource(R.string.voice_keep_anyway),
+                                                color = appColors.popupText,
+                                                fontSize = 15.sp,
+                                                fontWeight = FontWeight.SemiBold,
+                                                fontFamily = OutfitFont,
+                                                textAlign = TextAlign.Center
+                                            )
+                                        }
                                     }
                                 }
                             }
-                        }
-                        // Bottom padding to center card
-                        Spacer(modifier = Modifier.height(topPadding.coerceAtLeast(12.dp)))
 
-                        // Minimum bottom padding
-                        Spacer(modifier = Modifier.height(bottomPadding))
+                            // ── Script part (voice samples only) ──────────────
+                            if (showScript) {
+                                ScriptSection(state = state)
+                            }
+                        }
                     }
 
-                    HeaderSection(
-                        title = stringResource(R.string.record),
-                        spacing = 68.dp,
-                        bottomspace = 40.dp,
-                        onBack = { onBack() }
-                    )
+                    // Bottom padding to center card
+                    Spacer(modifier = Modifier.height(topPadding.coerceAtLeast(12.dp)))
+
+                    // Minimum bottom padding
+                    Spacer(modifier = Modifier.height(bottomPadding))
                 }
+
+                HeaderSection(
+                    title = stringResource(R.string.record),
+                    spacing = 68.dp,
+                    bottomspace = 40.dp,
+                    onBack = { onBack() }
+                )
             }
         }
+    }
+}
+
+@Composable
+private fun buttonText(state: RecorderUiState): String = when (state.phase) {
+    RecorderPhase.READY -> stringResource(R.string.voice_start_recording)
+    RecorderPhase.RECORDING -> stringResource(R.string.done_button)
+    RecorderPhase.STOPPED -> stringResource(R.string.save_popup)
+    RecorderPhase.PROCESSING -> stringResource(R.string.voice_processing)
+    RecorderPhase.DONE -> when {
+        state.canRetry -> stringResource(R.string.voice_try_again)
+        state.canRecordAnother -> stringResource(R.string.voice_record_next, state.currentSample)
+        else -> stringResource(R.string.done_button)
+    }
+}
+
+/** Below the recorder: sample counter, instruction and the text to read aloud. */
+@Composable
+private fun ScriptSection(state: RecorderUiState) {
+    val isUrdu = isUrduSelected()
+
+    // Urdu: right-to-left, with the taller line height the Urdu font needs.
+    AppLanguageDirection {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(start = 26.dp, end = 26.dp, top = 4.dp, bottom = 46.dp)
+        ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(1.dp)
+                    .background(Color.White.copy(alpha = 0.25f))
+            )
+
+            Spacer(modifier = Modifier.height(18.dp))
+
+            // "Voice sample 2 of 3"
+            Text(
+                text = stringResource(
+                    R.string.voice_sample_progress,
+                    state.currentSample,
+                    VoiceSessionViewModel.SAMPLES_PER_SESSION
+                ),
+                color = AppTheme.colors.popupText,
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Bold,
+                fontFamily = OutfitFont,
+                textAlign = TextAlign.Start,
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Text(
+                text = stringResource(
+                    if (state.mode == RecorderMode.PATIENT_SAMPLE)
+                        R.string.voice_patient_instruction
+                    else
+                        R.string.voice_partner_instruction
+                ),
+                color = Color.White.copy(alpha = 0.85f),
+                fontSize = 17.sp,
+                lineHeight = if (isUrdu) 32.sp else 24.sp,
+                fontFamily = OutfitFont,
+                textAlign = TextAlign.Start,
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // The script itself
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(
+                        Color.White.copy(alpha = 0.12f),
+                        RoundedCornerShape(24.dp)
+                    )
+                    .padding(horizontal = 20.dp, vertical = 18.dp)
+            ) {
+                Text(
+                    text = stringResource(R.string.voice_sample_script),
+                    color = Color.White,
+                    fontSize = 22.sp,
+                    lineHeight = if (isUrdu) 44.sp else 34.sp,
+                    fontWeight = FontWeight.Medium,
+                    fontFamily = OutfitFont,
+                    textAlign = TextAlign.Start,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun StatusText(
+    state: RecorderUiState,
+    elapsedMs: Long,
+    maxMs: Long,
+    permissionDenied: Boolean,
+    modifier: Modifier = Modifier
+) {
+    val message = state.message
+    val text: String
+    var isError = false
+
+    when {
+        permissionDenied && state.phase == RecorderPhase.READY -> {
+            text = stringResource(R.string.voice_mic_permission)
+            isError = true
+        }
+        state.phase == RecorderPhase.READY ->
+            text = stringResource(
+                if (state.mode == RecorderMode.CONVERSATION)
+                    R.string.voice_conversation_instruction
+                else
+                    R.string.voice_press_start
+            )
+        state.phase == RecorderPhase.RECORDING ->
+            text = stringResource(
+                R.string.voice_recording_time,
+                formatDuration(elapsedMs),
+                formatDuration(maxMs)
+            )
+        state.phase == RecorderPhase.STOPPED ->
+            text = stringResource(R.string.voice_recording_stopped, formatDuration(elapsedMs))
+        state.phase == RecorderPhase.PROCESSING ->
+            text = stringResource(R.string.voice_processing)
+        message != null -> {
+            text = stringResource(message.res, *message.args.toTypedArray())
+            isError = message.isError
+        }
+        else -> text = ""
+    }
+
+    Text(
+        text = text,
+        color = if (isError) MessageErrorColor else Color.White,
+        fontSize = 15.sp,
+        lineHeight = 20.sp,
+        fontFamily = OutfitFont,
+        textAlign = TextAlign.Center,
+        modifier = modifier
+    )
 }
 
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
 fun RecorderPreview() {
     GreenTheme {
-        RecordScreen()
+        RecordScreen(state = RecorderUiState(mode = RecorderMode.PATIENT_SAMPLE))
+    }
+}
+
+@Preview(showBackground = true, showSystemUi = true)
+@Composable
+fun RecorderConversationPreview() {
+    GreenTheme {
+        RecordScreen(
+            state = RecorderUiState(mode = RecorderMode.CONVERSATION, phase = RecorderPhase.RECORDING),
+            elapsedMs = 42_000L
+        )
     }
 }

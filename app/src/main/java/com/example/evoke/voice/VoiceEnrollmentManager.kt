@@ -1,6 +1,7 @@
 package com.example.evoke.voice
 
 import android.content.Context
+import android.util.Log
 import com.example.evoke.database.AppDatabase
 import com.example.evoke.database.UserVoiceEmbedding
 import com.example.evoke.database.VoiceEmbedding
@@ -36,8 +37,15 @@ sealed class EnrollmentResult {
     /** The sample doesn't sound like this speaker's earlier samples. */
     data class DoesNotMatchExisting(val similarity: Float) : EnrollmentResult()
 
-    /** A "partner" sample that sounds like the patient. */
-    data class SoundsLikePatient(val similarity: Float) : EnrollmentResult()
+    /**
+     * A "partner" sample that sounds like the patient. [voiceprint] is the
+     * sample's voiceprint, so it can still be kept when the caregiver confirms
+     * it is a different person.
+     */
+    data class SoundsLikePatient(
+        val similarity: Float,
+        val voiceprint: VoiceprintResult.Ready? = null
+    ) : EnrollmentResult()
 
     data class Failed(val message: String) : EnrollmentResult()
 }
@@ -220,12 +228,12 @@ class VoiceEnrollmentManager(
 
                 if (!force) {
                     // Guard: is this actually the patient speaking?
-                    val patientSimilarity = similarityTo(print.embedding, loadPatientEmbeddings(db))
-                    if (patientSimilarity != null &&
-                        patientSimilarity >= VoiceConfig.PARTNER_PATIENT_CONFLICT_THRESHOLD
-                    ) {
+                    val check = checkAgainstPatient(print.embedding)
+                    if (check != null && check.isPatient) {
                         return@withContext VoiceprintResult.Rejected(
-                            EnrollmentResult.SoundsLikePatient(patientSimilarity)
+                            // The voiceprint is included so the caller can keep it
+                            // anyway when the caregiver knows it is a different person.
+                            EnrollmentResult.SoundsLikePatient(check.score, voiceprint = print)
                         )
                     }
 
@@ -245,6 +253,81 @@ class VoiceEnrollmentManager(
                 VoiceprintResult.Rejected(EnrollmentResult.Failed(e.message ?: e.javaClass.simpleName))
             }
         }
+
+    /**
+     * Saves a partner voiceprint that was refused as SoundsLikePatient, after the
+     * caregiver confirmed it is a different person ("Keep this sample").
+     */
+    suspend fun savePartnerVoiceprint(personId: Long, print: VoiceprintResult.Ready): EnrollmentResult =
+        withContext(Dispatchers.Default) {
+            try {
+                val idsBefore = personRepository.getVoiceEmbeddingsForPerson(personId)
+                    .map { it.voiceEmbeddingId }.toSet()
+                val id = personRepository.addVoiceEmbedding(print.toVoiceEmbedding(personId))
+                EnrollmentResult.Saved(
+                    speechSeconds = print.speechSeconds,
+                    quality = print.quality,
+                    similarityToExisting = null,
+                    stored = id !in idsBefore,
+                    totalSamplesForSpeaker = loadPartnerEmbeddings(db, personId).size
+                )
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                EnrollmentResult.Failed(e.message ?: e.javaClass.simpleName)
+            }
+        }
+
+    // ── patient-vs-visitor check ─────────────────────────────────────────────
+
+    private class PatientCheck(val score: Float, val patientSelfScore: Float?, val isPatient: Boolean)
+
+    /**
+     * Does a visitor sample sound like the patient?
+     *
+     * Compares with the patient's AVERAGE voiceprint (not the single closest
+     * sample, which one unusually close recording can push up), and calibrates
+     * against how alike the patient's own samples are: a different person
+     * should not score about as high as the patient's own samples score against
+     * each other. Same phone, same room and the same script push scores of two
+     * different people up, so a fixed cut-off alone refused real visitors.
+     *
+     * isPatient = score >= PARTNER_PATIENT_CONFLICT_THRESHOLD
+     *             and score >= patientSelfScore - PATIENT_SELF_MARGIN
+     *             (patientSelfScore needs 2+ patient samples)
+     *
+     * Scores are logged (tag "VoiceEnrollment") so the values can be tuned.
+     */
+    private suspend fun checkAgainstPatient(embedding: FloatArray): PatientCheck? {
+        val patient = loadPatientEmbeddings(db)
+        if (patient.isEmpty()) return null
+
+        val score = EmbeddingMath.cosine(embedding, EmbeddingMath.centroid(patient))
+
+        // Leave-one-out: each patient sample against the average of the others.
+        val selfScore = if (patient.size >= 2) {
+            patient.indices.map { i ->
+                val others = patient.filterIndexed { j, _ -> j != i }
+                EmbeddingMath.cosine(patient[i], EmbeddingMath.centroid(others))
+            }.average().toFloat()
+        } else {
+            null
+        }
+
+        val isPatient = score >= VoiceConfig.PARTNER_PATIENT_CONFLICT_THRESHOLD &&
+            (selfScore == null || score >= selfScore - VoiceConfig.PATIENT_SELF_MARGIN)
+
+        Log.d(
+            TAG,
+            "Visitor vs patient: score=%.3f, patient self-similarity=%s, samples=%d -> %s".format(
+                score,
+                selfScore?.let { "%.3f".format(it) } ?: "n/a",
+                patient.size,
+                if (isPatient) "SOUNDS LIKE PATIENT" else "different person"
+            )
+        )
+        return PatientCheck(score, selfScore, isPatient)
+    }
 
     // ── shared extraction ──────────────────────────────────────────────────────
 
@@ -289,6 +372,8 @@ class VoiceEnrollmentManager(
     }
 
     companion object {
+        private const val TAG = "VoiceEnrollment"
+
         /** Patient voiceprints made with the current model. */
         suspend fun loadPatientEmbeddings(db: AppDatabase): List<FloatArray> =
             db.userVoiceEmbeddingDao().getAllEmbeddings()

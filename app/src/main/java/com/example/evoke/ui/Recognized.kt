@@ -60,6 +60,7 @@ fun RecognisedContent(
     onBack: () -> Unit = {},
     onSave: () -> Unit = {},
     onVoiceSampleClick: () -> Unit = {},
+    onRecordConversationClick: () -> Unit = {},
     onViewmore: () -> Unit = {}
 ) {
 
@@ -1100,8 +1101,8 @@ fun RecognisedContent(
 
 
                         RecordConversationField(
-                            value =
-                                selectedAddress,
+                            // Was selectedAddress (the location text) by mistake.
+                            value = "",
 
                             placeholder =
                                 stringResource(
@@ -1109,7 +1110,7 @@ fun RecognisedContent(
                                 ),
 
                             onClick = {
-                                onVoiceSampleClick()
+                                onRecordConversationClick()
                             }
                         )
                     }

@@ -1,5 +1,6 @@
 package com.example.evoke.ui
 
+import com.example.evoke.ui.components.AppLanguageDirection
 import com.example.evoke.R
 import android.app.Activity
 import android.content.Context
@@ -226,6 +227,8 @@ fun CloudBackupScreen(
         }
 
     //Confirmation daiglog
+    // [URDU] dialogs mirror right-to-left in Urdu
+    AppLanguageDirection {
     if (showReplaceBackupConfirmation) {
 
         AlertDialog(
@@ -884,6 +887,7 @@ fun CloudBackupScreen(
         )
     }
 
+    } // AppLanguageDirection (dialogs)
     Scaffold(
         containerColor = colors.background
     ) { innerPadding ->
@@ -898,6 +902,8 @@ fun CloudBackupScreen(
             // SCROLLABLE CONTENT
             // =============================================================
 
+            // [URDU] content mirrors right-to-left; the header below stays as it is
+            AppLanguageDirection {
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -1558,6 +1564,7 @@ fun CloudBackupScreen(
                     )
                 }
             }
+            } // AppLanguageDirection (content)
 
             // =============================================================
             // HEADER

@@ -70,6 +70,14 @@ import com.example.evoke.mobilefacenet.FaceConfig
 import com.example.evoke.mobilefacenet.FaceMatcher
 import com.example.evoke.mobilefacenet.FaceRecognitionViewModel
 import com.example.evoke.mobilefacenet.logFullEmbedding
+import com.example.evoke.voice.RecorderMode
+import com.example.evoke.voice.RecorderPhase
+import com.example.evoke.voice.VoiceSessionViewModel
+import com.example.evoke.registration.RegisterPersonViewModel
+import com.example.evoke.location.LocationHelper
+import android.Manifest
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 
 @SuppressLint("SuspiciousIndentation")
 @Composable
@@ -80,6 +88,10 @@ fun AppNavigation(
 ) {
     val navController = rememberNavController()
     val faceVm: FaceRecognitionViewModel = viewModel()
+    // [VOICE] recorder screen state + voice pipeline (patient / visitor samples, conversations)
+    val voiceVm: VoiceSessionViewModel = viewModel()
+    // [REGISTER] Not-recognised screen: saves the new person (face, voice, location, conversation)
+    val registerVm: RegisterPersonViewModel = viewModel()
     val currentRoute by navController.currentBackStackEntryAsState()
     val currentDestination = currentRoute?.destination?.route
 
@@ -160,14 +172,81 @@ fun AppNavigation(
             }
 
             composable("notrecognised") {
+                val context = LocalContext.current
+                val registerState by registerVm.state.collectAsState()
+                val pendingPerson by voiceVm.pendingInfo.collectAsState()
+
+                // [REGISTER] messages (missing name, need location or conversation, saved failed...)
+                LaunchedEffect(registerState.messageRes) {
+                    val res = registerState.messageRes ?: return@LaunchedEffect
+                    val arg = registerState.messageArg
+                    val text = if (arg != null) context.getString(res, arg) else context.getString(res)
+                    Toast.makeText(context, text, Toast.LENGTH_LONG).show()
+                    registerVm.messageShown()
+                }
+
+                // [REGISTER] location field -> current location (asks for permission first)
+                val locationPermission = rememberLauncherForActivityResult(
+                    ActivityResultContracts.RequestMultiplePermissions()
+                ) { results ->
+                    if (results.values.any { it }) {
+                        registerVm.fetchCurrentLocation()
+                    } else {
+                        Toast.makeText(
+                            context,
+                            context.getString(R.string.addloc_permission_needed),
+                            Toast.LENGTH_LONG
+                        ).show()
+                    }
+                }
+
                 NotRecognisedContent(
                     imageBitmap = faceVm.profileBitmap,
                     onBack = {
                         faceVm.clear()
+                        voiceVm.clearPendingPerson()
+                        registerVm.reset()
                         navController.popBackStack()
                     },
-                    onVoiceSampleClick = { navController.navigate("recorder") },
-                    onSave = {navController.openPopup("save_success_popup") }
+                    locationText = registerState.locationText,
+                    onLocationClick = {
+                        if (LocationHelper.hasLocationPermission(context)) {
+                            registerVm.fetchCurrentLocation()
+                        } else {
+                            locationPermission.launch(
+                                arrayOf(
+                                    Manifest.permission.ACCESS_FINE_LOCATION,
+                                    Manifest.permission.ACCESS_COARSE_LOCATION
+                                )
+                            )
+                        }
+                    },
+                    voiceSamplesRecorded = pendingPerson.voiceSamples,
+                    conversationRecorded = pendingPerson.hasConversation,
+                    isSaving = registerState.isSaving,
+                    // [VOICE] visitor's voice sample (script shown); kept until the visitor is saved
+                    onVoiceSampleClick = {
+                        voiceVm.prepare(RecorderMode.PARTNER_SAMPLE)
+                        navController.navigate("recorder")
+                    },
+                    // [VOICE] patient + visitor conversation (no script)
+                    onRecordConversationClick = {
+                        voiceVm.prepare(RecorderMode.CONVERSATION)
+                        navController.navigate("recorder")
+                    },
+                    // [REGISTER] new person -> persons, face_embeddings, voice_embeddings,
+                    // recognition (+ location / queued conversation); face added to the face store
+                    onSave = { name, relation ->
+                        registerVm.register(
+                            name = name,
+                            relation = relation,
+                            face = faceVm.lastResult,
+                            faceStore = faceVm.store,
+                            voiceSession = voiceVm
+                        ) {
+                            navController.openPopup("save_success_popup")
+                        }
+                    }
                 )
             }
 
@@ -197,7 +276,11 @@ fun AppNavigation(
                                 navController.openPopup("edit_success_popup")
                             }
                         },
-                        onVoiceSampleClick = { navController.navigate("recorder") },
+                        // [VOICE] patient's voice sample (script shown)
+                        onVoiceSampleClick = {
+                            voiceVm.prepare(RecorderMode.PATIENT_SAMPLE)
+                            navController.navigate("recorder")
+                        },
                         onBack = { navController.popBackStack() },
                     )
                 }
@@ -312,8 +395,8 @@ fun AppNavigation(
                     navController = navController,
                     onDismiss = { navController.popBackStack() },
                     onButtonClick = {
-                        navController.popBackStack()
-                        navController.popBackStack()
+                        navController.popBackStack()      // close the popup only
+                        voiceVm.saveRecording()           // recorder shows progress + result
                     }
                 )
             }
@@ -325,6 +408,7 @@ fun AppNavigation(
                     navController = navController,
                     onDismiss = { navController.popBackStack() },
                     onButtonClick = {
+                        voiceVm.discardRecording()
                         navController.popBackStack()
                         navController.popBackStack()
                     }
@@ -402,7 +486,11 @@ fun AppNavigation(
                         }
                     },
                     onBack = { navController.popBackStack() },        // ← pops back to splash, triggers slide-down
-                    onVoiceSampleClick = { navController.navigate("recorder") }
+                    // [VOICE] patient's voice sample (script shown)
+                    onVoiceSampleClick = {
+                        voiceVm.prepare(RecorderMode.PATIENT_SAMPLE)
+                        navController.navigate("recorder")
+                    }
                 )
             }
             composable("recognised") {
@@ -415,7 +503,15 @@ fun AppNavigation(
                     onViewmore = {
                         navController.navigate("viewmore")
                     },
-                    onVoiceSampleClick = { navController.navigate("recorder")
+                    // [VOICE] patient + recognised person conversation (no script).
+                    // The match id is a Room personId only once faces are enrolled
+                    // with it; otherwise the recorder explains that no voice sample exists.
+                    onRecordConversationClick = {
+                        voiceVm.prepare(
+                            RecorderMode.CONVERSATION,
+                            personId = faceVm.matchResult?.personId?.toLongOrNull()
+                        )
+                        navController.navigate("recorder")
                     },
                     onSave = {navController.openPopup("save_success_popup") }
 
@@ -434,6 +530,8 @@ fun AppNavigation(
                         imageUri = capturedImageUri,
                         onBack = { capturedImageUri = null },
                         onProcessingComplete = { result ->
+                            voiceVm.clearPendingPerson()
+                            registerVm.reset()
                             faceVm.lastResult = result
                             logFullEmbedding(result)
 
@@ -567,13 +665,35 @@ fun AppNavigation(
             }
 
             composable("recorder") {
+                val recorderState by voiceVm.state.collectAsState()
+                val elapsedMs by voiceVm.recorder.elapsedMs.collectAsState()
+
                 RecordScreen(
-                    onBack      = {
-                        navController.openPopup("record_back_popup")
+                    state = recorderState,
+                    elapsedMs = elapsedMs,
+                    onBack = {
+                        when (recorderState.phase) {
+                            // a recording exists: ask "Don't save recording?" first
+                            RecorderPhase.RECORDING, RecorderPhase.STOPPED ->
+                                navController.openPopup("record_back_popup")
+                            // processing keeps running in the ViewModel
+                            RecorderPhase.PROCESSING -> navController.popBackStack()
+                            else -> {
+                                voiceVm.discardRecording()
+                                navController.popBackStack()
+                            }
+                        }
                     },
+                    onStartClick = { voiceVm.startRecording() },
                     onDoneClick = {
+                        voiceVm.stopRecording()
                         navController.openPopup("confirmationpopup")
-                    }
+                    },
+                    onSaveClick = { voiceVm.saveRecording() },
+                    onRetryClick = { voiceVm.retry() },
+                    onNextSampleClick = { voiceVm.nextSample() },
+                    onKeepAnywayClick = { voiceVm.keepSampleAnyway() },
+                    onFinishClick = { navController.popBackStack() }
                 )
             }
         }

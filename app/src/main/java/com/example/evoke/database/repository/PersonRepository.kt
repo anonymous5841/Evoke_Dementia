@@ -55,8 +55,18 @@ class PersonRepository(
         longitude: Double? = null,
         audioPath: String? = null,
         voiceEmbedding: VoiceEmbedding? = null,
-        profileImageProvider: ((personId: Long) -> String)? = null
+        profileImageProvider: ((personId: Long) -> String)? = null,
+        // Up to 2 more voice samples recorded at registration (3 in total), saved in
+        // the same transaction. Requires [voiceEmbedding].
+        additionalVoiceEmbeddings: List<VoiceEmbedding> = emptyList()
     ): Long {
+
+        require(additionalVoiceEmbeddings.isEmpty() || voiceEmbedding != null) {
+            "additionalVoiceEmbeddings needs a first voiceEmbedding."
+        }
+        require(additionalVoiceEmbeddings.size <= 2) {
+            "A maximum of 3 voice embeddings are allowed."
+        }
 
         var savedImagePath: String? = null
 
@@ -98,6 +108,14 @@ class PersonRepository(
                 if (voiceEmbedding != null) {
                     voiceEmbeddingDao.insert(
                         voiceEmbedding.copy(
+                            personId = personId
+                        )
+                    )
+                }
+
+                additionalVoiceEmbeddings.forEach { extra ->
+                    voiceEmbeddingDao.insert(
+                        extra.copy(
                             personId = personId
                         )
                     )

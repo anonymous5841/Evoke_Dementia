@@ -347,4 +347,41 @@
     <string name="cb_back_up_my_data">Back Up My Data</string>
     <string name="cb_optional_info">Cloud backup is optional. Your data will remain on this device if backup is not enabled.</string>
 
+    <!-- [VOICE RECORDER] voice samples + conversation recording -->
+    <string name="voice_sample_script">Today is a good day. I am sitting with my family and we are talking about our plans for the week. In the morning I like to drink tea and read the newspaper. In the evening we go for a short walk in the park near our home.</string>
+    <string name="voice_patient_instruction">Only you should speak. In a quiet place, read the text below aloud for about 15 seconds.</string>
+    <string name="voice_partner_instruction">Only the visitor should speak. In a quiet place, they should read the text below aloud for about 15 seconds.</string>
+    <string name="voice_conversation_instruction">Press Start and talk normally. Only your voice and your visitor\'s voice will be kept.</string>
+    <string name="voice_press_start">Press Start, then read the text aloud.</string>
+    <string name="voice_start_recording">Start recording</string>
+    <string name="voice_try_again">Try again</string>
+    <string name="voice_processing">Processing…</string>
+    <string name="voice_recording_time">Recording… %1$s / %2$s</string>
+    <string name="voice_recording_stopped">Recording stopped (%1$s).</string>
+    <string name="voice_mic_permission">Microphone permission is needed to record.</string>
+    <string name="voice_patient_sample_saved">Your voice sample is saved (%1$d of 3).</string>
+    <string name="voice_partner_sample_saved">The visitor\'s voice sample is saved (%1$d of 3).</string>
+    <string name="voice_too_little_speech">Not enough speech was heard. Please speak for at least %1$d seconds.</string>
+    <string name="voice_does_not_match">This doesn\'t sound like the earlier voice samples. Please make sure the same person is speaking.</string>
+    <string name="voice_sounds_like_patient">This sounds very similar to the patient\'s voice. Record again with only the visitor speaking, or keep this sample if it is a different person.</string>
+    <string name="voice_keep_anyway">It\'s a different person - keep this sample</string>
+    <string name="voice_failed">Something went wrong: %1$s</string>
+    <string name="voice_recording_failed">Recording failed: %1$s</string>
+    <string name="conversation_saved">Conversation saved. It will be transcribed and summarised.</string>
+    <string name="conversation_filtered_pending">Conversation recorded. It will be saved with this person\'s record.</string>
+    <string name="conversation_nothing_kept">Neither your voice nor the visitor\'s voice was recognised in this recording.</string>
+    <string name="conversation_queue_full">5 conversations are already waiting to be processed. Please try again later.</string>
+    <string name="conversation_no_patient_voice">Please record your own voice sample in Profile first.</string>
+    <string name="conversation_no_partner_voice">Please record this person\'s voice sample first.</string>
+    <string name="voice_sample_progress">Voice sample %1$d of %2$d</string>
+    <string name="voice_record_next">Record sample %1$d</string>
+    <string name="voice_all_samples_done">All 3 voice samples are recorded.</string>
+    <string name="voice_partner_sample_collected">Voice sample %1$d of 3 is ready. It will be saved when you save this person.</string>
+    <string name="voice_samples_count">%1$d / %2$d</string>
+    <string name="conversation_recorded_label">Conversation recorded</string>
+    <string name="register_name_relation_required">Please enter the person\'s name and relation.</string>
+    <string name="register_no_face">No face photo found. Please take the photo again.</string>
+    <string name="register_need_location_or_conversation">Please add the location or record a conversation before saving.</string>
+    <string name="register_failed">Could not save this person: %1$s</string>
+
 </resources>

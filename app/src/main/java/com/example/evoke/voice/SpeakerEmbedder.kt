@@ -88,4 +88,16 @@ object EmbeddingMath {
     /** Best (highest) similarity of [embedding] against a speaker's stored samples. */
     fun bestScore(embedding: FloatArray, references: List<FloatArray>): Float =
         references.maxOfOrNull { cosine(embedding, it) } ?: -1f
+
+    /** L2-normalised average of a speaker's samples (their "average voice"). */
+    fun centroid(embeddings: List<FloatArray>): FloatArray {
+        require(embeddings.isNotEmpty()) { "No embeddings to average" }
+        val size = embeddings.first().size
+        val sum = FloatArray(size)
+        for (e in embeddings) {
+            require(e.size == size) { "Embedding sizes differ: ${e.size} vs $size" }
+            for (i in 0 until size) sum[i] += e[i]
+        }
+        return l2Normalize(sum)
+    }
 }

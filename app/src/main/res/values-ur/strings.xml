@@ -348,4 +348,42 @@
     <string name="cb_back_up_my_data">میرے ڈیٹا کا بیک اپ لیں</string>
     <string name="cb_optional_info">کلاؤڈ بیک اپ اختیاری ہے۔ اگر بیک اپ فعال نہ کیا جائے تو آپ کا ڈیٹا اسی ڈیوائس پر محفوظ رہے گا۔</string>
 
+    <!-- [VOICE RECORDER] voice samples + conversation recording -->
+    <!-- script from the backend; other Urdu lines are new translations: please review -->
+    <string name="voice_sample_script">آج کا دن اچھا ہے۔ میں اپنے گھر والوں کے ساتھ بیٹھا ہوں اور ہم اس ہفتے کے منصوبوں کے بارے میں بات کر رہے ہیں۔ صبح مجھے چائے پینا اور اخبار پڑھنا پسند ہے۔ شام کو ہم گھر کے قریب پارک میں تھوڑی سیر کرتے ہیں۔</string>
+    <string name="voice_patient_instruction">صرف آپ بولیں۔ کسی پرسکون جگہ پر نیچے دیا گیا متن تقریباً 15 سیکنڈ تک بلند آواز سے پڑھیں۔</string>
+    <string name="voice_partner_instruction">صرف ملاقاتی بولیں۔ کسی پرسکون جگہ پر وہ نیچے دیا گیا متن تقریباً 15 سیکنڈ تک بلند آواز سے پڑھیں۔</string>
+    <string name="voice_conversation_instruction">شروع کریں دبائیں اور معمول کے مطابق بات کریں۔ صرف آپ کی اور آپ کے ملاقاتی کی آواز محفوظ کی جائے گی۔</string>
+    <string name="voice_press_start">شروع کریں دبائیں، پھر متن بلند آواز سے پڑھیں۔</string>
+    <string name="voice_start_recording">ریکارڈنگ شروع کریں</string>
+    <string name="voice_try_again">دوبارہ کوشش کریں</string>
+    <string name="voice_processing">پراسیس ہو رہا ہے…</string>
+    <string name="voice_recording_time">ریکارڈنگ جاری ہے… %1$s / %2$s</string>
+    <string name="voice_recording_stopped">ریکارڈنگ رک گئی (%1$s)۔</string>
+    <string name="voice_mic_permission">ریکارڈنگ کے لیے مائیکروفون کی اجازت ضروری ہے۔</string>
+    <string name="voice_patient_sample_saved">آپ کی آواز کا نمونہ محفوظ ہو گیا (3 میں سے %1$d)۔</string>
+    <string name="voice_partner_sample_saved">ملاقاتی کی آواز کا نمونہ محفوظ ہو گیا (3 میں سے %1$d)۔</string>
+    <string name="voice_too_little_speech">کافی آواز سنائی نہیں دی۔ براہ کرم کم از کم %1$d سیکنڈ تک بولیں۔</string>
+    <string name="voice_does_not_match">یہ آواز پچھلے نمونوں سے مطابقت نہیں رکھتی۔ براہ کرم یقینی بنائیں کہ وہی شخص بول رہا ہے۔</string>
+    <string name="voice_sounds_like_patient">یہ آواز مریض کی آواز سے بہت ملتی جلتی ہے۔ دوبارہ ریکارڈ کریں اور صرف ملاقاتی بولیں، یا اگر یہ کوئی دوسرا شخص ہے تو یہ نمونہ رکھ لیں۔</string>
+    <string name="voice_keep_anyway">یہ کوئی دوسرا شخص ہے - نمونہ رکھ لیں</string>
+    <string name="voice_failed">کچھ غلط ہو گیا: %1$s</string>
+    <string name="voice_recording_failed">ریکارڈنگ ناکام ہو گئی: %1$s</string>
+    <string name="conversation_saved">گفتگو محفوظ ہو گئی۔ اس کا متن اور خلاصہ تیار کیا جائے گا۔</string>
+    <string name="conversation_filtered_pending">گفتگو ریکارڈ ہو گئی۔ یہ اس شخص کے ریکارڈ کے ساتھ محفوظ ہوگی۔</string>
+    <string name="conversation_nothing_kept">اس ریکارڈنگ میں نہ آپ کی آواز اور نہ ہی ملاقاتی کی آواز پہچانی گئی۔</string>
+    <string name="conversation_queue_full">پہلے ہی 5 گفتگوئیں پراسیس ہونے کی منتظر ہیں۔ براہ کرم بعد میں کوشش کریں۔</string>
+    <string name="conversation_no_patient_voice">براہ کرم پہلے پروفائل میں اپنی آواز کا نمونہ ریکارڈ کریں۔</string>
+    <string name="conversation_no_partner_voice">براہ کرم پہلے اس شخص کی آواز کا نمونہ ریکارڈ کریں۔</string>
+    <string name="voice_sample_progress">آواز کا نمونہ %1$d از %2$d</string>
+    <string name="voice_record_next">نمونہ %1$d ریکارڈ کریں</string>
+    <string name="voice_all_samples_done">آواز کے تینوں نمونے ریکارڈ ہو گئے۔</string>
+    <string name="voice_partner_sample_collected">آواز کا نمونہ %1$d از 3 تیار ہے۔ یہ اس شخص کو محفوظ کرنے پر محفوظ ہوگا۔</string>
+    <string name="voice_samples_count">%1$d / %2$d</string>
+    <string name="conversation_recorded_label">گفتگو ریکارڈ ہو گئی</string>
+    <string name="register_name_relation_required">براہ کرم اس شخص کا نام اور رشتہ درج کریں۔</string>
+    <string name="register_no_face">چہرے کی تصویر نہیں ملی۔ براہ کرم دوبارہ تصویر لیں۔</string>
+    <string name="register_need_location_or_conversation">محفوظ کرنے سے پہلے براہ کرم مقام شامل کریں یا گفتگو ریکارڈ کریں۔</string>
+    <string name="register_failed">اس شخص کو محفوظ نہیں کیا جا سکا: %1$s</string>
+
 </resources>

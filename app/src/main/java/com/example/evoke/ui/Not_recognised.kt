@@ -57,14 +57,22 @@ class NotRecognisedScreen : ComponentActivity() {
 fun NotRecognisedContent(
     imageBitmap: ImageBitmap? = null,  // ← passed from previous screen or DB
 //    onSubmit: (name: String, relation: String, address: String) -> Unit = { _, _, _ -> },
-    onVoiceSampleClick: () -> Unit = {},   // ← add this
-    onSave: () -> Unit = {},
+    onVoiceSampleClick: () -> Unit = {},   // mic button: visitor's voice sample
+    onRecordConversationClick: () -> Unit = {},   // "Record conversation" field
+    // [REGISTER] location taken with the location field (place name / coordinates)
+    locationText: String = "",
+    onLocationClick: () -> Unit = {},
+    // [REGISTER] how many of the 3 voice samples are recorded, and whether a conversation is
+    voiceSamplesRecorded: Int = 0,
+    conversationRecorded: Boolean = false,
+    isSaving: Boolean = false,
+    // [REGISTER] saves the person (name, relation) with face, voice, location, conversation
+    onSave: (name: String, relation: String) -> Unit = { _, _ -> },
     onBack: () -> Unit = {}
 ) {
     val appColors = AppTheme.colors
     var nameText by remember { mutableStateOf("") }
     var relationText by remember { mutableStateOf("") }
-    var selectedAddress by remember { mutableStateOf("") }
 
     Scaffold(
         containerColor = appColors.background,
@@ -196,9 +204,9 @@ fun NotRecognisedContent(
                             )
                             Spacer(modifier = Modifier.height(12.dp))
                             LocationPickerField(
-                                value = selectedAddress,
+                                value = locationText,
                                 placeholder = stringResource(R.string.get_current_location),
-                                onClick = { /* open map */ }
+                                onClick = { onLocationClick() }
                             )
                         }
 
@@ -229,6 +237,15 @@ fun NotRecognisedContent(
                                     contentDescription = stringResource(R.string.record_voice),
                                     tint = appColors.pagesText,
                                     modifier = Modifier.size(32.dp)
+                                )
+                            }
+                            if (voiceSamplesRecorded > 0) {
+                                Spacer(modifier = Modifier.height(4.dp))
+                                Text(
+                                    text = stringResource(R.string.voice_samples_count, voiceSamplesRecorded, 3),
+                                    color = appColors.pagesText,
+                                    fontSize = 13.sp,
+                                    fontFamily = OutfitFont
                                 )
                             }
                         }
@@ -269,9 +286,13 @@ fun NotRecognisedContent(
                         Spacer(modifier = Modifier.height(12.dp))
 
                         RecordConversationField(
-                            value = selectedAddress,
+                            // Was selectedAddress (the location text) by mistake.
+                            value = if (conversationRecorded)
+                                stringResource(R.string.conversation_recorded_label)
+                            else
+                                "",
                             placeholder = stringResource(R.string.click_to_record),
-                            onClick = { onVoiceSampleClick() }
+                            onClick = { onRecordConversationClick() }
                         )
                     }
 
@@ -282,17 +303,24 @@ fun NotRecognisedContent(
                         color = appColors.popupText,
                         cornerRadius = 28.dp,
                         onClick = {
-//                            onSubmit(nameText, relationText, selectedAddress)
-                            onSave()
+                            if (!isSaving) onSave(nameText, relationText)
                         }
                     ) {
-                        Text(
-                            text = stringResource(R.string.save),
-                            color = appColors.pagesText,
-                            fontSize = 22.sp,
-                            fontWeight = FontWeight.Medium,
-                            fontFamily = OutfitFont
-                        )
+                        if (isSaving) {
+                            CircularProgressIndicator(
+                                color = appColors.pagesText,
+                                strokeWidth = 2.dp,
+                                modifier = Modifier.size(24.dp)
+                            )
+                        } else {
+                            Text(
+                                text = stringResource(R.string.save),
+                                color = appColors.pagesText,
+                                fontSize = 22.sp,
+                                fontWeight = FontWeight.Medium,
+                                fontFamily = OutfitFont
+                            )
+                        }
                     }
 
                     Spacer(modifier = Modifier.height(64.dp))

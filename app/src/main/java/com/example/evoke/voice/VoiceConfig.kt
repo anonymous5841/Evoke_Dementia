@@ -97,9 +97,16 @@ object VoiceConfig {
      *  samples at least this much (catches the wrong person speaking). */
     const val ENROLL_CONSISTENCY_THRESHOLD = 0.40f
 
-    /** If a partner sample matches the patient this much, it is probably the
-     *  patient speaking, so enrollment is refused unless forced. */
+    /** A partner sample can only count as "the patient speaking" when it scores
+     *  at least this against the patient's average voiceprint (see
+     *  VoiceEnrollmentManager.checkAgainstPatient). */
     const val PARTNER_PATIENT_CONFLICT_THRESHOLD = 0.60f
+
+    /** ...and when it scores within this margin of how alike the patient's own
+     *  samples are. A different person (even on the same phone, in the same
+     *  room, reading the same script) stays below that level. The caregiver can
+     *  still keep a refused sample ("Keep this sample"). */
+    const val PATIENT_SELF_MARGIN = 0.05f
 
     // ── Recording limits ──────────────────────────────────────────────────────
     const val MAX_ENROLL_RECORDING_MS = 60_000L          // 1 minute
