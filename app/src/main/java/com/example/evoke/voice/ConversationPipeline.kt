@@ -5,6 +5,7 @@ import android.util.Log
 import com.example.evoke.database.AppDatabase
 import com.example.evoke.database.repository.RecognitionRepository
 import com.example.evoke.storage.AudioStorage
+import com.example.evoke.transcription.ConversationSummaryState
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ensureActive
@@ -168,6 +169,11 @@ class ConversationPipeline(
             val audioPath = withContext(Dispatchers.IO) {
                 audioStorage.saveFilteredAudio(filteredFile)
             }
+
+            // [GROQ TRANSCRIPTION + SUMMARY] filtered audio -> English transcript -> English summary
+            // (runs in the background; results in ConversationSummaryState, read by AppNavigation)
+            ConversationSummaryState.startFromFilteredAudio(appContext, audioPath, filter.segments)
+
             ConversationResult.Filtered(audioPath, filter)
 
         } catch (e: CancellationException) {

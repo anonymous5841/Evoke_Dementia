@@ -29,6 +29,10 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
         buildConfigField("String", "W8jnNFpds9I1z1xkRCdn", "\"${localProperties["W8jnNFpds9I1z1xkRCdn"]}\"")
+
+        // [GROQ API KEY] transcription + summary (transcription/GroqClient.kt).
+        // Read from local.properties (GROQ_API_KEY=...), never committed to Git.
+        buildConfigField("String", "GROQ_API_KEY", "\"${localProperties["GROQ_API_KEY"] ?: ""}\"")
     }
 
     buildTypes {

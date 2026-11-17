@@ -15,6 +15,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.evoke.ui.AddLocationContent
 import com.example.evoke.location.SharedLocationInbox
+import com.example.evoke.transcription.ConversationSummaryState
 import com.example.evoke.ui.CameraPreviewContent
 import com.example.evoke.ui.CapturedScreen
 import com.example.evoke.ui.DemoScreen
@@ -81,6 +82,20 @@ fun AppNavigation(
     val faceVm: FaceRecognitionViewModel = viewModel()
     val currentRoute by navController.currentBackStackEntryAsState()
     val currentDestination = currentRoute?.destination?.route
+
+    /*
+     * [ENGLISH SUMMARY VARIABLE]
+     * Final English summary of the last recorded conversation:
+     * filtered audio -> Groq transcription -> Groq summary (transcription/ConversationSummaryState).
+     * null until a conversation has been filtered and summarised.
+     * TODO: pass it to the summary screens / save it in the database.
+     */
+    val englishSummary by ConversationSummaryState.englishSummary.collectAsState()
+    LaunchedEffect(englishSummary) {
+        englishSummary?.let { android.util.Log.i("AppNavigation", "englishSummary = $it") }
+    }
+
+
     LaunchedEffect(currentDestination) {
         onSplashScreenChanged(currentDestination == "splash")
     }
