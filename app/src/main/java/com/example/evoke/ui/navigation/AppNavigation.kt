@@ -79,6 +79,20 @@ import android.Manifest
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 
+
+import androidx.compose.runtime.rememberCoroutineScope
+import com.example.evoke.nllb.NLLBTranslator
+import com.example.evoke.tts.AudioPlayer
+import com.example.evoke.tts.TtsApi
+import com.example.evoke.tts.TtsLanguage
+import com.example.evoke.ui.components.isUrduSelected
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.withContext
+
 @SuppressLint("SuspiciousIndentation")
 @Composable
 fun AppNavigation(
@@ -107,6 +121,83 @@ fun AppNavigation(
         englishSummary?.let { android.util.Log.i("AppNavigation", "englishSummary = $it") }
     }
 
+    // ── [SUMMARY] language + NLLB translation + Piper speech ─────────────────
+    val appContext = LocalContext.current.applicationContext
+    val scope = rememberCoroutineScope()
+    val isUrdu = isUrduSelected()          // follows the app language, replaces summaryLanguage
+
+// TEMP fallback so Play / Translate work before a real conversation exists. REMOVE.
+    val summaryText = englishSummary ?: "Daniel discussed the upcoming family gathering with his " +
+    "uncle. He agreed to bring groceries for twelve people and added a shopping list " +
+    "and a reminder to his phone."
+
+// Urdu cache; resets when the English summary changes.
+    var urduSummary by remember(summaryText) { mutableStateOf("") }
+    var isTranslating by remember { mutableStateOf(false) }
+    var translationError by remember { mutableStateOf<String?>(null) }
+
+    val translationMutex = remember { Mutex() }
+    val ttsApi = remember { TtsApi(appContext) }
+    val audioPlayer = remember { AudioPlayer() }
+
+    suspend fun ensureUrduSummary(): String =
+        translationMutex.withLock {
+            if (urduSummary.isNotBlank()) {
+                urduSummary
+            } else {
+                val source = summaryText
+                val translated = withContext(Dispatchers.IO) {
+                    val translator = NLLBTranslator(appContext)
+                    try {
+                        translator.translate(source)
+                    } finally {
+                        translator.close()
+                    }
+                }
+                check(translated.isNotBlank()) { "NLLB returned an empty Urdu translation." }
+                urduSummary = translated
+                translated
+            }
+        }
+
+    val translateSummaryToUrdu: () -> Unit = {
+        if (urduSummary.isBlank() && !isTranslating) {
+            isTranslating = true
+            translationError = null
+            scope.launch {
+                try {
+                    ensureUrduSummary()
+                } catch (e: CancellationException) {
+                    throw e
+                } catch (t: Throwable) {          // includes UnsatisfiedLinkError / OOM
+                    Log.e("AppNavigation", "Translation failed", t)
+                    translationError = t.localizedMessage ?: "Translation failed."
+                } finally {
+                    isTranslating = false
+                }
+            }
+        }
+    }
+
+    val speakSummary: () -> Unit = {
+        scope.launch {
+            try {
+                val text = if (isUrdu) ensureUrduSummary() else summaryText
+                audioPlayer.speak(
+                    ttsApi = ttsApi,
+                    text = text,
+                    language = if (isUrdu) TtsLanguage.URDU else TtsLanguage.ENGLISH
+                )
+            } catch (e: CancellationException) {
+                throw e
+            } catch (t: Throwable) {
+                Log.e("AppNavigation", "Speech failed", t)
+                Toast.makeText(appContext, t.localizedMessage ?: "Speech playback failed.",
+                    Toast.LENGTH_LONG).show()
+                audioPlayer.onPlaybackCompleted?.invoke()   // resets the play button
+            }
+        }
+    }
 
     LaunchedEffect(currentDestination) {
         onSplashScreenChanged(currentDestination == "splash")
@@ -289,6 +380,10 @@ fun AppNavigation(
             localizedDialog("detailpopup") {
                 DetailedSummaryScreen(
                     onCloseClick = { navController.popBackStack() },
+                    summaryText = if (isUrdu) urduSummary else summaryText,
+                    isTranslating = isUrdu && isTranslating,
+                    errorText = if (isUrdu) translationError else null,
+                    onRetry = translateSummaryToUrdu
                 )
             }
 
@@ -594,17 +689,21 @@ fun AppNavigation(
 
             composable("viewmore") {
                 ViewMoreScreen(
-                    onBackClick = {
-                        navController.popBackStack()
-                    },
+                    onBackClick = { navController.popBackStack() },
                     onEllipseClick = {
+                        if (isUrdu) translateSummaryToUrdu()
                         navController.openPopup("detailpopup")
                     },
-                    onDeleteClick = {
-                        navController.openPopup("delete_viewmore_popup")
-                    }
+                    onDeleteClick = { navController.openPopup("delete_viewmore_popup") },
+                    onPlayRecording = speakSummary,
+                    onPauseRecording = { audioPlayer.pause() },
+                    onResumeRecording = speakSummary,      // also replays after playback finished
+                    onRegisterPlaybackCompleted = { callback -> audioPlayer.onPlaybackCompleted = callback },
+                    onSpeedChange = { speed -> audioPlayer.setPlaybackSpeed(speed) }
                 )
             }
+
+
             composable("locationSearch") {
                 LocationSearchContent(
                     onBack = {

@@ -39,6 +39,7 @@ import com.example.evoke.ui.theme.GreenTheme
 import com.example.evoke.ui.theme.MartelFont
 import com.example.evoke.ui.theme.OutfitFont
 import com.example.evoke.R
+import com.example.evoke.ui.components.SpeedSelector
 
 
 // ================================================================
@@ -50,6 +51,11 @@ fun ViewMoreScreen(
     onBackClick: () -> Unit = {},
     onEllipseClick: () -> Unit = {},
     onDeleteClick: () -> Unit = {},
+    onPlayRecording: () -> Unit = {},
+    onPauseRecording: () -> Unit = {},
+    onResumeRecording: () -> Unit = {},
+    onRegisterPlaybackCompleted: (callback: () -> Unit) -> Unit = {},
+    onSpeedChange: (Float) -> Unit = {},
 ) {
     var searchQuery by remember {
         mutableStateOf("")
@@ -59,11 +65,20 @@ fun ViewMoreScreen(
         mutableStateListOf(1, 2, 3)
     }
 
-    val playingStates =
-        remember { mutableStateMapOf<Int, Boolean>() }
+    // One recording plays at a time; each card keeps its own speed.
+    var playingRecordingIndex by remember { mutableIntStateOf(-1) }
+    var isRecordingPlaying by remember { mutableStateOf(false) }
+    val speedStates = remember { mutableStateMapOf<Int, Float>() }
 
-    val speedStates =
-        remember { mutableStateMapOf<Int, Float>() }
+    val latestRegister by rememberUpdatedState(onRegisterPlaybackCompleted)
+    val latestPause by rememberUpdatedState(onPauseRecording)
+    DisposableEffect(Unit) {
+        latestRegister { isRecordingPlaying = false }   // button resets when speech ends
+        onDispose {
+            latestPause()                               // leaving the screen stops the audio
+            latestRegister {}
+        }
+    }
 
     val bottomPadding =
         rememberBottomNavBarHeight()
@@ -411,32 +426,36 @@ fun ViewMoreScreen(
                             onEllipseClick =
                                 onEllipseClick,
 
-                            isPlaying =
-                                playingStates[index]
-                                    ?: false,
-
-                            speedMultiplier =
-                                speedStates[index]
-                                    ?: 1f,
+                            isPlaying = playingRecordingIndex == index && isRecordingPlaying,
+                            speedMultiplier = speedStates[index] ?: 1f,
 
                             onPlayPauseClick = {
-                                playingStates[index] =
-                                    !(playingStates[index]
-                                        ?: false)
+                                when {
+                                    // pause the playing card
+                                    playingRecordingIndex == index && isRecordingPlaying -> {
+                                        onPauseRecording()
+                                        isRecordingPlaying = false
+                                    }
+                                    // resume (or replay) the same card
+                                    playingRecordingIndex == index -> {
+                                        onSpeedChange(speedStates[index] ?: 1f)
+                                        onResumeRecording()
+                                        isRecordingPlaying = true
+                                    }
+                                    // start another card
+                                    else -> {
+                                        if (isRecordingPlaying) onPauseRecording()
+                                        playingRecordingIndex = index
+                                        isRecordingPlaying = true
+                                        onSpeedChange(speedStates[index] ?: 1f)   // the player has one global speed
+                                        onPlayRecording()
+                                    }
+                                }
                             },
 
-                            onSpeedClick = {
-
-                                val current =
-                                    speedStates[index]
-                                        ?: 1f
-
-                                speedStates[index] =
-                                    when (current) {
-                                        1f -> 1.5f
-                                        1.5f -> 2f
-                                        else -> 1f
-                                    }
+                            onSpeedClick = { selected ->
+                                speedStates[index] = selected
+                                if (playingRecordingIndex == index) onSpeedChange(selected)
                             },
 
                             cardHeight =
@@ -500,7 +519,7 @@ fun RecordingItem(
     isPlaying: Boolean,
     speedMultiplier: Float,
     onPlayPauseClick: () -> Unit,
-    onSpeedClick: () -> Unit,
+    onSpeedClick: (Float) -> Unit,
 
     /*
      * Responsive values supplied by ViewMoreScreen
@@ -854,30 +873,15 @@ fun RecordingItem(
             // ========================================================
 
             VoicePlayerBar(
-                isPlaying =
-                    isPlaying,
-
-                speedMultiplier =
-                    speedMultiplier,
-
-                onPlayPauseClick =
-                    onPlayPauseClick,
-
-                onSpeedClick =
-                    onSpeedClick,
+                isPlaying = isPlaying,
+                speedMultiplier = speedMultiplier,
+                onPlayPauseClick = onPlayPauseClick,
+                onSpeedSelected = onSpeedClick,
 
                 modifier = Modifier
-                    .align(
-                        Alignment.BottomCenter
-                    )
-
-                    .fillMaxWidth(
-                        0.92f
-                    )
-
-                    .offset(
-                        y = 20.dp
-                    )
+                    .align(Alignment.BottomCenter)
+                    .fillMaxWidth(0.92f)
+                    .offset(y = 20.dp)
             )
         }
     }

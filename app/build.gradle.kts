@@ -56,6 +56,11 @@ android {
         // don't let AGP compress the models in the APK (face: tflite, voice: onnx)
         noCompress += listOf("tflite", "onnx")
     }
+//    packaging {
+//        jniLibs {
+//            pickFirsts += "**/libonnxruntime.so"
+//        }
+//    }
 }
 
 dependencies {
@@ -115,8 +120,11 @@ dependencies {
 
     // Voice pipeline (voice/): Silero VAD + CAM++ speaker model via sherpa-onnx.
     // Bundles its own libonnxruntime.so; models are in assets/ (root, not a sub-folder).
-    implementation(files("libs/sherpa-onnx-1.13.0.aar"))
+    //TTS (Piper)
+    implementation(files("libs/sherpa_onnx_test.aar"))
 
+    //NLLB
+    implementation("com.microsoft.onnxruntime:onnxruntime-android:1.20.0")
 
     testImplementation(libs.junit)
     androidTestImplementation(platform(libs.androidx.compose.bom))
@@ -125,4 +133,175 @@ dependencies {
     androidTestImplementation(libs.androidx.junit)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
     debugImplementation(libs.androidx.compose.ui.tooling)
+}
+
+
+// ---------------------------------------------------------
+// AUTOMATIC NLLB MODEL DEPLOYMENT
+// Runs after Android Studio installs the Debug app.
+// Copies missing or outdated ONNX models to connected devices.
+// ---------------------------------------------------------
+
+val deployNllbModels = tasks.register("deployNllbModels") {
+
+    group = "evoke"
+    description = "Automatically transfers NLLB ONNX models to connected Android devices."
+
+    doLast {
+
+        // Folder containing the original models on your laptop.
+        val localModelDir = File(rootProject.projectDir, "models/nllb/int8")
+
+        // Android SDK location from local.properties.
+        val sdkPath = localProperties.getProperty("sdk.dir")
+            ?: System.getenv("ANDROID_HOME")
+            ?: "${System.getenv("LOCALAPPDATA")}\\Android\\Sdk"
+
+        val adb = File(sdkPath, "platform-tools/adb.exe")
+
+        // Destination used by NLLBTranslator.getExternalFilesDir(null).
+        val remoteDir =
+            "/sdcard/Android/data/com.example.evoke/files/models/nllb/int8"
+
+        // All three models required by NLLBTranslator.
+        val modelFiles = listOf(
+            "encoder_model.onnx",
+            "decoder_model_embedded.onnx",
+            "decoder_with_past_model_embedded.onnx"
+        )
+
+        // Run an ADB command and return its output and exit code.
+        fun runAdb(vararg arguments: String): Pair<Int, String> {
+
+            val process = ProcessBuilder(
+                listOf(adb.absolutePath) + arguments
+            ).redirectErrorStream(true).start()
+
+            val output = process.inputStream.bufferedReader().readText()
+            val exitCode = process.waitFor()
+
+            return Pair(exitCode, output.trim())
+        }
+
+        // Check that ADB is available.
+        if (!adb.exists()) {
+            throw GradleException("ADB not found: ${adb.absolutePath}")
+        }
+
+        // Check that the local model folder exists.
+        if (!localModelDir.exists()) {
+            throw GradleException("NLLB model folder not found: $localModelDir")
+        }
+
+        // Check that all three local model files exist.
+        for (model in modelFiles) {
+            if (!File(localModelDir, model).isFile) {
+                throw GradleException("Missing local NLLB model: $model")
+            }
+        }
+
+        println("\n========== NLLB MODEL DEPLOYMENT ==========")
+
+        // Find all connected and authorized Android devices.
+        val (deviceExitCode, deviceOutput) = runAdb("devices")
+
+        if (deviceExitCode != 0) {
+            throw GradleException("Unable to communicate with ADB: $deviceOutput")
+        }
+
+        val devices = deviceOutput.lines()
+            .drop(1)
+            .mapNotNull { line ->
+                val parts = line.trim().split(Regex("\\s+"))
+
+                if (parts.size >= 2 && parts[1] == "device") {
+                    parts[0]
+                } else {
+                    null
+                }
+            }
+
+        if (devices.isEmpty()) {
+            throw GradleException(
+                "No authorized Android device found. Connect your phone and enable USB debugging."
+            )
+        }
+
+        println("Connected devices: ${devices.size}")
+
+        // Process every connected device.
+        for (serial in devices) {
+
+            println("\nDevice: $serial")
+
+            // Create the destination directory on the phone.
+            val (mkdirCode, mkdirOutput) = runAdb(
+                "-s", serial, "shell", "mkdir", "-p", remoteDir
+            )
+
+            if (mkdirCode != 0) {
+                throw GradleException(
+                    "Could not create NLLB directory on $serial: $mkdirOutput"
+                )
+            }
+
+            // Transfer only missing or outdated models.
+            for (model in modelFiles) {
+
+                val localFile = File(localModelDir, model)
+                val remoteFile = "$remoteDir/$model"
+
+                val localSize = localFile.length().toString()
+
+                // Check whether the remote file exists and has the correct size.
+                val (statCode, remoteSize) = runAdb(
+                    "-s", serial,
+                    "shell", "stat", "-c", "%s", remoteFile
+                )
+
+                if (statCode == 0 && remoteSize == localSize) {
+
+                    println("Already up to date: $model")
+
+                } else {
+
+                    println("Transferring: $model")
+
+                    val (pushCode, pushOutput) = runAdb(
+                        "-s", serial,
+                        "push",
+                        localFile.absolutePath,
+                        remoteFile
+                    )
+
+                    if (pushCode != 0) {
+                        throw GradleException(
+                            "Failed to transfer $model to $serial: $pushOutput"
+                        )
+                    }
+
+                    // Verify that the transferred file exists and is non-empty.
+                    val (verifyCode, _) = runAdb(
+                        "-s", serial, "shell", "test", "-s", remoteFile
+                    )
+
+                    if (verifyCode != 0) {
+                        throw GradleException(
+                            "Verification failed for $model on $serial"
+                        )
+                    }
+
+                    println("Successfully transferred: $model")
+                }
+            }
+
+            println("NLLB models ready on device: $serial")
+        }
+
+        println("\n========== NLLB DEPLOYMENT COMPLETE ==========\n")
+    }
+}
+
+tasks.matching { it.name == "assembleDebug" }.configureEach {
+    dependsOn(deployNllbModels)
 }

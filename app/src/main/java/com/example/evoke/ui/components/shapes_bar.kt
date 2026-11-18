@@ -351,7 +351,7 @@ fun VoicePlayerBar(
     isPlaying: Boolean,
     speedMultiplier: Float,
     onPlayPauseClick: () -> Unit,
-    onSpeedClick: () -> Unit,
+    onSpeedSelected: (Float) -> Unit,      // was: onSpeedClick: () -> Unit
     width: Dp = 350.dp,
     height: Dp = 57.dp,
     backgroundColor: Color = AppTheme.colors.boxInner,
@@ -403,19 +403,9 @@ fun VoicePlayerBar(
             Spacer(modifier = Modifier.width(12.dp))
 
             // Speed text — right corner of recording box
-            Text(
-                text = when (speedMultiplier) {
-                    1.5f -> "x1.5"
-                    2f -> "x2"
-                    else -> "x1"
-                },
-                color = Color.Black,
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Bold,
-                fontFamily = OutfitFont,
-                modifier = Modifier
-                    .width(32.dp)
-                    .clickable { onSpeedClick() }
+            SpeedSelector(
+                speed = speedMultiplier,
+                onSpeedSelected = onSpeedSelected
             )
         }
     }

@@ -683,33 +683,14 @@ fun RecognisedContent(
 
 
                     VoicePlayerBar(
-                        isPlaying =
-                            isPlaying,
-
-                        speedMultiplier =
-                            speedMultiplier,
-
-                        backgroundColor =
-                            appColors.textfield,
-
+                        isPlaying = isPlaying,
+                        speedMultiplier = speedMultiplier,
+                        backgroundColor = appColors.textfield,
                         onPlayPauseClick = {
-                            isPlaying =
-                                !isPlaying
+                            isPlaying = !isPlaying
                         },
-
-                        onSpeedClick = {
-
-                            speedMultiplier =
-                                when (
-                                    speedMultiplier
-                                ) {
-
-                                    1f -> 1.5f
-
-                                    1.5f -> 2f
-
-                                    else -> 1f
-                                }
+                        onSpeedSelected = { selected ->
+                            speedMultiplier = selected
                         }
                     )
 

@@ -29,7 +29,7 @@ import com.example.evoke.ui.theme.MargarineFont
 import com.example.evoke.ui.theme.MartelFont
 import androidx.compose.ui.res.stringResource
 import com.example.evoke.R
-
+import androidx.compose.ui.text.style.TextAlign
 
 fun Modifier.offsetShadow(
     color: Color = Color.Black.copy(alpha = 0.19f),
@@ -78,7 +78,11 @@ fun Modifier.offsetShadow(
 @Composable
 fun DetailedSummaryScreen(
     onCloseClick: () -> Unit = {},
-) {
+    summaryText: String = "",
+    isTranslating: Boolean = false,
+    errorText: String? = null,
+    onRetry: () -> Unit = {},
+    ) {
     val appColors = AppTheme.colors
 
     // [ONE-SHOT CLOSE] a double tap on the close shape must not pop
@@ -91,9 +95,10 @@ fun DetailedSummaryScreen(
         }
     }
 
-    val summaryPoints = listOf(
-        stringResource(R.string.discussion_summary_text)
-    )
+    val defaultText = stringResource(R.string.discussion_summary_text)
+    val summaryPoints = listOf(summaryText.ifBlank { defaultText })
+    val isUrdu = com.example.evoke.ui.components.isUrduSelected()
+
 
     Scaffold(
         containerColor = Color.Transparent
@@ -316,35 +321,49 @@ fun DetailedSummaryScreen(
                          * SUMMARY
                          * =========================================
                          */
+                        when {
+                            isTranslating -> {
+                                Box(
+                                    Modifier.fillMaxWidth().padding(vertical = 24.dp),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    CircularProgressIndicator(color = appColors.textfield)
+                                }
+                            }
 
-                        summaryPoints.forEach { point ->
-
-                            Row(
-                                verticalAlignment = Alignment.Top,
-                                modifier = Modifier.padding(
-                                    bottom = pointBottomSpacing
-                                )
-                            ) {
-
+                            errorText != null -> {
                                 Text(
-                                    text = stringResource(
-                                        R.string.bullet
-                                    ),
-                                    fontSize = bulletSize,
-                                    fontFamily = MartelFont,
-                                    color = Color.White,
-                                    modifier = Modifier.padding(
-                                        end = bulletTextSpacing
-                                    )
-                                )
-
-                                Text(
-                                    text = point,
+                                    text = errorText,
                                     fontSize = summaryTextSize,
                                     fontFamily = MartelFont,
-                                    color = appColors.textfield,
-                                    modifier = Modifier.weight(1f)
+                                    color = Color.White
                                 )
+                                TextButton(onClick = onRetry) {
+                                    Text("Retry", color = appColors.popupText)
+                                }
+                            }
+
+                            else -> summaryPoints.forEach { point ->
+                                Row(
+                                    verticalAlignment = Alignment.Top,
+                                    modifier = Modifier.padding(bottom = pointBottomSpacing)
+                                ) {
+                                    Text(
+                                        text = stringResource(R.string.bullet),
+                                        fontSize = bulletSize,
+                                        fontFamily = MartelFont,
+                                        color = Color.White,
+                                        modifier = Modifier.padding(end = bulletTextSpacing)
+                                    )
+                                    Text(
+                                        text = point,
+                                        fontSize = summaryTextSize,
+                                        fontFamily = MartelFont,
+                                        color = appColors.textfield,
+                                        textAlign = if (isUrdu) TextAlign.End else TextAlign.Start,
+                                        modifier = Modifier.weight(1f)
+                                    )
+                                }
                             }
                         }
                     }
