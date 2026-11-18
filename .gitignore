@@ -13,3 +13,5 @@
 .externalNativeBuild
 .cxx
 local.properties
+# NLLB ONNX models
+/models/nllb/int8/*.onnx
