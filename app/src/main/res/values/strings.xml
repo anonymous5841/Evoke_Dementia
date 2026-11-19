@@ -51,7 +51,8 @@
     <string name="get_current_location">Get current location</string>
 
     <!-- Voice -->
-    <string name="add_person_voice_sample">Add your\nvoice sample *</string>
+    <string name="add_person_voice_sample">Add person\'s\nvoice sample *</string>
+    <string name="user_voice_sample">Add your\nvoice sample *</string>
 
 
     <!-- Buttons -->
@@ -348,8 +349,10 @@
     <string name="cb_optional_info">Cloud backup is optional. Your data will remain on this device if backup is not enabled.</string>
 
     <!-- [VOICE RECORDER] voice samples + conversation recording -->
-    <string name="voice_sample_script">Today is a good day. I am sitting with my family and we are talking about our plans for the week. In the morning I like to drink tea and read the newspaper. In the evening we go for a short walk in the park near our home.</string>
-    <string name="voice_patient_instruction">Only you should speak. In a quiet place, read the text below aloud for about 15 seconds.</string>
+    <string name="voice_sample_script_en" translatable="false">Today is a good day. I am sitting with my family and we are talking about our plans for the week. In the morning I like to drink tea and read the newspaper. In the evening we go for a short walk in the park near our home.</string>
+    <string name="voice_sample_script_ur" translatable="false">آج ایک اچھا دن ہے۔ میں اپنی فیملی کے ساتھ بیٹھا ہوں اور ہم اس ہفتے کے منصوبوں کے بارے میں بات کر رہے ہیں۔ صبح کے وقت مجھے چائے پینا اور اخبار پڑھنا پسند ہے۔ شام کو ہم اپنے گھر کے قریب پارک میں تھوڑی دیر چہل قدمی کے لیے جاتے ہیں۔</string>
+    <string name="voice_sample_script_mix" translatable="false">آج ایک اچھا دن ہے۔ I am sitting with my family and ہم اس ہفتے کے منصوبوں کے بارے میں بات کر رہے ہیں۔ Morning میں مجھے چائے پینا اور newspaper پڑھنا پسند ہے۔ شام کو ہم اپنے گھر کے قریب park میں ایک short walk کے لیے جاتے ہیں۔</string>
+    <string name="voice_patient_instruction">Only you should speak. In a quiet place, read the text below aloud for about 15 seconds. (scroll to see the text)</string>
     <string name="voice_partner_instruction">Only the visitor should speak. In a quiet place, they should read the text below aloud for about 15 seconds.</string>
     <string name="voice_conversation_instruction">Press Start and talk normally. Only your voice and your visitor\'s voice will be kept.</string>
     <string name="voice_press_start">Press Start, then read the text aloud.</string>

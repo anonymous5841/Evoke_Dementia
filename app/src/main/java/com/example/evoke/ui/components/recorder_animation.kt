@@ -76,11 +76,30 @@ import androidx.compose.ui.graphics.Color
  * color (#FF9838) are unchanged - only the ellipse stroke gradients
  * (colors + start-stop position) are newly keyframed.
  */
+
 @Composable
 fun VoiceRecorderAnimation(
     modifier: Modifier = Modifier,
     isAnimating: Boolean = true
 ) {
+    Box(modifier = modifier, contentAlignment = Alignment.Center) {
+        if (isAnimating) AnimatedVoiceRings() else StaticVoiceRings()
+    }
+}
+
+@Composable
+private fun StaticVoiceRings() {
+    val c = AppTheme.colors
+    VoiceRings(
+        theta = 0f,
+        rotationA = 8.4f, rotationB = 0f, rotationC = 14.9f, rotationD = 77.22f,
+        colorA1 = c.voiceS1E1T, colorA2 = c.voiceS1E1B, stopA = 0f,
+        colorBCD1 = c.voiceS1E2T, colorBCD2 = c.voiceS1E2B, stopBCD = 0f
+    )
+}
+
+@Composable
+private fun AnimatedVoiceRings() {
     val infiniteTransition = rememberInfiniteTransition(label = "voiceAnimation")
     val appColors = AppTheme.colors
     val time by infiniteTransition.animateFloat(
@@ -287,96 +306,68 @@ fun VoiceRecorderAnimation(
         ),
         label = "stopBCD"
     )
-
-    Box(
-        modifier = modifier,
-        contentAlignment = Alignment.Center
-    ) {
-        if (isAnimating) {
-
-            // ---- Ring A (Ellipse1): rx=113.44 ry=92.74 - shadow + ring together ----
-            RingAWithShadow(
-                theta = theta,
-                rotation = rotationA,
-                colorTop = colorA1,
-                colorBottom = colorA2,
-                colorStop = stopA
-            )
-
-            // ---- Ring D (Ellipse4): rx=111.56 ry=93.98 (+7dp) ----
-            Canvas(modifier = Modifier.fillMaxSize().blurIfSupported(6.dp)) {
-                val scale = fitScale(size)
-                val sizeBump = 7.dp.toPx()
-                val cx = baseCenterX(size, scale, 206.07f) + sin(theta + 3.6f) * 6f * scale
-                val cy = baseCenterY(size, scale, 152.29f)
-                drawRing(
-                    centerX = cx, centerY = cy,
-                    radiusX = 111.56f * scale + sizeBump, radiusY = 93.98f * scale + sizeBump,
-                    rotation = rotationD,
-                    opacity = (0.55f + 0.25f * sin(theta + 3.0f)).coerceIn(0.15f, 0.9f),
-                    baseStart = colorBCD1, baseEnd = colorBCD2, baseStartStop = stopBCD,
-                    overlayStart = Color(0xFF05F80D).copy(alpha = 0.33f),
-                    overlayEnd = Color.White.copy(alpha = 0.15f),
-                    strokeWidth = 10f * scale
-                )
-            }
-
-            // ---- Ring C (Ellipse3): rx=111.56 ry=93.98 (+7dp) ----
-            Canvas(modifier = Modifier.fillMaxSize().blurIfSupported(6.dp)) {
-                val scale = fitScale(size)
-                val sizeBump = 7.dp.toPx()
-                val cx = baseCenterX(size, scale, 209.20f) + sin(theta + 2.4f) * 5f * scale
-                val cy = baseCenterY(size, scale, 152.46f)
-                drawRing(
-                    centerX = cx, centerY = cy,
-                    radiusX = 111.56f * scale + sizeBump, radiusY = 93.98f * scale + sizeBump,
-                    rotation = rotationC,
-                    opacity = (0.6f + 0.25f * sin(theta + 2.0f)).coerceIn(0.15f, 0.95f),
-                    baseStart = colorBCD1, baseEnd = colorBCD2, baseStartStop = stopBCD,
-                    overlayStart = Color(0xFF05F80D).copy(alpha = 0.33f),
-                    overlayEnd = Color.White.copy(alpha = 0.15f),
-                    strokeWidth = 10f * scale
-                )
-            }
-
-            // ---- Ring B (Ellipse2): rx=111.56 ry=93.98 (+7dp) ----
-            Canvas(modifier = Modifier.fillMaxSize().blurIfSupported(6.dp)) {
-                val scale = fitScale(size)
-                val sizeBump = 7.dp.toPx()
-                val cx = baseCenterX(size, scale, 197.61f) + sin(theta + 1.2f) * 5f * scale
-                val cy = baseCenterY(size, scale, 152.04f)
-                drawRing(
-                    centerX = cx, centerY = cy,
-                    radiusX = 111.56f * scale + sizeBump, radiusY = 93.98f * scale + sizeBump,
-                    rotation = rotationB,
-                    opacity = (0.75f + 0.2f * sin(theta + 1.0f)).coerceIn(0.2f, 1f),
-                    baseStart = colorBCD1, baseEnd = colorBCD2, baseStartStop = stopBCD,
-                    overlayStart = Color(0xFF05F80D).copy(alpha = 0.33f),
-                    overlayEnd = Color.White.copy(alpha = 0.15f),
-                    strokeWidth = 10f * scale
-                )
-            }
-
-        } else {
-            // Static resting frame - matches Ring B's fitted geometry, State-A colors
-            Canvas(modifier = Modifier.fillMaxSize()) {
-                val scale = fitScale(size)
-                drawAnimatedEllipse(
-                    centerX = baseCenterX(size, scale, 197.61f),
-                    centerY = baseCenterY(size, scale, 152.04f),
-                    radiusX = 111.56f * scale, radiusY = 93.98f * scale,
-                    rotation = 0f,
-                    opacity = 1f,
-                    primaryColor = appColors.voiceS1E2T,
-                    secondaryColor = appColors.voiceS1E2B,
-                    startStop = 0f,
-                    strokeWidth = 10f * scale
-                )
-            }
-        }
-    }
+    VoiceRings(
+        theta, rotationA, rotationB, rotationC, rotationD,
+        colorA1, colorA2, stopA, colorBCD1, colorBCD2, stopBCD
+    )
 }
 
+
+@Composable
+private fun VoiceRings(
+    theta: Float,
+    rotationA: Float, rotationB: Float, rotationC: Float, rotationD: Float,
+    colorA1: Color, colorA2: Color, stopA: Float,
+    colorBCD1: Color, colorBCD2: Color, stopBCD: Float
+) {
+    RingAWithShadow(
+        theta = theta, rotation = rotationA,
+        colorTop = colorA1, colorBottom = colorA2, colorStop = stopA
+    )
+
+    val overlayStart = Color(0xFF05F80D).copy(alpha = 0.33f)
+    val overlayEnd = Color.White.copy(alpha = 0.15f)
+
+    // Ring D
+    Canvas(modifier = Modifier.fillMaxSize().blurIfSupported(6.dp)) {
+        val scale = fitScale(size); val bump = 7.dp.toPx()
+        drawRing(
+            centerX = baseCenterX(size, scale, 206.07f) + sin(theta + 3.6f) * 6f * scale,
+            centerY = baseCenterY(size, scale, 152.29f),
+            radiusX = 111.56f * scale + bump, radiusY = 93.98f * scale + bump,
+            rotation = rotationD,
+            opacity = (0.55f + 0.25f * sin(theta + 3.0f)).coerceIn(0.15f, 0.9f),
+            baseStart = colorBCD1, baseEnd = colorBCD2, baseStartStop = stopBCD,
+            overlayStart = overlayStart, overlayEnd = overlayEnd, strokeWidth = 10f * scale
+        )
+    }
+    // Ring C
+    Canvas(modifier = Modifier.fillMaxSize().blurIfSupported(6.dp)) {
+        val scale = fitScale(size); val bump = 7.dp.toPx()
+        drawRing(
+            centerX = baseCenterX(size, scale, 209.20f) + sin(theta + 2.4f) * 5f * scale,
+            centerY = baseCenterY(size, scale, 152.46f),
+            radiusX = 111.56f * scale + bump, radiusY = 93.98f * scale + bump,
+            rotation = rotationC,
+            opacity = (0.6f + 0.25f * sin(theta + 2.0f)).coerceIn(0.15f, 0.95f),
+            baseStart = colorBCD1, baseEnd = colorBCD2, baseStartStop = stopBCD,
+            overlayStart = overlayStart, overlayEnd = overlayEnd, strokeWidth = 10f * scale
+        )
+    }
+    // Ring B
+    Canvas(modifier = Modifier.fillMaxSize().blurIfSupported(6.dp)) {
+        val scale = fitScale(size); val bump = 7.dp.toPx()
+        drawRing(
+            centerX = baseCenterX(size, scale, 197.61f) + sin(theta + 1.2f) * 5f * scale,
+            centerY = baseCenterY(size, scale, 152.04f),
+            radiusX = 111.56f * scale + bump, radiusY = 93.98f * scale + bump,
+            rotation = rotationB,
+            opacity = (0.75f + 0.2f * sin(theta + 1.0f)).coerceIn(0.2f, 1f),
+            baseStart = colorBCD1, baseEnd = colorBCD2, baseStartStop = stopBCD,
+            overlayStart = overlayStart, overlayEnd = overlayEnd, strokeWidth = 10f * scale
+        )
+    }
+}
 /**
  * Ring A (Ellipse1) drawn as ONE unit: shadow + sharp ring share the exact
  * same center/rotation, computed once, so they can never drift apart.
@@ -607,14 +598,18 @@ fun VoiceRecorderAnimationPreview() {
 @Composable
 fun LiquidBlobAnimation(
     modifier: Modifier = Modifier.size(220.dp), // only used if the caller passes no modifier
-    points: Int = 24 // more samples = no pinching/aliasing between the noise waves
+    points: Int = 24, // more samples = no pinching/aliasing between the noise waves
+    isAnimating: Boolean = true
+
 ) {
     val colors = AppTheme.colors
 
     // Single free-running clock, in seconds, driven by actual frame time.
     var timeSeconds by remember { mutableStateOf(0f) }
-    LaunchedEffect(Unit) {
-        val start = withFrameNanos { it }
+    LaunchedEffect(isAnimating) {
+        if (!isAnimating) return@LaunchedEffect
+        // frozen: keep last timeSeconds
+        val start = withFrameNanos { it } - (timeSeconds * 1_000_000_000f).toLong()
         while (true) {
             withFrameNanos { now ->
                 timeSeconds = (now - start) / 1_000_000_000f

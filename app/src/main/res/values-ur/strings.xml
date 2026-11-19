@@ -49,8 +49,8 @@
     <string name="get_current_location">لوکیشن حاصل کرنے کے لیے کلک کری</string>
 
     <!-- Voice -->
-    <string name="add_person_voice_sample">اپنی آواز شامل کریں</string>
-
+    <string name="add_person_voice_sample">شخص کی آواز\nشامل کریں</string>
+    <string name="user_voice_sample">اپنی آواز شامل کریں</string>
 
     <!-- Buttons -->
     <string name="add_button">اکاؤنٹ بنائیں</string>
@@ -350,8 +350,7 @@
 
     <!-- [VOICE RECORDER] voice samples + conversation recording -->
     <!-- script from the backend; other Urdu lines are new translations: please review -->
-    <string name="voice_sample_script">آج کا دن اچھا ہے۔ میں اپنے گھر والوں کے ساتھ بیٹھا ہوں اور ہم اس ہفتے کے منصوبوں کے بارے میں بات کر رہے ہیں۔ صبح مجھے چائے پینا اور اخبار پڑھنا پسند ہے۔ شام کو ہم گھر کے قریب پارک میں تھوڑی سیر کرتے ہیں۔</string>
-    <string name="voice_patient_instruction">صرف آپ بولیں۔ کسی پرسکون جگہ پر نیچے دیا گیا متن تقریباً 15 سیکنڈ تک بلند آواز سے پڑھیں۔</string>
+    <string name="voice_patient_instruction">صرف آپ بولیں۔ کسی پرسکون جگہ پر نیچے دیا گیا متن تقریباً 15 سیکنڈ تک بلند آواز سے پڑھیں۔ (متن دیکھنے کے لیے اسکرول کریں)</string>
     <string name="voice_partner_instruction">صرف ملاقاتی بولیں۔ کسی پرسکون جگہ پر وہ نیچے دیا گیا متن تقریباً 15 سیکنڈ تک بلند آواز سے پڑھیں۔</string>
     <string name="voice_conversation_instruction">شروع کریں دبائیں اور معمول کے مطابق بات کریں۔ صرف آپ کی اور آپ کے ملاقاتی کی آواز محفوظ کی جائے گی۔</string>
     <string name="voice_press_start">شروع کریں دبائیں، پھر متن بلند آواز سے پڑھیں۔</string>

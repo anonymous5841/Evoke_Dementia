@@ -26,6 +26,7 @@ import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import com.example.evoke.ui.components.HeaderSection
 import androidx.compose.ui.draw.blur
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import com.example.animation.LiquidBlobAnimation
@@ -35,6 +36,7 @@ import com.example.evoke.ui.components.ShadowButton
 import com.example.evoke.ui.theme.AppTheme
 import com.example.evoke.ui.theme.GreenTheme
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.LayoutDirection
 import com.example.evoke.R
 import com.example.evoke.ui.components.AppLanguageDirection
 import com.example.evoke.ui.components.isUrduSelected
@@ -43,7 +45,7 @@ import com.example.evoke.voice.RecorderPhase
 import com.example.evoke.voice.RecorderUiState
 import com.example.evoke.voice.VoiceConfig
 import com.example.evoke.voice.VoiceSessionViewModel
-
+import androidx.compose.ui.text.style.TextDirection
 
 private fun Modifier.blurIfSupported(radius: Dp): Modifier {
     return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
@@ -163,8 +165,7 @@ fun RecordScreen(
             // Calculate spacing
             val headerHeight = 260.dp
             val bottomPadding = 28.dp
-            val availableHeight = maxHeight - headerHeight - bottomPadding
-            val topPadding = (availableHeight - cardHeight) / 2f
+            val headerGap = (-25).dp   // gap under the header; raise it if it feels too tight
 
             Box(
                 modifier = Modifier.fillMaxSize()
@@ -177,12 +178,8 @@ fun RecordScreen(
                         .verticalScroll(rememberScrollState())
                 ) {
 
-                    // Header space
-                    Spacer(modifier = Modifier.height(headerHeight))
-
-                    // Top padding to center the recorder part of the card
-                    Spacer(modifier = Modifier.height(topPadding.coerceAtLeast(12.dp)))
-
+                    // Header space + gap (headerGap may be negative to pull the card up)
+                    Spacer(modifier = Modifier.height((headerHeight + headerGap).coerceAtLeast(0.dp)))
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -232,7 +229,8 @@ fun RecordScreen(
                                             )
                                         } else {
                                             LiquidBlobAnimation(
-                                                modifier = Modifier.size(blobAnimationSize)
+                                                modifier = Modifier.size(blobAnimationSize),
+                                                isAnimating = isRecording
                                             )
                                         }
 
@@ -335,10 +333,7 @@ fun RecordScreen(
                         }
                     }
 
-                    // Bottom padding to center card
-                    Spacer(modifier = Modifier.height(topPadding.coerceAtLeast(12.dp)))
-
-                    // Minimum bottom padding
+                    // Bottom padding
                     Spacer(modifier = Modifier.height(bottomPadding))
                 }
 
@@ -422,25 +417,36 @@ private fun ScriptSection(state: RecorderUiState) {
             Spacer(modifier = Modifier.height(16.dp))
 
             // The script itself
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(
-                        Color.White.copy(alpha = 0.12f),
-                        RoundedCornerShape(24.dp)
-                    )
-                    .padding(horizontal = 20.dp, vertical = 18.dp)
-            ) {
-                Text(
-                    text = stringResource(R.string.voice_sample_script),
-                    color = Color.White,
-                    fontSize = 22.sp,
-                    lineHeight = if (isUrdu) 44.sp else 34.sp,
-                    fontWeight = FontWeight.Medium,
-                    fontFamily = OutfitFont,
-                    textAlign = TextAlign.Start,
-                    modifier = Modifier.fillMaxWidth()
-                )
+            val scriptRes = when (state.currentSample) {
+                1 -> R.string.voice_sample_script_en
+                2 -> R.string.voice_sample_script_ur
+                else -> R.string.voice_sample_script_mix
+            }
+            val scriptIsUrdu = state.currentSample >= 2          // Urdu glyphs need the taller line height
+            val scriptDirection = if (state.currentSample == 2) LayoutDirection.Rtl else LayoutDirection.Ltr
+
+            CompositionLocalProvider(LocalLayoutDirection provides scriptDirection) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(Color.White.copy(alpha = 0.12f), RoundedCornerShape(24.dp))
+                        .padding(horizontal = 20.dp, vertical = 18.dp)
+                ) {
+                    if (state.currentSample >= 3) {
+                        MixedScript(stringResource(scriptRes))
+                    } else {
+                        Text(
+                            text = stringResource(scriptRes),
+                            color = Color.White,
+                            fontSize = 22.sp,
+                            lineHeight = if (scriptIsUrdu) 44.sp else 34.sp,
+                            fontWeight = FontWeight.Medium,
+                            fontFamily = OutfitFont,
+                            textAlign = TextAlign.Start,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
+                }
             }
         }
     }
@@ -496,6 +502,35 @@ private fun StatusText(
         textAlign = TextAlign.Center,
         modifier = modifier
     )
+}
+
+/** Mixed Urdu/English script: one sentence per line, RTL, English phrases kept intact. */
+@Composable
+private fun MixedScript(text: String) {
+    val latinRun = Regex("[A-Za-z]+(?:\\s+[A-Za-z]+)*")
+    val lines = text.split("۔")
+        .map { it.trim() }
+        .filter { it.isNotEmpty() }
+        .map { sentence ->
+            // \u2066 = LRI, \u2069 = PDI: each English phrase becomes an isolated LTR block
+            latinRun.replace(sentence) { "\u2066${it.value}\u2069" } + "۔"
+        }
+
+    Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
+        lines.forEach { line ->
+            Text(
+                text = line,
+                color = Color.White,
+                fontSize = 22.sp,
+                lineHeight = 44.sp,
+                fontWeight = FontWeight.Medium,
+                fontFamily = OutfitFont,
+                textAlign = TextAlign.Right,
+                style = LocalTextStyle.current.copy(textDirection = TextDirection.Rtl),
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
+    }
 }
 
 @Preview(showBackground = true, showSystemUi = true)

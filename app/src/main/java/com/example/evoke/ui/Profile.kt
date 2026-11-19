@@ -261,7 +261,7 @@ fun PersonFormContent(
                                 contentAlignment = Alignment.BottomCenter
                             ) {
                                 FieldLabel(
-                                    text = stringResource(R.string.add_person_voice_sample),
+                                    text = stringResource(R.string.user_voice_sample),
                                     textsize = 17.sp,
                                     fontFamily = OutfitFont,
                                     fontWeight = FontWeight.Medium
