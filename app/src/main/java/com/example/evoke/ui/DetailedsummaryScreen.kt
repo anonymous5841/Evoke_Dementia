@@ -229,6 +229,37 @@ fun DetailedSummaryScreen(
 
             /*
              * ====================================================
+             * [CARD HEIGHT] — fits the summary
+             * ====================================================
+             *
+             * The card used to be ALWAYS 89.5 % of the height
+             * (fillMaxHeight(0.895f), centred).
+             *
+             * Now that height is only the MAXIMUM:
+             *  - short summary -> the card is only as tall as its text
+             *  - long summary  -> the card stops at the old size and
+             *                     the text scrolls inside it (as before)
+             *
+             * The card is always CENTRED: a full-size card is in
+             * exactly the old place, a smaller card sits in the
+             * middle. The close button and X are placed relative
+             * to the card itself (not to the screen), so they stay
+             * on the card's corner at every card height.
+             */
+
+            val maxCardHeight = maxHeight * 0.895f
+
+            // Old gap above the full-size card (the close button offsets were measured from the screen top)
+            val cardTopGap = (maxHeight - maxCardHeight) / 2
+
+            // Old gap between the card's right edge and the right edge of the main container
+            // (main container = width - 2 x 15.dp padding; the card can't be wider than it)
+            val containerWidth = maxWidth - 30.dp
+            val cardRightGap = (containerWidth - cardWidth.coerceAtMost(containerWidth)) / 2
+
+
+            /*
+             * ====================================================
              * MAIN CONTAINER
              * ====================================================
              */
@@ -247,10 +278,15 @@ fun DetailedSummaryScreen(
                  * =================================================
                  */
 
+                // [CARD HEIGHT] card + close button together, centred on the screen
+                Box(
+                    modifier = Modifier.align(Alignment.Center)
+                ) {
+
                 Box(
                     modifier = Modifier
                         .width(cardWidth)
-                        .fillMaxHeight(0.895f)
+                        .heightIn(max = maxCardHeight)       // [CARD HEIGHT] grows with the text, up to the old size
                         .shadow(
                             elevation = 16.dp,
                             shape = RoundedCornerShape(20.dp),
@@ -265,7 +301,6 @@ fun DetailedSummaryScreen(
                             appColors.pagesText
                         )
                         .padding(cardPadding)
-                        .align(Alignment.Center)
                 ) {
 
                     Column(
@@ -300,8 +335,12 @@ fun DetailedSummaryScreen(
                             fontWeight = FontWeight.Bold,
                             fontFamily = MartelFont,
                             color = appColors.popupText,
+                            // [TITLE RTL] Urdu: the title starts on the RIGHT (RTL).
+                            // Its box stops 75.dp before the right edge, so the
+                            // right-aligned Urdu title never runs under the close (X) shape.
+                            textAlign = if (isUrdu) TextAlign.End else TextAlign.Start,
                             modifier = Modifier
-                                .width(headingAvailableWidth)
+                                .width(if (isUrdu) contentWidth - 75.dp else headingAvailableWidth)
                         )
 
 
@@ -344,6 +383,10 @@ fun DetailedSummaryScreen(
                             }
 
                             else -> summaryPoints.forEach { point ->
+                                // [BULLET RTL] Urdu: the whole row is RTL, so the bullet is on the
+                                // RIGHT and the text runs to its left. Inside RTL "Start" = right,
+                                // so TextAlign.Start right-aligns Urdu and left-aligns English.
+                                com.example.evoke.ui.components.AppLanguageDirection {
                                 Row(
                                     verticalAlignment = Alignment.Top,
                                     modifier = Modifier.padding(bottom = pointBottomSpacing)
@@ -360,9 +403,10 @@ fun DetailedSummaryScreen(
                                         fontSize = summaryTextSize,
                                         fontFamily = MartelFont,
                                         color = appColors.textfield,
-                                        textAlign = if (isUrdu) TextAlign.End else TextAlign.Start,
+                                        textAlign = TextAlign.Start,
                                         modifier = Modifier.weight(1f)
                                     )
+                                }
                                 }
                             }
                         }
@@ -396,8 +440,9 @@ fun DetailedSummaryScreen(
                     modifier = Modifier
                         .align(Alignment.TopEnd)
                         .offset(
-                            x = closeShapeOffsetX,
-                            y = closeShapeOffsetY
+                            // same place on the card's corner as before (now measured from the card)
+                            x = closeShapeOffsetX + cardRightGap,
+                            y = closeShapeOffsetY - cardTopGap
                         )
                         .size(
                             height = closeShapeHeight,
@@ -439,13 +484,16 @@ fun DetailedSummaryScreen(
                     modifier = Modifier
                         .align(Alignment.TopEnd)
                         .offset(
-                            x = closeTextOffsetX,
-                            y = closeTextOffsetY
+                            // same place on the card's corner as before (now measured from the card)
+                            x = closeTextOffsetX + cardRightGap,
+                            y = closeTextOffsetY - cardTopGap
                         )
                         .clickable {
                             closeOnce()
                         }
                 )
+
+                } // end [CARD HEIGHT] centred card + close button
             }
         }
     }
